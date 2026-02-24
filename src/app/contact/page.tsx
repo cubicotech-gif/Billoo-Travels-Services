@@ -1,17 +1,46 @@
 "use client";
 
+import { useState } from "react";
 import InnerLayout from "@/components/InnerLayout";
 import PageBanner from "@/components/ui/PageBanner";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { CONTACT } from "@/lib/data";
-import { PhoneIcon, MailIcon, MapPinIcon, ArrowIcon } from "@/components/ui/Icons";
+import { PhoneIcon, MailIcon, MapPinIcon, ArrowIcon, CheckIcon } from "@/components/ui/Icons";
 
 export default function ContactPage() {
+  const [form, setForm] = useState({
+    fullName: "", email: "", phone: "", destination: "", packageInterest: "", message: "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+
   const contactInfo = [
     { icon: PhoneIcon, label: "Phone", value: CONTACT.phone, sub: "Mon–Sat, 9AM–8PM" },
     { icon: MailIcon, label: "Email", value: CONTACT.email, sub: "We reply within 24 hours" },
     { icon: MapPinIcon, label: "Office", value: CONTACT.address, sub: "Visit by appointment" },
   ];
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || "Failed to send message."); setSubmitting(false); return; }
+      setSubmitted(true);
+    } catch {
+      setError("Network error. Please try again.");
+      setSubmitting(false);
+    }
+  }
 
   return (
     <InnerLayout>
@@ -40,60 +69,103 @@ export default function ContactPage() {
             </div>
           </ScrollReveal>
 
-          {/* Form + Map */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <ScrollReveal>
               <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-[0_6px_24px_rgba(0,0,0,0.04)]">
-                <h2 className="font-heading text-2xl font-bold text-midnight mb-2">Send Us a Message</h2>
-                <p className="text-sm text-slate-400 mb-6">Fill out the form and we&apos;ll get back to you promptly.</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {["Full Name", "Email Address", "Phone Number", "Destination"].map((ph) => (
-                    <input
-                      key={ph}
-                      placeholder={ph}
-                      className="w-full px-4 py-3.5 border-[1.5px] border-slate-200 rounded-[10px] font-body text-sm bg-white text-slate-700 transition-all focus:outline-none focus:border-accent focus:shadow-[0_0_0_3px_rgba(77,163,232,0.12)] placeholder:text-slate-400"
+                {submitted ? (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-4">
+                      <CheckIcon size={28} color="#10B981" />
+                    </div>
+                    <h3 className="font-heading text-xl font-bold text-midnight mb-2">Message Sent!</h3>
+                    <p className="text-slate-500 text-sm">Thank you for reaching out. Our team will get back to you within 24 hours.</p>
+                    <button
+                      onClick={() => { setSubmitted(false); setForm({ fullName: "", email: "", phone: "", destination: "", packageInterest: "", message: "" }); }}
+                      className="mt-5 text-accent font-heading text-sm font-semibold hover:underline bg-transparent border-none cursor-pointer"
+                    >
+                      Send another message →
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit}>
+                    <h2 className="font-heading text-2xl font-bold text-midnight mb-2">Send Us a Message</h2>
+                    <p className="text-sm text-slate-400 mb-6">Fill out the form and we&apos;ll get back to you promptly.</p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <input
+                        required
+                        placeholder="Full Name"
+                        value={form.fullName}
+                        onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
+                        className="w-full px-4 py-3.5 border-[1.5px] border-slate-200 rounded-[10px] text-sm bg-white text-slate-700 transition-all focus:outline-none focus:border-accent focus:shadow-[0_0_0_3px_rgba(77,163,232,0.12)] placeholder:text-slate-400"
+                      />
+                      <input
+                        required
+                        type="email"
+                        placeholder="Email Address"
+                        value={form.email}
+                        onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                        className="w-full px-4 py-3.5 border-[1.5px] border-slate-200 rounded-[10px] text-sm bg-white text-slate-700 transition-all focus:outline-none focus:border-accent focus:shadow-[0_0_0_3px_rgba(77,163,232,0.12)] placeholder:text-slate-400"
+                      />
+                      <input
+                        placeholder="Phone Number"
+                        value={form.phone}
+                        onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                        className="w-full px-4 py-3.5 border-[1.5px] border-slate-200 rounded-[10px] text-sm bg-white text-slate-700 transition-all focus:outline-none focus:border-accent focus:shadow-[0_0_0_3px_rgba(77,163,232,0.12)] placeholder:text-slate-400"
+                      />
+                      <input
+                        placeholder="Destination"
+                        value={form.destination}
+                        onChange={(e) => setForm((f) => ({ ...f, destination: e.target.value }))}
+                        className="w-full px-4 py-3.5 border-[1.5px] border-slate-200 rounded-[10px] text-sm bg-white text-slate-700 transition-all focus:outline-none focus:border-accent focus:shadow-[0_0_0_3px_rgba(77,163,232,0.12)] placeholder:text-slate-400"
+                      />
+                    </div>
+
+                    <select
+                      value={form.packageInterest}
+                      onChange={(e) => setForm((f) => ({ ...f, packageInterest: e.target.value }))}
+                      className="w-full mt-3.5 px-4 py-3.5 border-[1.5px] border-slate-200 rounded-[10px] text-sm bg-white text-slate-500 cursor-pointer focus:outline-none focus:border-accent appearance-none"
+                    >
+                      <option value="">Select Package Interest</option>
+                      <option value="economy">Economy Package</option>
+                      <option value="business">Business Package</option>
+                      <option value="first">First Class Package</option>
+                      <option value="custom">Custom / Not Sure</option>
+                    </select>
+
+                    <textarea
+                      placeholder="Tell us about your travel plans, group size, preferred dates..."
+                      rows={4}
+                      value={form.message}
+                      onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
+                      className="w-full mt-3.5 px-4 py-3.5 border-[1.5px] border-slate-200 rounded-[10px] text-sm bg-white text-slate-700 resize-none transition-all focus:outline-none focus:border-accent focus:shadow-[0_0_0_3px_rgba(77,163,232,0.12)] placeholder:text-slate-400"
                     />
-                  ))}
-                </div>
-                <select className="w-full mt-3.5 px-4 py-3.5 border-[1.5px] border-slate-200 rounded-[10px] font-body text-sm bg-white text-slate-400 cursor-pointer focus:outline-none focus:border-accent appearance-none" defaultValue="">
-                  <option value="" disabled>Select Package Interest</option>
-                  <option value="economy">Economy Package</option>
-                  <option value="business">Business Package</option>
-                  <option value="first">First Class Package</option>
-                  <option value="custom">Custom / Not Sure</option>
-                </select>
-                <textarea
-                  placeholder="Tell us about your travel plans, group size, preferred dates..."
-                  rows={4}
-                  className="w-full mt-3.5 px-4 py-3.5 border-[1.5px] border-slate-200 rounded-[10px] font-body text-sm bg-white text-slate-700 resize-none transition-all focus:outline-none focus:border-accent focus:shadow-[0_0_0_3px_rgba(77,163,232,0.12)] placeholder:text-slate-400"
-                />
-                <button className="w-full mt-5 flex items-center justify-center gap-2 bg-accent text-white py-3.5 rounded-lg font-heading text-sm font-semibold hover:bg-accent-dark transition-all hover:-translate-y-px hover:shadow-lg border-none cursor-pointer">
-                  Submit Inquiry <ArrowIcon size={15} color="#fff" />
-                </button>
+
+                    {error && <p className="text-red-500 text-sm mt-3">{error}</p>}
+
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="w-full mt-5 flex items-center justify-center gap-2 bg-accent text-white py-3.5 rounded-lg font-heading text-sm font-semibold hover:bg-accent-dark transition-all hover:-translate-y-px hover:shadow-lg border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {submitting ? "Sending…" : <><span>Submit Inquiry</span><ArrowIcon size={15} color="#fff" /></>}
+                    </button>
+                  </form>
+                )}
               </div>
             </ScrollReveal>
 
             <ScrollReveal delay={0.1}>
               <div className="flex flex-col gap-5">
-                {/* Map Placeholder */}
-                <div className="bg-slate-200 rounded-2xl overflow-hidden h-[300px] lg:h-[340px] border border-slate-200 flex items-center justify-center">
+                <div className="bg-slate-200 rounded-2xl overflow-hidden h-[300px] lg:h-[340px] border border-slate-200">
                   <iframe
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3621.123!2d67.055!3d24.805!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjTCsDQ4JzE4LjAiTiA2N8KwMDMnMTguMCJF!5e0!3m2!1sen!2s!4v1700000000000"
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title="Billoo Travels Office Location"
+                    width="100%" height="100%" style={{ border: 0 }} allowFullScreen loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade" title="Billoo Travels Office Location"
                   />
                 </div>
-
-                {/* WhatsApp CTA */}
                 <a
-                  href={CONTACT.whatsapp}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={CONTACT.whatsapp} target="_blank" rel="noopener noreferrer"
                   className="bg-[#25D366] text-white rounded-2xl p-6 no-underline flex items-center gap-4 hover:-translate-y-1 transition-all hover:shadow-[0_12px_32px_rgba(37,211,102,0.25)]"
                 >
                   <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0">
