@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { PRICING, formatPrice } from "@/lib/data";
 import { useCurrency } from "@/lib/currency";
 import { CheckIcon, XIcon } from "@/components/ui/Icons";
@@ -56,15 +57,16 @@ export default function Pricing() {
                     </div>
                   ))}
                 </div>
-                <button
-                  className={`w-full flex justify-center py-3.5 rounded-lg font-heading text-[13px] font-semibold cursor-pointer transition-all hover:-translate-y-px border ${
+                <Link
+                  href={`/packages`}
+                  className={`w-full flex justify-center py-3.5 rounded-lg font-heading text-[13px] font-semibold transition-all hover:-translate-y-px border no-underline ${
                     p.popular
                       ? "bg-accent text-white border-accent hover:bg-accent-dark hover:shadow-lg"
                       : "bg-transparent text-midnight border-slate-200 hover:border-accent hover:text-accent"
                   }`}
                 >
-                  Select
-                </button>
+                  Get Started
+                </Link>
               </div>
             </ScrollReveal>
           ))}

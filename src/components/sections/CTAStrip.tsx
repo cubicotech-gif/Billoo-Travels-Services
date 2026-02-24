@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function CTAStrip() {
   return (
     <div className="relative h-[320px] overflow-hidden">
@@ -8,7 +10,7 @@ export default function CTAStrip() {
       />
       <div
         className="absolute inset-0"
-        style={{ background: "linear-gradient(135deg, rgba(11,22,40,0.85), rgba(21,37,69,0.7))" }}
+        style={{ background: "linear-gradient(135deg, rgba(11,22,40,0.87), rgba(21,37,69,0.72))" }}
       />
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-center max-w-[700px] px-9">
@@ -21,18 +23,18 @@ export default function CTAStrip() {
             20+ years of trusted service. 15,000+ satisfied pilgrims. Your journey deserves the best.
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
-            <a
-              href="#packages"
-              className="bg-accent text-white px-8 py-3.5 rounded-lg font-heading text-sm font-semibold no-underline hover:bg-accent-dark transition-all hover:-translate-y-px"
+            <Link
+              href="/packages"
+              className="bg-accent text-white px-8 py-3.5 rounded-lg font-heading text-sm font-semibold no-underline hover:bg-accent-dark transition-all hover:-translate-y-px hover:shadow-lg"
             >
               Explore Packages
-            </a>
-            <a
-              href="#contact"
+            </Link>
+            <Link
+              href="/contact"
               className="bg-transparent text-white px-8 py-3.5 rounded-lg font-heading text-sm font-semibold no-underline border border-white/30 backdrop-blur-sm hover:bg-white/10 hover:border-white/50 transition-all hover:-translate-y-px"
             >
               Contact Advisor
-            </a>
+            </Link>
           </div>
         </div>
       </div>

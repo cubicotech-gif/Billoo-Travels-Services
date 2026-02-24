@@ -249,12 +249,48 @@ export const FAQS = [
 
 // ─── NAV LINKS ───
 export const NAV_LINKS = [
-  { label: "Home", href: "#home" },
-  { label: "Services", href: "#services" },
-  { label: "Packages", href: "#packages" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Gallery", href: "#gallery" },
-  { label: "Contact", href: "#contact" },
+  { label: "Home", href: "/" },
+  { label: "About", href: "/about" },
+  { label: "Packages", href: "/packages" },
+  { label: "Blog", href: "/blog" },
+  { label: "FAQ", href: "/faq" },
+  { label: "Contact", href: "/contact" },
+];
+
+// ─── DESTINATIONS ───
+export const DESTINATIONS = [
+  {
+    name: "Makkah",
+    country: "Saudi Arabia",
+    desc: "The holiest city in Islam. Perform Umrah or Hajj steps from Masjid Al-Haram and the sacred Kaaba.",
+    tag: "Hajj & Umrah",
+    packages: "6 Packages",
+    img: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?auto=format&fit=crop&q=80&w=900&h=1100",
+  },
+  {
+    name: "Madinah",
+    country: "Saudi Arabia",
+    desc: "Visit the Prophet's Mosque and experience profound spiritual serenity in the radiant City of Light.",
+    tag: "Pilgrimage",
+    packages: "5 Packages",
+    img: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&q=80&w=900&h=1100",
+  },
+  {
+    name: "Istanbul",
+    country: "Turkey",
+    desc: "Centuries of Islamic heritage meet modern wonder at the crossroads of East and West.",
+    tag: "Cultural Tour",
+    packages: "4 Packages",
+    img: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&q=80&w=900&h=1100",
+  },
+  {
+    name: "Dubai",
+    country: "UAE",
+    desc: "Modern luxury meets Islamic tradition in the world's most dazzling and cosmopolitan city.",
+    tag: "Luxury Travel",
+    packages: "3 Packages",
+    img: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=900&h=1100",
+  },
 ];
 
 // ─── CONTACT INFO ───

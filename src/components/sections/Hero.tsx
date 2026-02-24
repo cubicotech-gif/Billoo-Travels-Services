@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { STATS } from "@/lib/data";
-import { PlaneIcon, SearchIcon, CheckIcon } from "@/components/ui/Icons";
+import { PlaneIcon, SearchIcon, CheckIcon, ArrowIcon } from "@/components/ui/Icons";
 
 export default function Hero() {
   return (
@@ -22,12 +23,12 @@ export default function Hero() {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(135deg, rgba(11,22,40,0.92) 0%, rgba(15,29,53,0.75) 40%, rgba(21,37,69,0.6) 100%)",
+            "linear-gradient(135deg, rgba(11,22,40,0.93) 0%, rgba(15,29,53,0.78) 40%, rgba(21,37,69,0.65) 100%)",
         }}
       />
       {/* Ambient orbs */}
-      <div className="absolute top-[5%] right-[25%] w-[600px] h-[600px] rounded-full blur-[100px] bg-[radial-gradient(circle,rgba(77,163,232,0.08)_0%,transparent_70%)]" />
-      <div className="absolute bottom-[15%] left-[10%] w-[400px] h-[400px] rounded-full blur-[80px] bg-[radial-gradient(circle,rgba(92,184,255,0.05)_0%,transparent_70%)]" />
+      <div className="absolute top-[5%] right-[25%] w-[600px] h-[600px] rounded-full blur-[100px] bg-[radial-gradient(circle,rgba(77,163,232,0.09)_0%,transparent_70%)]" />
+      <div className="absolute bottom-[15%] left-[10%] w-[400px] h-[400px] rounded-full blur-[80px] bg-[radial-gradient(circle,rgba(92,184,255,0.06)_0%,transparent_70%)]" />
 
       {/* Floating images */}
       <div className="hidden lg:block absolute top-[15%] right-[5%] w-[180px] h-[240px] rounded-2xl overflow-hidden opacity-25 border border-white/10 animate-float">
@@ -46,7 +47,7 @@ export default function Hero() {
       </div>
 
       {/* Content */}
-      <div className="relative max-w-[1280px] mx-auto px-6 md:px-9 w-full z-10 grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-12 lg:gap-[60px] items-center">
+      <div className="relative max-w-[1280px] mx-auto px-6 md:px-9 w-full z-10 grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-12 lg:gap-[60px] items-center pt-20 lg:pt-0">
         {/* Left */}
         <motion.div
           initial={{ opacity: 0, y: 28 }}
@@ -63,21 +64,39 @@ export default function Hero() {
             </span>
           </div>
 
-          <h1 className="font-heading text-4xl md:text-[52px] font-bold text-white leading-[1.08] mb-5 tracking-tight">
+          <h1 className="font-heading text-4xl md:text-[54px] font-bold text-white leading-[1.07] mb-5 tracking-tight">
             Your Sacred Journey,
             <br />
             <span className="font-display italic text-accent font-normal text-[1.08em]">
-              Elevated
+              Elevated.
             </span>
           </h1>
-          <p className="text-[17px] text-white/55 leading-[1.85] max-w-[460px] mb-10">
-            Pakistan&apos;s premier agency for luxury Hajj, Umrah &
+          <p className="text-[17px] text-white/55 leading-[1.85] max-w-[480px] mb-8">
+            Pakistan&apos;s premier agency for luxury Hajj, Umrah &amp;
             international tours. VIP access. Five-star comfort. Flawless
             execution.
           </p>
 
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 mb-10">
+            <Link
+              href="/packages"
+              className="inline-flex items-center justify-center gap-2 bg-accent text-white px-7 py-3.5 rounded-xl font-heading text-sm font-semibold no-underline hover:bg-accent-dark transition-all hover:-translate-y-px hover:shadow-[0_8px_28px_rgba(77,163,232,0.35)]"
+            >
+              <PlaneIcon size={15} color="#fff" />
+              Explore Packages
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center gap-2 text-white border border-white/25 px-7 py-3.5 rounded-xl font-heading text-sm font-semibold no-underline hover:bg-white/10 hover:border-white/50 transition-all"
+            >
+              Plan My Journey
+              <ArrowIcon size={14} color="#fff" />
+            </Link>
+          </div>
+
           {/* Stats */}
-          <div className="flex flex-col sm:flex-row gap-6 sm:gap-10">
+          <div className="flex flex-col sm:flex-row gap-6 sm:gap-10 pt-8 border-t border-white/[0.08]">
             {STATS.map((s, i) => (
               <div
                 key={i}
@@ -103,7 +122,7 @@ export default function Hero() {
           transition={{ duration: 0.9, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           className="hidden lg:block"
         >
-          <div className="glass rounded-[22px] p-8 shadow-[0_32px_64px_rgba(0,0,0,0.2)]">
+          <div className="glass rounded-[22px] p-8 shadow-[0_32px_64px_rgba(0,0,0,0.22)]">
             <h3 className="font-heading text-xl font-bold text-white mb-1.5">
               Plan Your Journey
             </h3>
@@ -122,7 +141,7 @@ export default function Hero() {
                   Select Destination
                 </option>
                 <option value="u" className="text-slate-700">
-                  Umrah — Makkah & Madinah
+                  Umrah — Makkah &amp; Madinah
                 </option>
                 <option value="h" className="text-slate-700">
                   Hajj 2025
@@ -151,12 +170,15 @@ export default function Hero() {
                   First Class
                 </option>
               </select>
-              <button className="w-full flex items-center justify-center gap-2 bg-accent text-white py-3.5 rounded-[10px] font-heading text-sm font-semibold mt-1 hover:bg-accent-dark transition-all hover:-translate-y-px hover:shadow-lg border-none cursor-pointer">
+              <Link
+                href="/packages"
+                className="w-full flex items-center justify-center gap-2 bg-accent text-white py-3.5 rounded-[10px] font-heading text-sm font-semibold mt-1 hover:bg-accent-dark transition-all hover:-translate-y-px hover:shadow-lg no-underline"
+              >
                 <SearchIcon size={16} color="#fff" /> Search Packages
-              </button>
+              </Link>
             </div>
             <div className="flex items-center justify-center gap-3.5 mt-4 flex-wrap">
-              {["Instant Quote", "No Hidden Fees", "Free Cancellation"].map(
+              {["Instant Quote", "No Hidden Fees", "Free Consultation"].map(
                 (t) => (
                   <span
                     key={t}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { FAQS, BLOGS, CONTACT } from "@/lib/data";
 import { ChevronDownIcon, CalendarIcon, ClockIcon, ArrowIcon, PhoneIcon, MailIcon, MapPinIcon } from "@/components/ui/Icons";
 import SectionHeading from "@/components/ui/SectionHeading";
@@ -17,7 +18,7 @@ export function FAQ() {
           <SectionHeading label="FAQ" title="Common" highlight="Questions" centered />
         </div>
         <div className="flex flex-col gap-3">
-          {FAQS.map((f, i) => (
+          {FAQS.slice(0, 4).map((f, i) => (
             <ScrollReveal key={i} delay={i * 0.06}>
               <div
                 className={`border rounded-[14px] overflow-hidden transition-all duration-300 bg-white ${
@@ -26,9 +27,12 @@ export function FAQ() {
               >
                 <button
                   onClick={() => setOpen(open === i ? null : i)}
-                  className="w-full px-5 py-4.5 flex justify-between items-center bg-transparent border-none cursor-pointer font-heading text-[15px] font-semibold text-midnight text-left"
+                  className="w-full px-5 py-5 flex justify-between items-center bg-transparent border-none cursor-pointer font-heading text-[15px] font-semibold text-midnight text-left gap-4"
                 >
-                  {f.q}
+                  <span className="flex items-center gap-3">
+                    <span className="font-mono text-[11px] text-accent tracking-[1px] shrink-0">{String(i + 1).padStart(2, "0")}</span>
+                    {f.q}
+                  </span>
                   <div className={`transition-transform duration-300 min-w-[20px] ${open === i ? "rotate-180" : ""}`}>
                     <ChevronDownIcon color={open === i ? "#4DA3E8" : "#94A3B8"} />
                   </div>
@@ -37,12 +41,22 @@ export function FAQ() {
                   className="overflow-hidden transition-all duration-400"
                   style={{ maxHeight: open === i ? 200 : 0 }}
                 >
-                  <div className="px-5 pb-4 text-sm text-slate-500 leading-relaxed">{f.a}</div>
+                  <div className="px-5 pb-5 pl-[54px] text-sm text-slate-500 leading-relaxed">{f.a}</div>
                 </div>
               </div>
             </ScrollReveal>
           ))}
         </div>
+        <ScrollReveal delay={0.2}>
+          <div className="text-center mt-8">
+            <Link
+              href="/faq"
+              className="inline-flex items-center gap-2 border border-slate-200 bg-white text-slate-600 px-7 py-3 rounded-lg font-heading text-sm font-semibold no-underline hover:border-accent hover:text-accent transition-all"
+            >
+              View All FAQs <ArrowIcon size={14} color="currentColor" />
+            </Link>
+          </div>
+        </ScrollReveal>
       </div>
     </section>
   );
@@ -55,35 +69,43 @@ export function Blog() {
       <div className="max-w-[1280px] mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12">
           <SectionHeading label="Journal" title="Travel" highlight="Insights" />
-          <button className="bg-transparent border-none text-accent font-heading text-[13px] font-semibold cursor-pointer flex items-center gap-1 hover:gap-2 transition-all">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-1 text-accent font-heading text-[13px] font-semibold no-underline hover:gap-2 transition-all"
+          >
             All Articles <ArrowIcon size={14} color="#4DA3E8" />
-          </button>
+          </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {BLOGS.map((b, i) => (
             <ScrollReveal key={i} delay={i * 0.1}>
-              <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden transition-all duration-[450ms] hover:-translate-y-1.5 hover:shadow-[0_20px_48px_rgba(11,22,40,0.07)] hover:border-accent group cursor-pointer">
-                <div className="relative h-[200px] overflow-hidden">
-                  <img
-                    src={b.placeholder}
-                    alt={b.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute top-3.5 left-3.5">
-                    <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-accent text-white">
-                      {b.cat}
-                    </span>
+              <Link href={`/blog/${b.slug}`} className="block no-underline h-full">
+                <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden transition-all duration-[450ms] hover:-translate-y-1.5 hover:shadow-[0_20px_48px_rgba(11,22,40,0.07)] hover:border-accent group cursor-pointer h-full">
+                  <div className="relative h-[200px] overflow-hidden">
+                    <img
+                      src={b.placeholder}
+                      alt={b.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute top-3.5 left-3.5">
+                      <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-accent text-white">
+                        {b.cat}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-5 pb-6">
+                    <div className="flex items-center gap-3 text-xs text-slate-400 mb-2.5">
+                      <span className="flex items-center gap-1"><CalendarIcon />{b.date}</span>
+                      <span className="flex items-center gap-1"><ClockIcon />{b.read}</span>
+                    </div>
+                    <h3 className="font-heading text-[17px] font-bold text-midnight mb-2 leading-snug">{b.title}</h3>
+                    <p className="text-[13px] text-slate-500 leading-relaxed">{b.desc}</p>
+                    <div className="flex items-center gap-1 text-accent font-heading text-[12px] font-semibold mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      Read Article <ArrowIcon size={12} color="#4DA3E8" />
+                    </div>
                   </div>
                 </div>
-                <div className="p-5 pb-6">
-                  <div className="flex items-center gap-3 text-xs text-slate-400 mb-2.5">
-                    <span className="flex items-center gap-1"><CalendarIcon />{b.date}</span>
-                    <span className="flex items-center gap-1"><ClockIcon />{b.read}</span>
-                  </div>
-                  <h3 className="font-heading text-[17px] font-bold text-midnight mb-2 leading-snug">{b.title}</h3>
-                  <p className="text-[13px] text-slate-500 leading-relaxed">{b.desc}</p>
-                </div>
-              </div>
+              </Link>
             </ScrollReveal>
           ))}
         </div>
@@ -107,12 +129,12 @@ export function Contact() {
           <div>
             <SectionHeading label="Contact Us" title="Ready to" highlight="Depart?" />
             <p className="text-[15px] text-slate-500 leading-relaxed mt-4 mb-9 max-w-[380px]">
-              Our advisors craft personalized itineraries. We respond within 24 hours.
+              Our advisors craft personalized itineraries tailored to your needs. We respond within 24 hours.
             </p>
             <div className="flex flex-col gap-5">
               {contactInfo.map((item, i) => (
                 <div key={i} className="flex items-center gap-3.5">
-                  <div className="w-[42px] h-[42px] bg-accent-pale rounded-[10px] flex items-center justify-center">
+                  <div className="w-[42px] h-[42px] bg-accent-pale rounded-[10px] flex items-center justify-center shrink-0">
                     <item.icon color="#4DA3E8" />
                   </div>
                   <div>
@@ -122,14 +144,23 @@ export function Contact() {
                 </div>
               ))}
             </div>
+            <div className="mt-8 pt-8 border-t border-slate-200">
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-2 bg-accent text-white px-7 py-3.5 rounded-lg font-heading text-sm font-semibold no-underline hover:bg-accent-dark transition-all hover:-translate-y-px hover:shadow-lg"
+              >
+                Send Inquiry <ArrowIcon size={14} color="#fff" />
+              </Link>
+            </div>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.12}>
           <div className="bg-white rounded-[20px] p-9 shadow-[0_6px_24px_rgba(0,0,0,0.04)] border border-slate-200">
-            <h3 className="font-heading text-xl font-bold text-midnight mb-6">Send a Message</h3>
+            <h3 className="font-heading text-xl font-bold text-midnight mb-2">Quick Inquiry</h3>
+            <p className="text-sm text-slate-400 mb-6">For a full consultation, visit our <Link href="/contact" className="text-accent no-underline hover:underline">contact page</Link>.</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              {["Full Name", "Email", "Phone", "Destination"].map((ph) => (
+              {["Full Name", "Email Address", "Phone Number", "Destination"].map((ph) => (
                 <input
                   key={ph}
                   placeholder={ph}
@@ -138,13 +169,16 @@ export function Contact() {
               ))}
             </div>
             <textarea
-              placeholder="Your message..."
+              placeholder="Tell us about your travel plans..."
               rows={3}
               className="w-full mt-3.5 px-4 py-3.5 border-[1.5px] border-slate-200 rounded-[10px] font-body text-sm bg-white text-slate-700 resize-none transition-all focus:outline-none focus:border-accent focus:shadow-[0_0_0_3px_rgba(77,163,232,0.12)] placeholder:text-slate-400"
             />
-            <button className="w-full mt-5 flex items-center justify-center gap-2 bg-accent text-white py-3.5 rounded-lg font-heading text-sm font-semibold hover:bg-accent-dark transition-all hover:-translate-y-px hover:shadow-lg border-none cursor-pointer">
+            <Link
+              href="/contact"
+              className="w-full mt-5 flex items-center justify-center gap-2 bg-accent text-white py-3.5 rounded-lg font-heading text-sm font-semibold hover:bg-accent-dark transition-all hover:-translate-y-px hover:shadow-lg no-underline"
+            >
               Submit Inquiry <ArrowIcon size={15} color="#fff" />
-            </button>
+            </Link>
           </div>
         </ScrollReveal>
       </div>
