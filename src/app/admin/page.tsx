@@ -87,7 +87,7 @@ export default function AdminDashboard() {
             <div className="h-[180px] bg-slate-50 rounded-lg animate-pulse" />
           ) : (
             <div className="flex items-end justify-between gap-3 h-[180px] px-2">
-              {(monthlyRevenue.length > 0 ? monthlyRevenue : Array.from({ length: 6 }, (_, i) => ({ month: "—", value: 0 }))).map((m, i) => {
+              {(monthlyRevenue.length > 0 ? monthlyRevenue : Array.from({ length: 6 }, () => ({ month: "—", value: 0 }))).map((m, i) => {
                 const maxVal = Math.max(...monthlyRevenue.map((r) => r.value), 1);
                 const h = Math.max((m.value / maxVal) * 100, 4);
                 return (

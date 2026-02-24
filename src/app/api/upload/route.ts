@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+export const dynamic = "force-dynamic";
+
 // POST /api/upload — admin only
 // Body: FormData with fields: file (File), bucket (string), path (string)
 export async function POST(request: NextRequest) {

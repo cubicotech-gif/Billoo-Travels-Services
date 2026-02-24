@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import InnerLayout from "@/components/InnerLayout";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { useCurrency } from "@/lib/currency";
-import { PACKAGES, formatPrice, type Currency } from "@/lib/data";
+import { PACKAGES, formatPrice } from "@/lib/data";
 import { calculateBookingPrice } from "@/lib/payments";
 import { CheckIcon, ShieldIcon } from "@/components/ui/Icons";
 
