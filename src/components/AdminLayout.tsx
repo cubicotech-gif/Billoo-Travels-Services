@@ -2,7 +2,8 @@
 
 import { useState, ReactNode } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 // Admin sidebar icons
 const icons = {
@@ -43,6 +44,13 @@ const NAV = [
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/admin/login");
+  }
 
   const isActive = (href: string) => {
     if (href === "/admin") return pathname === "/admin";
@@ -115,11 +123,18 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </button>
           <div className="hidden lg:block" />
           <div className="flex items-center gap-4">
-            <div className="text-right">
+            <div className="text-right hidden sm:block">
               <div className="text-sm font-semibold text-[#1E293B]" style={{ fontFamily: "'Sora', sans-serif" }}>Billoo Admin</div>
               <div className="text-[11px] text-slate-400">Agent ID 1251</div>
             </div>
             <div className="w-9 h-9 rounded-full bg-[#0B1628] flex items-center justify-center text-[#4DA3E8] font-bold text-sm">BA</div>
+            <button
+              onClick={handleLogout}
+              className="text-xs text-slate-400 hover:text-red-500 bg-transparent border border-slate-200 hover:border-red-200 px-3 py-1.5 rounded-lg cursor-pointer transition-all"
+              style={{ fontFamily: "'Sora', sans-serif" }}
+            >
+              Logout
+            </button>
           </div>
         </header>
 
