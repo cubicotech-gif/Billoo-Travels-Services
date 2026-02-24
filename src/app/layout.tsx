@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { CurrencyProvider } from "@/lib/currency";
+import { SiteSettingsProvider } from "@/lib/siteSettings";
 
 export const metadata: Metadata = {
   title: "Billoo Travels Services Pvt Ltd | Premium Hajj & Umrah Packages",
@@ -39,7 +40,9 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <CurrencyProvider>{children}</CurrencyProvider>
+        <SiteSettingsProvider>
+          <CurrencyProvider>{children}</CurrencyProvider>
+        </SiteSettingsProvider>
       </body>
     </html>
   );
