@@ -51,3 +51,25 @@ export async function GET() {
 
   return NextResponse.json({ messages: data });
 }
+
+// PATCH /api/contact — admin only: update message status
+export async function PATCH(request: NextRequest) {
+  const supabase = createAdminClient();
+  const body = await request.json();
+  const { id, status } = body;
+
+  if (!id || !status) {
+    return NextResponse.json({ error: "id and status are required." }, { status: 400 });
+  }
+
+  const { error } = await supabase
+    .from("contact_messages")
+    .update({ status })
+    .eq("id", id);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
+}
