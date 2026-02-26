@@ -148,6 +148,22 @@ export function Contact() {
           </div>
         </ScrollReveal>
       </div>
+
+      {/* Google Maps Embed */}
+      <ScrollReveal delay={0.18}>
+        <div className="max-w-[1100px] mx-auto mt-10 rounded-[20px] overflow-hidden border border-slate-200 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
+          <iframe
+            title="Billoo Travels Office Location — DHA Phase 5, Karachi"
+            src="https://maps.google.com/maps?q=24.8038,67.0319&hl=en&z=16&output=embed"
+            width="100%"
+            height="300"
+            style={{ border: 0, display: "block" }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
+      </ScrollReveal>
     </section>
   );
 }

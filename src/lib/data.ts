@@ -249,12 +249,12 @@ export const FAQS = [
 
 // ─── NAV LINKS ───
 export const NAV_LINKS = [
-  { label: "Home", href: "#home" },
-  { label: "Services", href: "#services" },
-  { label: "Packages", href: "#packages" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Gallery", href: "#gallery" },
-  { label: "Contact", href: "#contact" },
+  { label: "Home", href: "/" },
+  { label: "Services", href: "/#services" },
+  { label: "Packages", href: "/packages" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "Gallery", href: "/#gallery" },
+  { label: "Contact", href: "/contact" },
 ];
 
 // ─── CONTACT INFO ───

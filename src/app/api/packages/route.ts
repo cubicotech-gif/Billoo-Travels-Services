@@ -4,21 +4,28 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/packages — public, returns all active packages
+// GET /api/packages
+// ?all=1        → admin: all statuses (uses admin client)
+// ?featured=1   → homepage: only featured active packages
+// ?type=Umrah   → filter by type
 export async function GET(request: NextRequest) {
-  const supabase = createClient();
   const { searchParams } = new URL(request.url);
   const type = searchParams.get("type");
-  const status = searchParams.get("status") || "active";
-  const all = searchParams.get("all"); // admin: fetch all statuses
+  const all = searchParams.get("all");
+  const featured = searchParams.get("featured");
+
+  const supabase = all ? createAdminClient() : createClient();
 
   let query = supabase.from("packages").select("*").order("id");
 
   if (!all) {
-    query = query.eq("status", status);
+    query = query.eq("status", "active");
   }
   if (type && type !== "All") {
     query = query.eq("type", type);
+  }
+  if (featured) {
+    query = query.eq("featured", true);
   }
 
   const { data, error } = await query;
