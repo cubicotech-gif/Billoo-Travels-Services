@@ -17,13 +17,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
 
-  const ext = file.name.split(".").pop();
+  const ext = (file.name.split(".").pop() || "").toLowerCase();
   const fileName = `${folder ? folder + "/" : ""}${Date.now()}.${ext}`;
+
+  // Derive MIME type from extension when file.type is empty or unreliable
+  const mimeMap: Record<string, string> = {
+    png: "image/png",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    webp: "image/webp",
+    svg: "image/svg+xml",
+    gif: "image/gif",
+    mp4: "video/mp4",
+    pdf: "application/pdf",
+  };
+  const contentType = file.type || mimeMap[ext] || "application/octet-stream";
 
   const { data, error } = await supabase.storage
     .from(bucket)
     .upload(fileName, file, {
-      contentType: file.type,
+      contentType,
       upsert: false,
     });
 
