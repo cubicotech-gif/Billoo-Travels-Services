@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { NAV_LINKS } from "@/lib/data";
 import { useCurrency } from "@/lib/currency";
@@ -29,7 +30,7 @@ export default function Navbar() {
     >
       <div className="max-w-[1280px] mx-auto px-6 md:px-9 flex items-center justify-between">
         {/* Logo */}
-        <a href="#home" className="flex items-center gap-2.5 no-underline">
+        <Link href="/" className="flex items-center gap-2.5 no-underline">
           {logo_url ? (
             <img
               src={logo_url}
@@ -66,12 +67,12 @@ export default function Navbar() {
               </div>
             </>
           )}
-        </a>
+        </Link>
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-6">
           {NAV_LINKS.map((link) => (
-            <a
+            <Link
               key={link.label}
               href={link.href}
               className={`font-heading text-[13px] font-medium no-underline transition-colors ${
@@ -81,7 +82,7 @@ export default function Navbar() {
               }`}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
 
           <div className={`h-[18px] w-px ${scrolled ? "bg-slate-200" : "bg-white/[0.12]"}`} />
@@ -111,12 +112,12 @@ export default function Navbar() {
             ))}
           </div>
 
-          <a
-            href="#contact"
+          <Link
+            href="/booking"
             className="bg-accent text-white px-5 py-2 rounded-lg font-heading text-[13px] font-semibold no-underline hover:bg-accent-dark transition-all hover:-translate-y-px hover:shadow-lg"
           >
             Book Now
-          </a>
+          </Link>
         </div>
 
         {/* Mobile Toggle */}
@@ -141,21 +142,22 @@ export default function Navbar() {
           >
             <div className="px-6 py-5 flex flex-col gap-3.5">
               {NAV_LINKS.map((link) => (
-                <a
+                <Link
                   key={link.label}
                   href={link.href}
                   className="font-heading text-[13px] font-medium text-slate-500 no-underline hover:text-accent"
                   onClick={() => setMobileOpen(false)}
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
-              <a
-                href="#contact"
+              <Link
+                href="/booking"
                 className="bg-accent text-white px-5 py-2.5 rounded-lg font-heading text-[13px] font-semibold no-underline self-start mt-1"
+                onClick={() => setMobileOpen(false)}
               >
                 Book Now
-              </a>
+              </Link>
             </div>
           </motion.div>
         )}
