@@ -18,13 +18,17 @@ export async function POST(request: NextRequest) {
   }
 
   const ext = file.name.split(".").pop();
-  const fileName = `${folder ? folder + "/" : ""}${Date.now()}.${ext}`;
+  // For branding/logo uploads, use a fixed name so re-uploads replace the old file
+  const isLogo = bucket === "branding" && folder === "logo";
+  const fileName = isLogo
+    ? `logo/logo.${ext}`
+    : `${folder ? folder + "/" : ""}${Date.now()}.${ext}`;
 
   const { data, error } = await supabase.storage
     .from(bucket)
     .upload(fileName, file, {
       contentType: file.type,
-      upsert: false,
+      upsert: true,
     });
 
   if (error) {
@@ -32,6 +36,10 @@ export async function POST(request: NextRequest) {
   }
 
   const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(data.path);
+  // Add cache-busting param so browsers don't serve stale logos
+  const publicUrl = isLogo
+    ? `${urlData.publicUrl}?v=${Date.now()}`
+    : urlData.publicUrl;
 
-  return NextResponse.json({ url: urlData.publicUrl, path: data.path }, { status: 201 });
+  return NextResponse.json({ url: publicUrl, path: data.path }, { status: 201 });
 }
