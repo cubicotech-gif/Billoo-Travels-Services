@@ -44,9 +44,14 @@ export function Team() {
   return (
     <section className="py-24 px-6 md:px-9 bg-surface">
       <div className="max-w-[1100px] mx-auto">
-        <div className="text-center mb-14">
+        <div className="text-center mb-8">
           <SectionHeading label="Leadership" title="The Team Behind" highlight="Your Journey" centered />
         </div>
+        <p className="text-center text-[14px] text-slate-500 leading-relaxed max-w-[680px] mx-auto mb-12">
+          Billoo Travel Service was founded in 1969 by the late Zakaria Mohammad Sharif after his first Hajj pilgrimage.
+          What began as a heartfelt mission to guide fellow pilgrims has grown into Pakistan&apos;s most trusted travel
+          institution — serving over 15,000 families across more than five decades.
+        </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {TEAM.map((t, i) => (
             <ScrollReveal key={i} delay={i * 0.1}>
