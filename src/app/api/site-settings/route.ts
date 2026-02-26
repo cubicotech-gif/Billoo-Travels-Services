@@ -6,6 +6,14 @@ export const dynamic = "force-dynamic";
 const BUCKET = "branding";
 const META_PATH = "settings/meta.json";
 
+const ALLOWED_MIME_TYPES = [
+  "image/png",
+  "image/jpeg",
+  "image/svg+xml",
+  "image/webp",
+  "application/json",
+];
+
 type SiteMeta = {
   logo_url: string | null;
   logo_width: number;
@@ -17,6 +25,16 @@ const DEFAULTS: SiteMeta = {
   logo_width: 120,
   logo_height: 40,
 };
+
+async function ensureBucketAllowsJson(supabase: ReturnType<typeof createAdminClient>) {
+  try {
+    await supabase.storage.updateBucket(BUCKET, {
+      allowedMimeTypes: ALLOWED_MIME_TYPES,
+    });
+  } catch {
+    // Bucket may already allow JSON, or update may not be permitted — proceed anyway
+  }
+}
 
 async function readMeta(supabase: ReturnType<typeof createAdminClient>): Promise<SiteMeta> {
   try {
@@ -38,6 +56,9 @@ async function writeMeta(
   supabase: ReturnType<typeof createAdminClient>,
   meta: SiteMeta
 ): Promise<{ success: boolean; error?: string }> {
+  // Ensure bucket allows JSON before writing
+  await ensureBucketAllowsJson(supabase);
+
   const blob = new Blob([JSON.stringify(meta, null, 2)], { type: "application/json" });
   const { error } = await supabase.storage.from(BUCKET).upload(META_PATH, blob, {
     contentType: "application/json",
