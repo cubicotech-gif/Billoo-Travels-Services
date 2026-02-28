@@ -13,7 +13,7 @@ const STATIC_DESTINATIONS = [
     code: "JED",
     country: "Saudi Arabia",
     tagline: "Your Sacred Journey, Elevated",
-    desc: "VIP pilgrimage · Five-star suites steps from Haram · Personal scholar guiding every ritual · Private SUV transfers · 99.8% visa success",
+    description: "VIP pilgrimage · Five-star suites steps from Haram · Personal scholar guiding every ritual · Private SUV transfers · 99.8% visa success",
     price: "450,000",
     temp: "34°C",
     flight: "~4h 15m",
@@ -40,7 +40,7 @@ const STATIC_DESTINATIONS = [
     code: "JED",
     country: "Saudi Arabia",
     tagline: "The Journey of a Lifetime",
-    desc: "Premium Hajj packages · Palace suites at Abraj Al Bait · Dedicated scholar · VIP transfers · Priority visa processing",
+    description: "Premium Hajj packages · Palace suites at Abraj Al Bait · Dedicated scholar · VIP transfers · Priority visa processing",
     price: "1,250,000",
     temp: "38°C",
     flight: "~4h 15m",
@@ -67,7 +67,7 @@ const STATIC_DESTINATIONS = [
     code: "IST",
     country: "Turkey",
     tagline: "Where Continents Converge",
-    desc: "Ottoman heritage · Bosphorus cruises · Cappadocia balloon rides · Luxury boutique hotels · Halal dining curated",
+    description: "Ottoman heritage · Bosphorus cruises · Cappadocia balloon rides · Luxury boutique hotels · Halal dining curated",
     price: "380,000",
     temp: "18°C",
     flight: "~5h 40m",
@@ -94,7 +94,7 @@ const STATIC_DESTINATIONS = [
     code: "DXB",
     country: "UAE",
     tagline: "Beyond Extraordinary",
-    desc: "Desert safaris · Sky-high dining · Beachfront suites · Burj Khalifa access · Curated shopping tours",
+    description: "Desert safaris · Sky-high dining · Beachfront suites · Burj Khalifa access · Curated shopping tours",
     price: "320,000",
     temp: "30°C",
     flight: "~2h 30m",
@@ -301,7 +301,7 @@ export default function Hero() {
               code: d.code as string,
               country: d.country as string,
               tagline: d.tagline as string,
-              desc: d.desc as string,
+              description: d.description as string,
               price: d.price as string,
               temp: d.temp as string,
               flight: d.flight as string,
@@ -813,7 +813,7 @@ export default function Hero() {
               margin: 0,
             }}
           >
-            {dest.desc}
+            {dest.description}
           </p>
 
           {/* CTA Buttons */}

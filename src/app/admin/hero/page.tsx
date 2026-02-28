@@ -12,7 +12,7 @@ interface HeroDestination {
   code: string;
   country: string;
   tagline: string;
-  desc: string;
+  description: string;
   price: string;
   temp: string;
   flight: string;
@@ -35,7 +35,7 @@ const emptyForm = {
   code: "",
   country: "",
   tagline: "",
-  desc: "",
+  description: "",
   price: "",
   temp: "",
   flight: "",
@@ -64,7 +64,7 @@ const STATIC_DEFAULTS: HeroDestination[] = [
     code: "JED",
     country: "Saudi Arabia",
     tagline: "Your Sacred Journey, Elevated",
-    desc: "VIP pilgrimage · Five-star suites steps from Haram · Personal scholar guiding every ritual · Private SUV transfers · 99.8% visa success",
+    description: "VIP pilgrimage · Five-star suites steps from Haram · Personal scholar guiding every ritual · Private SUV transfers · 99.8% visa success",
     price: "450,000",
     temp: "34°C",
     flight: "~4h 15m",
@@ -91,7 +91,7 @@ const STATIC_DEFAULTS: HeroDestination[] = [
     code: "JED",
     country: "Saudi Arabia",
     tagline: "The Journey of a Lifetime",
-    desc: "Premium Hajj packages · Palace suites at Abraj Al Bait · Dedicated scholar · VIP transfers · Priority visa processing",
+    description: "Premium Hajj packages · Palace suites at Abraj Al Bait · Dedicated scholar · VIP transfers · Priority visa processing",
     price: "1,250,000",
     temp: "38°C",
     flight: "~4h 15m",
@@ -118,7 +118,7 @@ const STATIC_DEFAULTS: HeroDestination[] = [
     code: "IST",
     country: "Turkey",
     tagline: "Where Continents Converge",
-    desc: "Ottoman heritage · Bosphorus cruises · Cappadocia balloon rides · Luxury boutique hotels · Halal dining curated",
+    description: "Ottoman heritage · Bosphorus cruises · Cappadocia balloon rides · Luxury boutique hotels · Halal dining curated",
     price: "380,000",
     temp: "18°C",
     flight: "~5h 40m",
@@ -145,7 +145,7 @@ const STATIC_DEFAULTS: HeroDestination[] = [
     code: "DXB",
     country: "UAE",
     tagline: "Beyond Extraordinary",
-    desc: "Desert safaris · Sky-high dining · Beachfront suites · Burj Khalifa access · Curated shopping tours",
+    description: "Desert safaris · Sky-high dining · Beachfront suites · Burj Khalifa access · Curated shopping tours",
     price: "320,000",
     temp: "30°C",
     flight: "~2h 30m",
@@ -366,7 +366,7 @@ export default function HeroAdminPage() {
       code: d.code,
       country: d.country,
       tagline: d.tagline,
-      desc: d.desc,
+      description: d.description,
       price: d.price,
       temp: d.temp,
       flight: d.flight,
@@ -464,7 +464,7 @@ export default function HeroAdminPage() {
   code         TEXT NOT NULL DEFAULT '',
   country      TEXT NOT NULL DEFAULT '',
   tagline      TEXT NOT NULL DEFAULT '',
-  desc         TEXT NOT NULL DEFAULT '',
+  description  TEXT NOT NULL DEFAULT '',
   price        TEXT NOT NULL DEFAULT '',
   temp         TEXT NOT NULL DEFAULT '',
   flight       TEXT NOT NULL DEFAULT '',
@@ -518,7 +518,7 @@ export default function HeroAdminPage() {
                         </div>
                         <p className="text-sm text-slate-500 mb-1">{d.city}, {d.country}</p>
                         <p className="text-xs text-[#4DA3E8] font-semibold mb-2">{d.tagline}</p>
-                        <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">{d.desc}</p>
+                        <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">{d.description}</p>
                       </div>
                       <div className="flex-shrink-0 text-right">
                         <div className="text-lg font-bold text-[#0B1628]" style={{ fontFamily: "'Sora', sans-serif" }}>PKR {d.price}</div>
@@ -599,8 +599,8 @@ export default function HeroAdminPage() {
                 {/* Description */}
                 <Field label="Description">
                   <textarea
-                    value={form.desc}
-                    onChange={(e) => setField("desc", e.target.value)}
+                    value={form.description}
+                    onChange={(e) => setField("description", e.target.value)}
                     placeholder="Key features separated by ·"
                     rows={3}
                     className={INPUT + " resize-none"}
