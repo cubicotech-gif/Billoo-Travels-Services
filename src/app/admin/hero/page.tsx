@@ -5,7 +5,7 @@ import AdminLayout from "@/components/AdminLayout";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface HeroDestination {
+interface Dest {
   id: number;
   label: string;
   city: string;
@@ -29,7 +29,7 @@ interface HeroDestination {
   active: boolean;
 }
 
-const emptyForm = {
+const EMPTY_FORM = {
   label: "",
   city: "",
   code: "",
@@ -52,124 +52,41 @@ const emptyForm = {
   active: true,
 };
 
-type FormState = typeof emptyForm;
+type Form = typeof EMPTY_FORM;
 
-// ─── Static default destinations (shown when DB table doesn't exist yet) ──────
+// ─── Shared input className ───────────────────────────────────────────────────
 
-const STATIC_DEFAULTS: HeroDestination[] = [
-  {
-    id: -1,
-    label: "Umrah",
-    city: "Makkah",
-    code: "JED",
-    country: "Saudi Arabia",
-    tagline: "Your Sacred Journey, Elevated",
-    description: "VIP pilgrimage · Five-star suites steps from Haram · Personal scholar guiding every ritual · Private SUV transfers · 99.8% visa success",
-    price: "450,000",
-    temp: "34°C",
-    flight: "~4h 15m",
-    tz: "AST",
-    bg_image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?auto=format&fit=crop&q=85&w=2400",
-    images: [
-      "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=400&h=600&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=400&h=600&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1565552643951-b2e152973b06?w=400&h=600&fit=crop&q=80",
-    ],
-    map_x: 62,
-    map_y: 46,
-    quote_text: "Flawless logistics let us focus entirely on worship. Truly transcendent.",
-    quote_name: "Fatima H.",
-    quote_role: "Executive Hajj '24",
-    quote_initial: "F",
-    sort_order: 0,
-    active: true,
-  },
-  {
-    id: -2,
-    label: "Hajj 2026",
-    city: "Makkah",
-    code: "JED",
-    country: "Saudi Arabia",
-    tagline: "The Journey of a Lifetime",
-    description: "Premium Hajj packages · Palace suites at Abraj Al Bait · Dedicated scholar · VIP transfers · Priority visa processing",
-    price: "1,250,000",
-    temp: "38°C",
-    flight: "~4h 15m",
-    tz: "AST",
-    bg_image: "https://images.unsplash.com/photo-1564769625905-50e93615e769?auto=format&fit=crop&q=85&w=2400",
-    images: [
-      "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=400&h=600&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=400&h=600&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1565552643951-b2e152973b06?w=400&h=600&fit=crop&q=80",
-    ],
-    map_x: 62,
-    map_y: 46,
-    quote_text: "The Clock Tower suite and VIP transfers exceeded all expectations.",
-    quote_name: "Khalid A.",
-    quote_role: "Royal Umrah '24",
-    quote_initial: "K",
-    sort_order: 1,
-    active: true,
-  },
-  {
-    id: -3,
-    label: "Turkey",
-    city: "Istanbul",
-    code: "IST",
-    country: "Turkey",
-    tagline: "Where Continents Converge",
-    description: "Ottoman heritage · Bosphorus cruises · Cappadocia balloon rides · Luxury boutique hotels · Halal dining curated",
-    price: "380,000",
-    temp: "18°C",
-    flight: "~5h 40m",
-    tz: "TRT",
-    bg_image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&q=85&w=2400",
-    images: [
-      "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=400&h=600&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=400&h=600&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&h=600&fit=crop&q=80",
-    ],
-    map_x: 54,
-    map_y: 30,
-    quote_text: "Istanbul with Billoo felt like traveling with family. Incredible detail.",
-    quote_name: "Dr. Aisha S.",
-    quote_role: "Turkey Tour '24",
-    quote_initial: "A",
-    sort_order: 2,
-    active: true,
-  },
-  {
-    id: -4,
-    label: "Dubai",
-    city: "Dubai",
-    code: "DXB",
-    country: "UAE",
-    tagline: "Beyond Extraordinary",
-    description: "Desert safaris · Sky-high dining · Beachfront suites · Burj Khalifa access · Curated shopping tours",
-    price: "320,000",
-    temp: "30°C",
-    flight: "~2h 30m",
-    tz: "GST",
-    bg_image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=85&w=2400",
-    images: [
-      "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=600&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?w=400&h=600&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=600&fit=crop&q=80",
-    ],
-    map_x: 66,
-    map_y: 43,
-    quote_text: "Our family trip was seamless. The personal concierge was a game changer.",
-    quote_name: "Hasan R.",
-    quote_role: "Dubai Luxury '24",
-    quote_initial: "H",
-    sort_order: 3,
-    active: true,
-  },
-];
+const CLS =
+  "w-full px-3.5 py-2 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300";
 
-// ─── Image Upload Helper ───────────────────────────────────────────────────────
+// ─── Field wrapper ────────────────────────────────────────────────────────────
 
-function ImageUploadField({
+function Field({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div>
+      <label
+        className="block text-[10px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold"
+        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+      >
+        {label}
+        {required && <span className="text-red-400 ml-0.5">*</span>}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+// ─── Single image upload row ──────────────────────────────────────────────────
+
+function ImageField({
   label,
   value,
   onChange,
@@ -178,106 +95,113 @@ function ImageUploadField({
   value: string;
   onChange: (url: string) => void;
 }) {
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState("");
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const ref = useRef<HTMLInputElement>(null);
 
-  async function handleFile(file: File) {
-    setUploading(true);
-    setError("");
+  async function upload(file: File) {
+    setBusy(true);
     const fd = new FormData();
     fd.append("file", file);
     fd.append("bucket", "media");
     fd.append("folder", "hero");
     const res = await fetch("/api/upload", { method: "POST", body: fd });
-    const json = await res.json();
-    setUploading(false);
-    if (json.url) onChange(json.url);
-    else setError(json.error || "Upload failed");
+    const j = await res.json();
+    setBusy(false);
+    if (j.url) onChange(j.url);
   }
 
   return (
-    <div>
-      <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-        {label}
-      </label>
-      <div className="flex gap-2 items-start">
+    <Field label={label}>
+      <div className="flex gap-2">
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="https://… or upload below"
-          className="flex-1 px-3.5 py-2 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300"
+          placeholder="https://… or click Upload"
+          className={CLS + " flex-1"}
         />
         <button
           type="button"
-          onClick={() => fileRef.current?.click()}
-          disabled={uploading}
-          className="px-3 py-2 bg-slate-100 hover:bg-[#EBF5FF] text-slate-500 hover:text-[#4DA3E8] rounded-lg text-sm border border-slate-200 cursor-pointer transition-all whitespace-nowrap disabled:opacity-50"
+          disabled={busy}
+          onClick={() => ref.current?.click()}
+          className="px-3 py-2 text-sm rounded-lg border border-slate-200 bg-slate-50 hover:bg-[#EBF5FF] hover:text-[#4DA3E8] hover:border-[#4DA3E8] cursor-pointer transition-all disabled:opacity-50 whitespace-nowrap"
         >
-          {uploading ? "Uploading…" : "Upload"}
+          {busy ? "…" : "Upload"}
         </button>
-        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+        <input
+          ref={ref}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) upload(f);
+          }}
+        />
       </div>
       {value && (
-        <img src={value} alt="preview" className="mt-2 h-24 w-auto rounded-lg object-cover border border-slate-200" />
+        <img
+          src={value}
+          alt="preview"
+          className="mt-2 h-20 w-auto rounded-lg object-cover border border-slate-200"
+        />
       )}
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-    </div>
+    </Field>
   );
 }
 
-// ─── Multi-Image Manager ───────────────────────────────────────────────────────
+// ─── Multi-image manager (column images) ─────────────────────────────────────
 
-function MultiImageManager({
+function MultiImages({
   images,
   onChange,
 }: {
   images: string[];
-  onChange: (imgs: string[]) => void;
+  onChange: (v: string[]) => void;
 }) {
-  const [uploading, setUploading] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const ref = useRef<HTMLInputElement>(null);
 
-  async function handleFile(file: File) {
-    setUploading(true);
+  async function upload(file: File) {
+    setBusy(true);
     const fd = new FormData();
     fd.append("file", file);
     fd.append("bucket", "media");
     fd.append("folder", "hero");
     const res = await fetch("/api/upload", { method: "POST", body: fd });
-    const json = await res.json();
-    setUploading(false);
-    if (json.url) onChange([...images, json.url]);
+    const j = await res.json();
+    setBusy(false);
+    if (j.url) onChange([...images, j.url]);
   }
 
-  function updateUrl(idx: number, url: string) {
-    onChange(images.map((img, i) => (i === idx ? url : img)));
+  function update(i: number, url: string) {
+    onChange(images.map((img, idx) => (idx === i ? url : img)));
   }
 
-  function remove(idx: number) {
-    onChange(images.filter((_, i) => i !== idx));
+  function remove(i: number) {
+    onChange(images.filter((_, idx) => idx !== i));
   }
 
   return (
-    <div>
-      <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-2 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-        Column Images (3 recommended)
-      </label>
+    <Field label="Column Images (3 recommended)">
       <div className="space-y-2 mb-2">
-        {images.map((img, idx) => (
-          <div key={idx} className="flex gap-2 items-center">
-            <div className="relative flex-shrink-0">
-              <img src={img} alt={`img-${idx}`} className="w-14 h-20 rounded-lg object-cover border border-slate-200" />
-            </div>
+        {images.map((img, i) => (
+          <div key={i} className="flex gap-2 items-center">
+            {img && (
+              <img
+                src={img}
+                alt=""
+                className="w-10 h-14 rounded-md object-cover border border-slate-200 flex-shrink-0"
+              />
+            )}
             <input
               value={img}
-              onChange={(e) => updateUrl(idx, e.target.value)}
-              className="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8]"
+              onChange={(e) => update(i, e.target.value)}
+              className={CLS + " flex-1 text-xs"}
             />
             <button
               type="button"
-              onClick={() => remove(idx)}
-              className="text-slate-300 hover:text-red-500 bg-transparent border-none cursor-pointer text-lg leading-none"
+              onClick={() => remove(i)}
+              className="text-slate-300 hover:text-red-500 bg-transparent border-none cursor-pointer text-xl leading-none flex-shrink-0"
             >
               ×
             </button>
@@ -286,80 +210,90 @@ function MultiImageManager({
       </div>
       <div className="flex gap-2">
         <input
-          placeholder="Paste image URL and press +"
-          className="flex-1 px-3.5 py-2 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300"
+          placeholder="Paste URL then press Enter to add"
+          className={CLS + " flex-1 text-xs"}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
+              e.preventDefault();
               const v = (e.target as HTMLInputElement).value.trim();
-              if (v) { onChange([...images, v]); (e.target as HTMLInputElement).value = ""; }
+              if (v) {
+                onChange([...images, v]);
+                (e.target as HTMLInputElement).value = "";
+              }
             }
           }}
         />
         <button
           type="button"
-          onClick={() => fileRef.current?.click()}
-          disabled={uploading}
-          className="px-3 py-2 bg-[#4DA3E8] text-white rounded-lg text-sm font-semibold border-none cursor-pointer hover:bg-[#2B7CC4] disabled:opacity-50 whitespace-nowrap"
+          disabled={busy}
+          onClick={() => ref.current?.click()}
+          className="px-4 py-2 text-sm rounded-lg bg-[#4DA3E8] text-white hover:bg-[#2B7CC4] border-none cursor-pointer font-semibold transition-all disabled:opacity-50 whitespace-nowrap"
         >
-          {uploading ? "…" : "Upload"}
+          {busy ? "…" : "Upload"}
         </button>
-        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+        <input
+          ref={ref}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) upload(f);
+          }}
+        />
       </div>
-    </div>
+    </Field>
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+// ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function HeroAdminPage() {
-  const [destinations, setDestinations] = useState<HeroDestination[]>([]);
+  const [list, setList] = useState<Dest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isUsingStatic, setIsUsingStatic] = useState(false);
+  const [tableExists, setTableExists] = useState<boolean | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState<HeroDestination | null>(null);
-  const [form, setForm] = useState<FormState>(emptyForm);
+  const [editing, setEditing] = useState<Dest | null>(null);
+  const [form, setForm] = useState<Form>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const [toast, setToast] = useState("");
 
-  function showToast(msg: string) {
+  // ── toast helper ──────────────────────────────────────────────────────────
+  function notify(msg: string) {
     setToast(msg);
-    setTimeout(() => setToast(""), 3000);
+    setTimeout(() => setToast(""), 3500);
   }
 
+  // ── load destinations from API ─────────────────────────────────────────────
   async function load() {
     setLoading(true);
-    const res = await fetch("/api/hero");
-    const json = await res.json();
-    if (json.tableExists === false) {
-      // Table doesn't exist yet — show SQL setup notice + static preview
-      setDestinations(STATIC_DEFAULTS);
-      setIsUsingStatic(true);
-    } else {
-      // Table exists (may be empty after running SQL — that's fine)
-      setDestinations(json.destinations || []);
-      setIsUsingStatic(false);
+    try {
+      const res = await fetch("/api/hero");
+      const json = await res.json();
+      setTableExists(json.tableExists !== false);
+      setList(Array.isArray(json.destinations) ? json.destinations : []);
+    } catch {
+      setTableExists(false);
+      setList([]);
     }
     setLoading(false);
   }
 
   useEffect(() => { load(); }, []);
 
-  function setField<K extends keyof FormState>(key: K, val: FormState[K]) {
-    setForm((f) => ({ ...f, [key]: val }));
+  // ── form helpers ──────────────────────────────────────────────────────────
+  function set<K extends keyof Form>(k: K, v: Form[K]) {
+    setForm((f) => ({ ...f, [k]: v }));
   }
 
   function openNew() {
     setEditing(null);
-    setForm({ ...emptyForm, sort_order: destinations.length });
+    setForm({ ...EMPTY_FORM, sort_order: list.length });
     setShowForm(true);
   }
 
-  function openEdit(d: HeroDestination) {
-    if (d.id < 0) {
-      showToast("Set up the database table first to edit destinations.");
-      return;
-    }
+  function openEdit(d: Dest) {
     setEditing(d);
     setForm({
       label: d.label,
@@ -373,7 +307,7 @@ export default function HeroAdminPage() {
       flight: d.flight,
       tz: d.tz,
       bg_image: d.bg_image,
-      images: d.images || [],
+      images: d.images ?? [],
       map_x: d.map_x,
       map_y: d.map_y,
       quote_text: d.quote_text,
@@ -386,7 +320,7 @@ export default function HeroAdminPage() {
     setShowForm(true);
   }
 
-  async function handleSave(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     const payload = {
@@ -404,11 +338,8 @@ export default function HeroAdminPage() {
     });
     const json = await res.json();
     setSaving(false);
-    if (json.error) {
-      showToast("Error: " + json.error);
-      return;
-    }
-    showToast(editing ? "Destination updated!" : "Destination created!");
+    if (json.error) { notify("Error: " + json.error); return; }
+    notify(editing ? "Destination updated!" : "Destination created!");
     setShowForm(false);
     load();
   }
@@ -416,210 +347,201 @@ export default function HeroAdminPage() {
   async function handleDelete(id: number) {
     const res = await fetch(`/api/hero/${id}`, { method: "DELETE" });
     const json = await res.json();
-    if (json.error) { showToast("Error: " + json.error); return; }
-    showToast("Destination deleted.");
-    setDeleteConfirm(null);
+    if (json.error) { notify("Error: " + json.error); return; }
+    notify("Deleted.");
+    setConfirmDelete(null);
     load();
   }
+
+  // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
     <AdminLayout>
       <div className="max-w-5xl mx-auto">
 
-        {/* Header */}
+        {/* Page header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-[#0B1628]" style={{ fontFamily: "'Sora', sans-serif" }}>
+            <h1
+              className="text-2xl font-bold text-[#0B1628]"
+              style={{ fontFamily: "'Sora', sans-serif" }}
+            >
               Hero Section
             </h1>
             <p className="text-sm text-slate-400 mt-0.5">
-              Manage hero destinations, images and content displayed on the homepage.
+              Manage destinations, images & content shown in the homepage hero.
             </p>
           </div>
-          <button
-            onClick={openNew}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#4DA3E8] text-white rounded-xl font-semibold text-sm border-none cursor-pointer hover:bg-[#2B7CC4] transition-all"
-            style={{ fontFamily: "'Sora', sans-serif" }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
-            Add Destination
-          </button>
+          {tableExists && (
+            <button
+              onClick={openNew}
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#4DA3E8] hover:bg-[#2B7CC4] text-white rounded-xl font-semibold text-sm border-none cursor-pointer transition-all"
+              style={{ fontFamily: "'Sora', sans-serif" }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
+              Add Destination
+            </button>
+          )}
         </div>
 
-        {/* DB notice */}
-        {isUsingStatic && !loading && (
-          <div className="mb-5 bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 items-start">
-            <svg className="flex-shrink-0 mt-0.5" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-            <div>
-              <p className="text-sm font-semibold text-amber-800" style={{ fontFamily: "'Sora', sans-serif" }}>
-                Database table not set up yet
-              </p>
-              <p className="text-xs text-amber-700 mt-0.5">
-                Copy the SQL below and run it in <strong>Supabase → SQL Editor</strong>. It creates the table <em>and</em> inserts the 4 default destinations.
-              </p>
-              <pre className="mt-2 text-[11px] bg-amber-100 rounded-lg p-3 overflow-x-auto text-amber-900 leading-relaxed whitespace-pre">
-{`-- ① Create the table
-CREATE TABLE IF NOT EXISTS hero_destinations (
-  id            SERIAL PRIMARY KEY,
-  label         TEXT NOT NULL,
-  city          TEXT NOT NULL DEFAULT '',
-  code          TEXT NOT NULL DEFAULT '',
-  country       TEXT NOT NULL DEFAULT '',
-  tagline       TEXT NOT NULL DEFAULT '',
-  description   TEXT NOT NULL DEFAULT '',
-  price         TEXT NOT NULL DEFAULT '',
-  temp          TEXT NOT NULL DEFAULT '',
-  flight        TEXT NOT NULL DEFAULT '',
-  tz            TEXT NOT NULL DEFAULT '',
-  bg_image      TEXT NOT NULL DEFAULT '',
-  images        TEXT[] NOT NULL DEFAULT '{}',
-  map_x         NUMERIC NOT NULL DEFAULT 60,
-  map_y         NUMERIC NOT NULL DEFAULT 45,
-  quote_text    TEXT NOT NULL DEFAULT '',
-  quote_name    TEXT NOT NULL DEFAULT '',
-  quote_role    TEXT NOT NULL DEFAULT '',
-  quote_initial TEXT NOT NULL DEFAULT '',
-  sort_order    INT NOT NULL DEFAULT 0,
-  active        BOOLEAN NOT NULL DEFAULT TRUE,
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
--- ② Seed with the 4 default destinations
-INSERT INTO hero_destinations
-  (label, city, code, country, tagline, description, price,
-   temp, flight, tz, bg_image, images, map_x, map_y,
-   quote_text, quote_name, quote_role, quote_initial, sort_order, active)
-VALUES
-(
-  'Umrah','Makkah','JED','Saudi Arabia',
-  'Your Sacred Journey, Elevated',
-  'VIP pilgrimage · Five-star suites steps from Haram · Personal scholar guiding every ritual · Private SUV transfers · 99.8% visa success',
-  '450,000','34°C','~4h 15m','AST',
-  'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?auto=format&fit=crop&q=85&w=2400',
-  ARRAY[
-    'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=400&h=600&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=400&h=600&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1565552643951-b2e152973b06?w=400&h=600&fit=crop&q=80'
-  ],
-  62,46,
-  'Flawless logistics let us focus entirely on worship. Truly transcendent.',
-  'Fatima H.','Executive Hajj ''24','F',0,true
-),(
-  'Hajj 2026','Makkah','JED','Saudi Arabia',
-  'The Journey of a Lifetime',
-  'Premium Hajj packages · Palace suites at Abraj Al Bait · Dedicated scholar · VIP transfers · Priority visa processing',
-  '1,250,000','38°C','~4h 15m','AST',
-  'https://images.unsplash.com/photo-1564769625905-50e93615e769?auto=format&fit=crop&q=85&w=2400',
-  ARRAY[
-    'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=400&h=600&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=400&h=600&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1565552643951-b2e152973b06?w=400&h=600&fit=crop&q=80'
-  ],
-  62,46,
-  'The Clock Tower suite and VIP transfers exceeded all expectations.',
-  'Khalid A.','Royal Umrah ''24','K',1,true
-),(
-  'Turkey','Istanbul','IST','Turkey',
-  'Where Continents Converge',
-  'Ottoman heritage · Bosphorus cruises · Cappadocia balloon rides · Luxury boutique hotels · Halal dining curated',
-  '380,000','18°C','~5h 40m','TRT',
-  'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&q=85&w=2400',
-  ARRAY[
-    'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=400&h=600&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=400&h=600&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&h=600&fit=crop&q=80'
-  ],
-  54,30,
-  'Istanbul with Billoo felt like traveling with family. Incredible detail.',
-  'Dr. Aisha S.','Turkey Tour ''24','A',2,true
-),(
-  'Dubai','Dubai','DXB','UAE',
-  'Beyond Extraordinary',
-  'Desert safaris · Sky-high dining · Beachfront suites · Burj Khalifa access · Curated shopping tours',
-  '320,000','30°C','~2h 30m','GST',
-  'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=85&w=2400',
-  ARRAY[
-    'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=600&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1570939274717-7eda259b50ed?w=400&h=600&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=600&fit=crop&q=80'
-  ],
-  66,43,
-  'Our family trip was seamless. The personal concierge was a game changer.',
-  'Hasan R.','Dubai Luxury ''24','H',3,true
-);`}
-              </pre>
+        {/* ── DB setup notice ── */}
+        {tableExists === false && !loading && (
+          <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 overflow-hidden">
+            <div className="flex gap-3 items-start p-5">
+              <svg className="flex-shrink-0 mt-0.5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2">
+                <path d="M12 9v4M12 17h.01"/>
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+              </svg>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-amber-900 text-sm" style={{ fontFamily: "'Sora', sans-serif" }}>
+                  Database not set up yet
+                </p>
+                <p className="text-xs text-amber-700 mt-1 leading-relaxed">
+                  Go to <strong>Supabase → SQL Editor</strong>, paste the SQL from
+                  <code className="mx-1 px-1.5 py-0.5 bg-amber-100 rounded text-amber-800 font-mono text-[11px]">hero-setup.sql</code>
+                  in the repository root, and click <strong>Run</strong>.
+                  The file creates the table and inserts all 4 default destinations.
+                </p>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Destination Cards */}
-        {loading ? (
-          <div className="flex items-center justify-center h-48 text-slate-400 text-sm">Loading…</div>
-        ) : (
+        {/* ── Loading ── */}
+        {loading && (
+          <div className="flex items-center justify-center h-48 text-slate-400 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-[#4DA3E8] border-t-transparent rounded-full animate-spin" />
+              Loading…
+            </div>
+          </div>
+        )}
+
+        {/* ── Empty state (table exists but no rows) ── */}
+        {!loading && tableExists && list.length === 0 && (
+          <div className="text-center py-20 bg-white rounded-2xl border border-slate-200">
+            <div className="w-16 h-16 bg-[#EBF5FF] rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4DA3E8" strokeWidth="1.5">
+                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                <path d="M2 10l5-4 4 3 4-5 7 6"/>
+                <path d="M2 20h20"/>
+              </svg>
+            </div>
+            <h3 className="font-bold text-[#0B1628] text-lg mb-1" style={{ fontFamily: "'Sora', sans-serif" }}>
+              No destinations yet
+            </h3>
+            <p className="text-slate-400 text-sm mb-5">Add your first hero destination to get started.</p>
+            <button
+              onClick={openNew}
+              className="px-6 py-2.5 bg-[#4DA3E8] hover:bg-[#2B7CC4] text-white rounded-xl font-semibold text-sm border-none cursor-pointer transition-all"
+              style={{ fontFamily: "'Sora', sans-serif" }}
+            >
+              Add Destination
+            </button>
+          </div>
+        )}
+
+        {/* ── Destination cards ── */}
+        {!loading && list.length > 0 && (
           <div className="grid gap-4">
-            {destinations.map((d) => (
-              <div key={d.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex gap-0">
-                  {/* BG image preview */}
-                  <div className="w-40 flex-shrink-0 relative">
+            {list.map((d) => (
+              <div
+                key={d.id}
+                className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="flex">
+                  {/* Bg image thumbnail */}
+                  <div className="w-44 flex-shrink-0 relative" style={{ minHeight: 140 }}>
                     {d.bg_image ? (
-                      <img src={d.bg_image} alt={d.label} className="w-full h-full object-cover" style={{ minHeight: 130 }} />
+                      <img
+                        src={d.bg_image}
+                        alt={d.label}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
                     ) : (
-                      <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300 text-sm" style={{ minHeight: 130 }}>No image</div>
+                      <div className="absolute inset-0 bg-slate-100 flex items-center justify-center text-slate-300 text-xs">
+                        No image
+                      </div>
                     )}
-                    <div className="absolute top-2 left-2">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide ${d.active ? "bg-emerald-500 text-white" : "bg-slate-300 text-white"}`}>
-                        {d.active ? "ACTIVE" : "HIDDEN"}
-                      </span>
-                    </div>
+                    <span
+                      className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide ${
+                        d.active ? "bg-emerald-500 text-white" : "bg-slate-400 text-white"
+                      }`}
+                    >
+                      {d.active ? "ACTIVE" : "HIDDEN"}
+                    </span>
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 p-5">
                     <div className="flex items-start justify-between gap-4">
-                      <div>
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-bold text-[#0B1628] text-lg leading-tight" style={{ fontFamily: "'Sora', sans-serif" }}>{d.label}</h3>
-                          <span className="text-xs text-slate-400 font-mono bg-slate-100 px-2 py-0.5 rounded">{d.code}</span>
+                          <h3
+                            className="font-bold text-[#0B1628] text-lg leading-tight"
+                            style={{ fontFamily: "'Sora', sans-serif" }}
+                          >
+                            {d.label}
+                          </h3>
+                          <span className="text-xs text-slate-400 font-mono bg-slate-100 px-2 py-0.5 rounded flex-shrink-0">
+                            {d.code}
+                          </span>
                         </div>
-                        <p className="text-sm text-slate-500 mb-1">{d.city}, {d.country}</p>
-                        <p className="text-xs text-[#4DA3E8] font-semibold mb-2">{d.tagline}</p>
-                        <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">{d.description}</p>
+                        <p className="text-sm text-slate-500 mb-1">
+                          {d.city}, {d.country}
+                        </p>
+                        <p className="text-xs font-semibold text-[#4DA3E8] mb-2">{d.tagline}</p>
+                        <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
+                          {d.description}
+                        </p>
                       </div>
                       <div className="flex-shrink-0 text-right">
-                        <div className="text-lg font-bold text-[#0B1628]" style={{ fontFamily: "'Sora', sans-serif" }}>PKR {d.price}</div>
-                        <div className="text-xs text-slate-400">{d.temp} · {d.flight}</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Sort: #{d.sort_order + 1}</div>
+                        <div
+                          className="font-bold text-[#0B1628] text-base"
+                          style={{ fontFamily: "'Sora', sans-serif" }}
+                        >
+                          PKR {d.price}
+                        </div>
+                        <div className="text-xs text-slate-400 mt-0.5">
+                          {d.temp} · {d.flight}
+                        </div>
+                        <div className="text-xs text-slate-300 mt-0.5">
+                          Order #{d.sort_order + 1}
+                        </div>
                       </div>
                     </div>
 
                     {/* Column image thumbs */}
                     {d.images && d.images.length > 0 && (
                       <div className="flex gap-1.5 mt-3">
-                        {d.images.map((img, i) => (
-                          <img key={i} src={img} alt={`col-${i}`} className="w-10 h-14 object-cover rounded-md border border-slate-200" />
+                        {d.images.slice(0, 5).map((img, i) => (
+                          <img
+                            key={i}
+                            src={img}
+                            alt=""
+                            className="w-9 h-13 object-cover rounded-md border border-slate-200"
+                            style={{ height: 52 }}
+                          />
                         ))}
                       </div>
                     )}
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 mt-4">
+                    <div className="flex gap-2 mt-4">
                       <button
                         onClick={() => openEdit(d)}
-                        className="px-4 py-1.5 bg-[#EBF5FF] text-[#4DA3E8] rounded-lg text-xs font-semibold border-none cursor-pointer hover:bg-[#4DA3E8] hover:text-white transition-all"
+                        className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-[#EBF5FF] text-[#4DA3E8] hover:bg-[#4DA3E8] hover:text-white border-none cursor-pointer transition-all"
                         style={{ fontFamily: "'Sora', sans-serif" }}
                       >
                         Edit
                       </button>
-                      {d.id >= 0 && (
-                        <button
-                          onClick={() => setDeleteConfirm(d.id)}
-                          className="px-4 py-1.5 bg-red-50 text-red-400 rounded-lg text-xs font-semibold border-none cursor-pointer hover:bg-red-500 hover:text-white transition-all"
-                          style={{ fontFamily: "'Sora', sans-serif" }}
-                        >
-                          Delete
-                        </button>
-                      )}
+                      <button
+                        onClick={() => setConfirmDelete(d.id)}
+                        className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-red-50 text-red-400 hover:bg-red-500 hover:text-white border-none cursor-pointer transition-all"
+                        style={{ fontFamily: "'Sora', sans-serif" }}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -628,134 +550,248 @@ VALUES
           </div>
         )}
 
-        {/* ── Edit / Create Form Modal ── */}
+        {/* ══════════════════════════════════════════
+            FORM MODAL
+        ══════════════════════════════════════════ */}
         {showForm && (
-          <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center overflow-y-auto py-8 px-4">
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center overflow-y-auto py-8 px-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl">
+
+              {/* Modal header */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-                <h2 className="font-bold text-[#0B1628] text-lg" style={{ fontFamily: "'Sora', sans-serif" }}>
-                  {editing ? "Edit Destination" : "New Destination"}
+                <h2
+                  className="font-bold text-[#0B1628] text-lg"
+                  style={{ fontFamily: "'Sora', sans-serif" }}
+                >
+                  {editing ? `Edit: ${editing.label}` : "New Destination"}
                 </h2>
-                <button onClick={() => setShowForm(false)} className="text-slate-300 hover:text-slate-600 bg-transparent border-none cursor-pointer text-2xl leading-none">&times;</button>
+                <button
+                  onClick={() => setShowForm(false)}
+                  className="text-slate-300 hover:text-slate-600 bg-transparent border-none cursor-pointer text-2xl leading-none"
+                >
+                  ×
+                </button>
               </div>
 
-              <form onSubmit={handleSave} className="p-6 space-y-5">
+              <form onSubmit={handleSubmit} className="p-6 space-y-5">
 
-                {/* Row: label, city, code, country */}
+                {/* Row 1 */}
                 <div className="grid grid-cols-2 gap-4">
-                  <Field label="Label / Name" required>
-                    <input value={form.label} onChange={(e) => setField("label", e.target.value)} required placeholder="e.g. Umrah" className={INPUT} />
+                  <Field label="Destination Name" required>
+                    <input
+                      required
+                      value={form.label}
+                      onChange={(e) => set("label", e.target.value)}
+                      placeholder="e.g. Umrah"
+                      className={CLS}
+                    />
                   </Field>
                   <Field label="City">
-                    <input value={form.city} onChange={(e) => setField("city", e.target.value)} placeholder="e.g. Makkah" className={INPUT} />
+                    <input
+                      value={form.city}
+                      onChange={(e) => set("city", e.target.value)}
+                      placeholder="e.g. Makkah"
+                      className={CLS}
+                    />
                   </Field>
                   <Field label="Airport Code">
-                    <input value={form.code} onChange={(e) => setField("code", e.target.value)} placeholder="e.g. JED" className={INPUT} />
+                    <input
+                      value={form.code}
+                      onChange={(e) => set("code", e.target.value.toUpperCase())}
+                      placeholder="e.g. JED"
+                      maxLength={4}
+                      className={CLS}
+                    />
                   </Field>
                   <Field label="Country">
-                    <input value={form.country} onChange={(e) => setField("country", e.target.value)} placeholder="e.g. Saudi Arabia" className={INPUT} />
+                    <input
+                      value={form.country}
+                      onChange={(e) => set("country", e.target.value)}
+                      placeholder="e.g. Saudi Arabia"
+                      className={CLS}
+                    />
                   </Field>
                 </div>
 
                 {/* Tagline */}
                 <Field label="Tagline">
-                  <input value={form.tagline} onChange={(e) => setField("tagline", e.target.value)} placeholder="Short inspirational line" className={INPUT} />
-                </Field>
-
-                {/* Description */}
-                <Field label="Description">
-                  <textarea
-                    value={form.description}
-                    onChange={(e) => setField("description", e.target.value)}
-                    placeholder="Key features separated by ·"
-                    rows={3}
-                    className={INPUT + " resize-none"}
+                  <input
+                    value={form.tagline}
+                    onChange={(e) => set("tagline", e.target.value)}
+                    placeholder="Short inspiring line shown on hero"
+                    className={CLS}
                   />
                 </Field>
 
-                {/* Row: price, temp, flight, tz */}
+                {/* Description */}
+                <Field label="Description (use · to separate features)">
+                  <textarea
+                    value={form.description}
+                    onChange={(e) => set("description", e.target.value)}
+                    placeholder="VIP pilgrimage · Five-star suites · Private transfers"
+                    rows={3}
+                    className={CLS + " resize-none"}
+                  />
+                </Field>
+
+                {/* Stats row */}
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="Price (PKR)">
-                    <input value={form.price} onChange={(e) => setField("price", e.target.value)} placeholder="e.g. 450,000" className={INPUT} />
+                    <input
+                      value={form.price}
+                      onChange={(e) => set("price", e.target.value)}
+                      placeholder="e.g. 450,000"
+                      className={CLS}
+                    />
                   </Field>
                   <Field label="Temperature">
-                    <input value={form.temp} onChange={(e) => setField("temp", e.target.value)} placeholder="e.g. 34°C" className={INPUT} />
+                    <input
+                      value={form.temp}
+                      onChange={(e) => set("temp", e.target.value)}
+                      placeholder="e.g. 34°C"
+                      className={CLS}
+                    />
                   </Field>
-                  <Field label="Flight Time">
-                    <input value={form.flight} onChange={(e) => setField("flight", e.target.value)} placeholder="e.g. ~4h 15m" className={INPUT} />
+                  <Field label="Flight Duration">
+                    <input
+                      value={form.flight}
+                      onChange={(e) => set("flight", e.target.value)}
+                      placeholder="e.g. ~4h 15m"
+                      className={CLS}
+                    />
                   </Field>
                   <Field label="Timezone Code">
-                    <input value={form.tz} onChange={(e) => setField("tz", e.target.value)} placeholder="e.g. AST" className={INPUT} />
+                    <input
+                      value={form.tz}
+                      onChange={(e) => set("tz", e.target.value)}
+                      placeholder="e.g. AST"
+                      className={CLS}
+                    />
                   </Field>
                 </div>
 
-                {/* Background Image */}
-                <ImageUploadField
-                  label="Background Image (full page)"
+                {/* Background image */}
+                <ImageField
+                  label="Background Image (full screen)"
                   value={form.bg_image}
-                  onChange={(url) => setField("bg_image", url)}
+                  onChange={(url) => set("bg_image", url)}
                 />
 
-                {/* Column Images */}
-                <MultiImageManager
+                {/* Column images */}
+                <MultiImages
                   images={form.images}
-                  onChange={(imgs) => setField("images", imgs)}
+                  onChange={(imgs) => set("images", imgs)}
                 />
 
-                {/* Map coordinates */}
+                {/* Map coords */}
                 <div className="grid grid-cols-2 gap-4">
-                  <Field label="Map X Position (0–100)">
-                    <input type="number" min={0} max={100} value={form.map_x} onChange={(e) => setField("map_x", Number(e.target.value))} className={INPUT} />
+                  <Field label="Map X (0–100, horizontal position)">
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={form.map_x}
+                      onChange={(e) => set("map_x", Number(e.target.value))}
+                      className={CLS}
+                    />
                   </Field>
-                  <Field label="Map Y Position (0–100)">
-                    <input type="number" min={0} max={100} value={form.map_y} onChange={(e) => setField("map_y", Number(e.target.value))} className={INPUT} />
+                  <Field label="Map Y (0–100, vertical position)">
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={form.map_y}
+                      onChange={(e) => set("map_y", Number(e.target.value))}
+                      className={CLS}
+                    />
                   </Field>
                 </div>
 
                 {/* Quote */}
-                <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-                  <p className="text-[11px] tracking-[1px] text-slate-400 uppercase font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Customer Quote</p>
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                  <p
+                    className="text-[10px] tracking-[1px] text-slate-400 uppercase font-semibold"
+                    style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                  >
+                    Customer Quote
+                  </p>
                   <Field label="Quote Text">
                     <textarea
                       value={form.quote_text}
-                      onChange={(e) => setField("quote_text", e.target.value)}
+                      onChange={(e) => set("quote_text", e.target.value)}
                       placeholder="What the customer said…"
                       rows={2}
-                      className={INPUT + " resize-none"}
+                      className={CLS + " resize-none"}
                     />
                   </Field>
                   <div className="grid grid-cols-3 gap-3">
                     <Field label="Name">
-                      <input value={form.quote_name} onChange={(e) => setField("quote_name", e.target.value)} placeholder="Fatima H." className={INPUT} />
+                      <input
+                        value={form.quote_name}
+                        onChange={(e) => set("quote_name", e.target.value)}
+                        placeholder="Fatima H."
+                        className={CLS}
+                      />
                     </Field>
-                    <Field label="Role / Package">
-                      <input value={form.quote_role} onChange={(e) => setField("quote_role", e.target.value)} placeholder="Executive Hajj '24" className={INPUT} />
+                    <Field label="Package / Role">
+                      <input
+                        value={form.quote_role}
+                        onChange={(e) => set("quote_role", e.target.value)}
+                        placeholder="Executive Hajj '24"
+                        className={CLS}
+                      />
                     </Field>
-                    <Field label="Avatar Initial">
-                      <input value={form.quote_initial} onChange={(e) => setField("quote_initial", e.target.value)} maxLength={2} placeholder="F" className={INPUT} />
+                    <Field label="Initial (avatar)">
+                      <input
+                        value={form.quote_initial}
+                        onChange={(e) => set("quote_initial", e.target.value)}
+                        maxLength={2}
+                        placeholder="F"
+                        className={CLS}
+                      />
                     </Field>
                   </div>
                 </div>
 
-                {/* Sort order & active */}
+                {/* Sort + Status */}
                 <div className="grid grid-cols-2 gap-4">
-                  <Field label="Sort Order">
-                    <input type="number" min={0} value={form.sort_order} onChange={(e) => setField("sort_order", Number(e.target.value))} className={INPUT} />
+                  <Field label="Display Order">
+                    <input
+                      type="number"
+                      min={0}
+                      value={form.sort_order}
+                      onChange={(e) => set("sort_order", Number(e.target.value))}
+                      className={CLS}
+                    />
                   </Field>
-                  <Field label="Status">
-                    <select value={form.active ? "active" : "hidden"} onChange={(e) => setField("active", e.target.value === "active")} className={INPUT}>
-                      <option value="active">Active (visible)</option>
-                      <option value="hidden">Hidden</option>
+                  <Field label="Visibility">
+                    <select
+                      value={form.active ? "1" : "0"}
+                      onChange={(e) => set("active", e.target.value === "1")}
+                      className={CLS}
+                    >
+                      <option value="1">Active — visible on site</option>
+                      <option value="0">Hidden — not shown</option>
                     </select>
                   </Field>
                 </div>
 
-                {/* Footer */}
+                {/* Submit */}
                 <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-200">
-                  <button type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-xl text-slate-500 bg-slate-100 hover:bg-slate-200 font-semibold text-sm border-none cursor-pointer transition-all" style={{ fontFamily: "'Sora', sans-serif" }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowForm(false)}
+                    className="px-5 py-2.5 rounded-xl text-slate-500 bg-slate-100 hover:bg-slate-200 font-semibold text-sm border-none cursor-pointer transition-all"
+                    style={{ fontFamily: "'Sora', sans-serif" }}
+                  >
                     Cancel
                   </button>
-                  <button type="submit" disabled={saving} className="px-6 py-2.5 rounded-xl bg-[#4DA3E8] hover:bg-[#2B7CC4] text-white font-semibold text-sm border-none cursor-pointer transition-all disabled:opacity-60" style={{ fontFamily: "'Sora', sans-serif" }}>
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="px-6 py-2.5 rounded-xl bg-[#4DA3E8] hover:bg-[#2B7CC4] text-white font-semibold text-sm border-none cursor-pointer transition-all disabled:opacity-60"
+                    style={{ fontFamily: "'Sora', sans-serif" }}
+                  >
                     {saving ? "Saving…" : editing ? "Save Changes" : "Create Destination"}
                   </button>
                 </div>
@@ -764,42 +800,49 @@ VALUES
           </div>
         )}
 
-        {/* Delete confirm dialog */}
-        {deleteConfirm !== null && (
-          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4">
+        {/* ── Delete confirm ── */}
+        {confirmDelete !== null && (
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center px-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
-              <h3 className="font-bold text-[#0B1628] text-lg mb-2" style={{ fontFamily: "'Sora', sans-serif" }}>Delete destination?</h3>
-              <p className="text-slate-500 text-sm mb-5">This action cannot be undone. The destination will be removed from the hero section.</p>
+              <h3
+                className="font-bold text-[#0B1628] text-lg mb-2"
+                style={{ fontFamily: "'Sora', sans-serif" }}
+              >
+                Delete destination?
+              </h3>
+              <p className="text-slate-500 text-sm mb-5">
+                This will remove it from the hero section permanently.
+              </p>
               <div className="flex gap-3">
-                <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-2.5 rounded-xl text-slate-500 bg-slate-100 hover:bg-slate-200 font-semibold text-sm border-none cursor-pointer" style={{ fontFamily: "'Sora', sans-serif" }}>Cancel</button>
-                <button onClick={() => handleDelete(deleteConfirm)} className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold text-sm border-none cursor-pointer" style={{ fontFamily: "'Sora', sans-serif" }}>Delete</button>
+                <button
+                  onClick={() => setConfirmDelete(null)}
+                  className="flex-1 py-2.5 rounded-xl text-slate-500 bg-slate-100 hover:bg-slate-200 font-semibold text-sm border-none cursor-pointer"
+                  style={{ fontFamily: "'Sora', sans-serif" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDelete(confirmDelete)}
+                  className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold text-sm border-none cursor-pointer"
+                  style={{ fontFamily: "'Sora', sans-serif" }}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Toast */}
+        {/* ── Toast ── */}
         {toast && (
-          <div className="fixed bottom-6 right-6 z-50 bg-[#0B1628] text-white px-5 py-3 rounded-xl shadow-2xl text-sm font-semibold" style={{ fontFamily: "'Sora', sans-serif" }}>
+          <div
+            className="fixed bottom-6 right-6 z-50 bg-[#0B1628] text-white px-5 py-3 rounded-xl shadow-2xl text-sm font-semibold"
+            style={{ fontFamily: "'Sora', sans-serif" }}
+          >
             {toast}
           </div>
         )}
       </div>
     </AdminLayout>
-  );
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const INPUT = "w-full px-3.5 py-2 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300";
-
-function Field({ label, children, required }: { label: string; children: ReactNode; required?: boolean }) {
-  return (
-    <div>
-      <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-        {label}{required && <span className="text-red-400 ml-0.5">*</span>}
-      </label>
-      {children}
-    </div>
   );
 }

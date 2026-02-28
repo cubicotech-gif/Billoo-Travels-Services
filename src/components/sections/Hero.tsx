@@ -288,10 +288,9 @@ export default function Hero() {
   const autoRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  /* ── keep destLengthRef current & reset active when destinations swap ── */
+  /* ── keep destLengthRef current whenever destinations changes ── */
   useEffect(() => {
     destLengthRef.current = destinations.length;
-    setActive((prev) => (prev < destinations.length ? prev : 0));
   }, [destinations]);
 
   /* ── fetch live destinations from API, map to expected shape ── */
@@ -299,38 +298,42 @@ export default function Hero() {
     fetch("/api/hero")
       .then((r) => r.json())
       .then((json) => {
-        if (json.destinations && json.destinations.length > 0) {
-          const mapped: Destination[] = json.destinations
-            .filter((d: Record<string, unknown>) => d.active)
-            .map((d: Record<string, unknown>) => ({
-              id: String(d.id),
-              label: d.label as string,
-              city: d.city as string,
-              code: d.code as string,
-              country: d.country as string,
-              tagline: d.tagline as string,
-              description: d.description as string,
-              price: d.price as string,
-              temp: d.temp as string,
-              flight: d.flight as string,
-              tz: d.tz as string,
-              images: (d.images as string[]) || [],
-              bgImage: d.bg_image as string,
-              mapCoords: { x: d.map_x as number, y: d.map_y as number },
-              quote: {
-                text: d.quote_text as string,
-                name: d.quote_name as string,
-                role: d.quote_role as string,
-                initial: d.quote_initial as string,
-              },
-            }));
-          if (mapped.length > 0) setDestinations(mapped);
+        if (!json.destinations || json.destinations.length === 0) return;
+        const mapped: Destination[] = json.destinations
+          .filter((d: Record<string, unknown>) => d.active)
+          .map((d: Record<string, unknown>) => ({
+            id: String(d.id),
+            label: d.label as string,
+            city: d.city as string,
+            code: d.code as string,
+            country: d.country as string,
+            tagline: d.tagline as string,
+            description: d.description as string,
+            price: d.price as string,
+            temp: d.temp as string,
+            flight: d.flight as string,
+            tz: d.tz as string,
+            images: (d.images as string[]) || [],
+            bgImage: d.bg_image as string,
+            mapCoords: { x: d.map_x as number, y: d.map_y as number },
+            quote: {
+              text: d.quote_text as string,
+              name: d.quote_name as string,
+              role: d.quote_role as string,
+              initial: d.quote_initial as string,
+            },
+          }));
+        if (mapped.length > 0) {
+          setDestinations(mapped);
+          setActive(0); // reset to first slide whenever data refreshes
         }
       })
       .catch(() => { /* keep static fallback */ });
   }, []);
 
-  const dest = destinations[active];
+  // dest is ALWAYS defined: clamp active to valid range, fall back to static[0]
+  const safeActive = destinations.length > 0 ? Math.min(active, destinations.length - 1) : 0;
+  const dest = destinations[safeActive] ?? STATIC_DESTINATIONS[0];
 
   /* ── live clock ── */
   useEffect(() => {
@@ -428,9 +431,6 @@ export default function Hero() {
     "✦ Dubai Packages from PKR 320K",
     "✦ 24/7 Concierge Service",
   ];
-
-  /* ── guard: dest must exist before we spread images ── */
-  if (!dest) return null;
 
   /* ── strip images: 4x3=12 tiles ── */
   const stripImages = [
