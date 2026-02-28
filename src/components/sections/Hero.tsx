@@ -283,8 +283,16 @@ export default function Hero() {
   const [barcode, setBarcode] = useState(buildBarcode());
   const [stripKey, setStripKey] = useState(0);
   const [mapKey, setMapKey] = useState(0);
+  // ref keeps destinations.length always current inside stale-closure setInterval
+  const destLengthRef = useRef(STATIC_DESTINATIONS.length);
   const autoRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  /* ── keep destLengthRef current & reset active when destinations swap ── */
+  useEffect(() => {
+    destLengthRef.current = destinations.length;
+    setActive((prev) => (prev < destinations.length ? prev : 0));
+  }, [destinations]);
 
   /* ── fetch live destinations from API, map to expected shape ── */
   useEffect(() => {
@@ -358,7 +366,7 @@ export default function Hero() {
     if (autoRef.current) clearInterval(autoRef.current);
     autoRef.current = setInterval(() => {
       setActive((prev) => {
-        const next = (prev + 1) % destinations.length;
+        const next = (prev + 1) % destLengthRef.current;
         setFading(true);
         setTimeout(() => {
           setBarcode(buildBarcode());
@@ -420,6 +428,9 @@ export default function Hero() {
     "✦ Dubai Packages from PKR 320K",
     "✦ 24/7 Concierge Service",
   ];
+
+  /* ── guard: dest must exist before we spread images ── */
+  if (!dest) return null;
 
   /* ── strip images: 4x3=12 tiles ── */
   const stripImages = [
