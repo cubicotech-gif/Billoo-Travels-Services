@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Brand Variables ─── */
+:root {
+  --deep: #060F1B;
+  --navy: #0B1A2E;
+  --blue: #1B3A5C;
+  --light: #4DA3E8;
+  --sky: #7BC4F5;
+  --white: #FFFFFF;
+}
+
+/* ─── CSS @property for animated conic border ─── */
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
 /* ─── Base ─── */
 html {
   scroll-behavior: smooth;
@@ -52,4 +69,336 @@ body {
 ::selection {
   background: rgba(77, 163, 232, 0.2);
   color: #0B1628;
+}
+
+/* ══════════════════════════════════════════
+   HERO SECTION STYLES
+══════════════════════════════════════════ */
+
+/* ─── Keyframe Animations ─── */
+@keyframes tickerScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes stripScroll {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(calc(-166px * 3)); }
+}
+
+@keyframes scanline {
+  0%   { top: -10%; }
+  100% { top: 110%; }
+}
+
+@keyframes blobMorph {
+  0%,100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  25%      { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  50%      { border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%; }
+  75%      { border-radius: 67% 33% 47% 53% / 37% 20% 80% 63%; }
+}
+
+@keyframes grainMove {
+  0%        { transform: translate(0, 0); }
+  12.5%     { transform: translate(-3%, -4%); }
+  25%       { transform: translate(5%, 2%); }
+  37.5%     { transform: translate(-2%, 6%); }
+  50%       { transform: translate(4%, -3%); }
+  62.5%     { transform: translate(-6%, 1%); }
+  75%       { transform: translate(2%, -5%); }
+  87.5%     { transform: translate(-4%, 3%); }
+  100%      { transform: translate(0, 0); }
+}
+
+@keyframes progressFill {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+
+@keyframes borderRotate {
+  0%   { --angle: 0deg; }
+  100% { --angle: 360deg; }
+}
+
+@keyframes clockBlink {
+  0%, 49%  { opacity: 1; }
+  50%, 100%{ opacity: 0; }
+}
+
+@keyframes btnShimmer {
+  0%   { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(300%) skewX(-15deg); }
+}
+
+@keyframes pulseLicense {
+  0%, 100% { opacity: 0.35; box-shadow: 0 0 4px #22C55E; }
+  50%      { opacity: 1;    box-shadow: 0 0 12px #22C55E, 0 0 24px rgba(34,197,94,.4); }
+}
+
+@keyframes radarPing {
+  0%   { r: 3; opacity: 0.7; }
+  100% { r: 6.5; opacity: 0; }
+}
+
+@keyframes planeFly {
+  0%          { offset-distance: 0%;   opacity: 0; }
+  10%         { opacity: 1; }
+  90%         { opacity: 1; }
+  100%        { offset-distance: 100%; opacity: 0; }
+}
+
+@keyframes routeDraw {
+  0%   { stroke-dashoffset: 200; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes liveTagSlide {
+  from { opacity: 0; transform: translateX(10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ─── Hero Root ─── */
+.hero-root {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--deep);
+}
+
+/* ─── Background Images ─── */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(40% 0%, 100% 0%, 100% 100%, 54% 100%);
+  will-change: opacity, transform;
+}
+
+.hero-bg img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hero-bg img.active {
+  opacity: 1;
+  transform: scale(1.02);
+}
+.hero-bg img.inactive {
+  opacity: 0;
+  transform: scale(1.06);
+}
+
+/* ─── Scanline ─── */
+.hero-scanline-wrap {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(40% 0%, 100% 0%, 100% 100%, 54% 100%);
+  overflow: hidden;
+  pointer-events: none;
+}
+.hero-scanline-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 8%;
+  background: linear-gradient(to bottom, transparent, rgba(77,163,232,.03), transparent);
+  animation: scanline 8s linear infinite;
+}
+
+/* ─── Ambient Blob ─── */
+.hero-blob {
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(77,163,232,.05) 0%, transparent 70%);
+  animation: blobMorph 22s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ─── Film Grain ─── */
+.hero-grain {
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  opacity: 0.018;
+  animation: grainMove 5s steps(8) infinite;
+  pointer-events: none;
+}
+
+/* ─── Ticker ─── */
+.hero-ticker-track {
+  display: flex;
+  white-space: nowrap;
+  animation: tickerScroll 55s linear infinite;
+}
+
+/* ─── Image Strip Scroll ─── */
+.strip-scroll {
+  animation: stripScroll 20s linear infinite;
+}
+
+/* ─── Progress Bar ─── */
+.progress-active .progress-fill {
+  animation: progressFill 7s linear forwards;
+}
+
+/* ─── Animated Card Border ─── */
+.icard {
+  position: relative;
+  border-radius: 12px;
+  transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), box-shadow 0.5s;
+  transform-style: preserve-3d;
+}
+.icard::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 13px;
+  background: conic-gradient(
+    from var(--angle),
+    transparent,
+    rgba(77,163,232,.3),
+    transparent,
+    rgba(123,196,245,.15),
+    transparent,
+    rgba(77,163,232,.2),
+    transparent
+  );
+  opacity: 0;
+  transition: opacity 0.4s;
+  animation: borderRotate 6s linear infinite;
+  z-index: 0;
+}
+.icard:hover::before {
+  opacity: 1;
+}
+
+.icard-inner {
+  position: relative;
+  z-index: 1;
+  background: rgba(11,26,46,.65);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(77,163,232,.08);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.3s, background 0.3s;
+}
+.icard:hover .icard-inner {
+  border-color: rgba(77,163,232,.18);
+  background: rgba(11,26,46,.75);
+}
+
+/* ─── Spotlight ─── */
+.icard-spotlight {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.icard:hover .icard-spotlight {
+  opacity: 1;
+}
+
+/* ─── Primary Button Shimmer ─── */
+.hero-btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+.hero-btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+  transform: translateX(-100%) skewX(-15deg);
+  animation: btnShimmer 3s linear infinite;
+}
+
+/* ─── Clock colon blink ─── */
+.clock-colon {
+  animation: clockBlink 1s step-end infinite;
+}
+
+/* ─── License dot pulse ─── */
+.license-dot {
+  animation: pulseLicense 2s ease-in-out infinite;
+}
+
+/* ─── Star hover ─── */
+.icard:hover .star-box {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(77,163,232,.35);
+}
+.star-box {
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+/* ─── Barcode bar hover ─── */
+.icard:hover .bc-bar {
+  background: rgba(123,196,245,.25) !important;
+}
+
+/* ─── Boarding hover-reveal ─── */
+.boarding-reveal {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1),
+              opacity 0.3s,
+              margin-top 0.3s;
+}
+.icard:hover .boarding-reveal {
+  max-height: 80px;
+  opacity: 1;
+  margin-top: 10px;
+}
+
+/* ─── Route Map Live Tag ─── */
+.live-tag {
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.icard:hover .live-tag {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ─── Text fade transition ─── */
+.hero-text-fade {
+  transition: opacity 0.28s ease;
+}
+.hero-text-fade.fading {
+  opacity: 0;
+}
+
+/* ─── Destination tab ─── */
+.dest-tab-active {
+  background: rgba(77,163,232,.1);
+  border-color: rgba(77,163,232,.22) !important;
+}
+
+/* ─── Gradient text ─── */
+.grad-text {
+  background: linear-gradient(135deg, #fff, var(--sky));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
