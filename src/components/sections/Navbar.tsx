@@ -54,42 +54,73 @@ export default function Navbar() {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-400 ${
         scrolled
-          ? "py-2.5 bg-white/95 backdrop-blur-xl border-b border-slate-200"
+          ? "py-2 bg-white/97 backdrop-blur-xl border-b border-slate-200/80 shadow-sm"
           : "py-4 bg-transparent"
       }`}
     >
-      <div className="max-w-[1280px] mx-auto px-6 md:px-9 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 no-underline">
+      <div className="max-w-[1320px] mx-auto px-6 md:px-10 flex items-center justify-between">
+
+        {/* ── Logo ── */}
+        <Link href="/" className="flex items-center gap-3 no-underline flex-shrink-0">
           {logo_url ? (
             <img
               src={logo_url}
               alt="Billoo Travels"
-              style={{ width: logo_width, height: logo_height, objectFit: "contain" }}
+              style={{
+                width: logo_width,
+                height: logo_height,
+                maxHeight: 80,
+                objectFit: "contain",
+              }}
               className="transition-all duration-400"
             />
           ) : (
             <>
+              {/* Gradient circle badge — matches hero section style */}
               <div
-                className={`w-[38px] h-[38px] rounded-[10px] flex items-center justify-center font-display font-bold text-xl transition-all duration-400 ${
-                  scrolled
-                    ? "bg-midnight text-accent"
-                    : "bg-white/[0.08] border border-white/[0.12] text-white backdrop-blur-lg"
-                }`}
+                style={{
+                  width: 54,
+                  height: 54,
+                  borderRadius: "50%",
+                  background: scrolled
+                    ? "linear-gradient(135deg, #0B1628, #1a3054)"
+                    : "linear-gradient(135deg, rgba(255,255,255,.18), rgba(77,163,232,.55))",
+                  boxShadow: scrolled
+                    ? "0 4px 18px rgba(11,22,40,.18)"
+                    : "0 4px 18px rgba(77,163,232,.30)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  border: scrolled ? "none" : "1px solid rgba(255,255,255,.18)",
+                  backdropFilter: scrolled ? "none" : "blur(12px)",
+                  transition: "all 0.4s",
+                }}
               >
-                B
+                <span
+                  style={{
+                    fontFamily: "'DM Serif Display', serif",
+                    fontSize: 22,
+                    color: scrolled ? "#4DA3E8" : "#fff",
+                    lineHeight: 1,
+                    transition: "color 0.4s",
+                  }}
+                >
+                  B
+                </span>
               </div>
+
               <div>
                 <div
-                  className={`font-heading text-base font-bold tracking-wide transition-colors duration-400 ${
-                    scrolled ? "text-midnight" : "text-white"
+                  className={`font-heading text-[15px] font-bold tracking-[2.5px] uppercase transition-colors duration-400 ${
+                    scrolled ? "text-[#0B1628]" : "text-white"
                   }`}
                 >
                   BILLOO TRAVELS
                 </div>
                 <div
-                  className={`font-mono text-[8px] tracking-[3px] ${
-                    scrolled ? "text-slate-400" : "text-white/40"
+                  className={`font-mono text-[8px] tracking-[3px] transition-colors duration-400 ${
+                    scrolled ? "text-slate-400" : "text-[#4DA3E8]/60"
                   }`}
                 >
                   PVT LTD · EST. 1969
@@ -99,7 +130,7 @@ export default function Navbar() {
           )}
         </Link>
 
-        {/* Desktop Nav */}
+        {/* ── Desktop Nav ── */}
         <div className="hidden md:flex items-center gap-5">
           {NAV_LINKS.map((link) => (
             <Link
@@ -107,15 +138,15 @@ export default function Navbar() {
               href={link.href}
               className={`font-heading text-[13px] font-medium no-underline transition-colors ${
                 scrolled
-                  ? "text-slate-500 hover:text-accent"
-                  : "text-white/70 hover:text-accent-soft"
+                  ? "text-slate-500 hover:text-[#4DA3E8]"
+                  : "text-white/70 hover:text-white"
               }`}
             >
               {link.label}
             </Link>
           ))}
 
-          <div className={`h-[18px] w-px ${scrolled ? "bg-slate-200" : "bg-white/[0.12]"}`} />
+          <div className={`h-[18px] w-px ${scrolled ? "bg-slate-200" : "bg-white/[0.15]"}`} />
 
           {/* Social Icons */}
           <div className="flex items-center gap-2">
@@ -128,7 +159,7 @@ export default function Navbar() {
                 aria-label={s.label}
                 className={`flex items-center justify-center w-7 h-7 rounded-md transition-all ${
                   scrolled
-                    ? "text-slate-400 hover:text-accent hover:bg-accent-pale"
+                    ? "text-slate-400 hover:text-[#4DA3E8] hover:bg-[#EBF5FF]"
                     : "text-white/50 hover:text-white hover:bg-white/10"
                 }`}
               >
@@ -137,14 +168,12 @@ export default function Navbar() {
             ))}
           </div>
 
-          <div className={`h-[18px] w-px ${scrolled ? "bg-slate-200" : "bg-white/[0.12]"}`} />
+          <div className={`h-[18px] w-px ${scrolled ? "bg-slate-200" : "bg-white/[0.15]"}`} />
 
           {/* Currency Switcher */}
           <div
             className={`flex rounded-lg overflow-hidden border ${
-              scrolled
-                ? "border-slate-200"
-                : "border-white/[0.12] backdrop-blur-lg"
+              scrolled ? "border-slate-200" : "border-white/[0.15] backdrop-blur-lg"
             }`}
           >
             {currencies.map((c) => (
@@ -153,7 +182,7 @@ export default function Navbar() {
                 onClick={() => setCurrency(c)}
                 className={`px-3 py-1 font-heading text-[11px] font-semibold tracking-wide border-none cursor-pointer transition-all ${
                   currency === c
-                    ? "bg-accent text-white"
+                    ? "bg-[#4DA3E8] text-white"
                     : scrolled
                     ? "bg-transparent text-slate-400"
                     : "bg-transparent text-white/40"
@@ -164,26 +193,50 @@ export default function Navbar() {
             ))}
           </div>
 
+          {/* Book Now */}
           <Link
             href="/booking"
-            className="bg-accent text-white px-5 py-2 rounded-lg font-heading text-[13px] font-semibold no-underline hover:bg-accent-dark transition-all hover:-translate-y-px hover:shadow-lg"
+            className={`px-5 py-2 rounded-lg font-heading text-[13px] font-semibold no-underline transition-all hover:-translate-y-px hover:shadow-lg ${
+              scrolled
+                ? "bg-[#0B1628] text-white hover:bg-[#1a3054]"
+                : "bg-white/[0.12] text-white border border-white/[0.18] backdrop-blur-lg hover:bg-white/[0.2]"
+            }`}
           >
             Book Now
           </Link>
+
+          {/* Admin Panel */}
+          <Link
+            href="/admin"
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg font-heading text-[12px] font-semibold no-underline transition-all hover:-translate-y-px ${
+              scrolled
+                ? "bg-[#4DA3E8] text-white hover:bg-[#2B7CC4] shadow-sm"
+                : "bg-[#4DA3E8]/80 text-white hover:bg-[#4DA3E8] border border-[#4DA3E8]/40 backdrop-blur-lg"
+            }`}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+              <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+            </svg>
+            Admin
+          </Link>
         </div>
 
-        {/* Mobile Toggle */}
+        {/* ── Mobile Toggle ── */}
         <button
-          className={`md:hidden bg-transparent border-none cursor-pointer ${
-            scrolled ? "text-midnight" : "text-white"
+          className={`md:hidden bg-transparent border-none cursor-pointer p-1 ${
+            scrolled ? "text-[#0B1628]" : "text-white"
           }`}
           onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle menu"
         >
           {mobileOpen ? <CloseIcon /> : <MenuIcon />}
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* ── Mobile Menu ── */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -197,19 +250,48 @@ export default function Navbar() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="font-heading text-[13px] font-medium text-slate-500 no-underline hover:text-accent"
+                  className="font-heading text-[13px] font-medium text-slate-500 no-underline hover:text-[#4DA3E8]"
                   onClick={() => setMobileOpen(false)}
                 >
                   {link.label}
                 </Link>
               ))}
-              <Link
-                href="/booking"
-                className="bg-accent text-white px-5 py-2.5 rounded-lg font-heading text-[13px] font-semibold no-underline self-start mt-1"
-                onClick={() => setMobileOpen(false)}
-              >
-                Book Now
-              </Link>
+              <div className="flex gap-2 mt-1">
+                <Link
+                  href="/booking"
+                  className="bg-[#0B1628] text-white px-5 py-2.5 rounded-lg font-heading text-[13px] font-semibold no-underline"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Book Now
+                </Link>
+                <Link
+                  href="/admin"
+                  className="bg-[#4DA3E8] text-white px-5 py-2.5 rounded-lg font-heading text-[13px] font-semibold no-underline flex items-center gap-1.5"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                  </svg>
+                  Admin
+                </Link>
+              </div>
+              {/* Currency in mobile */}
+              <div className="flex items-center gap-0 rounded-lg overflow-hidden border border-slate-200 self-start mt-1">
+                {currencies.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setCurrency(c)}
+                    className={`px-3 py-1.5 font-heading text-[11px] font-semibold tracking-wide border-none cursor-pointer transition-all ${
+                      currency === c ? "bg-[#4DA3E8] text-white" : "bg-transparent text-slate-400"
+                    }`}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
               {/* Social icons in mobile menu */}
               <div className="flex items-center gap-3 pt-2 border-t border-slate-100 mt-1">
                 {SOCIAL.map((s) => (
@@ -219,7 +301,7 @@ export default function Navbar() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={s.label}
-                    className="text-slate-400 hover:text-accent transition-colors"
+                    className="text-slate-400 hover:text-[#4DA3E8] transition-colors"
                     onClick={() => setMobileOpen(false)}
                   >
                     {s.icon}
