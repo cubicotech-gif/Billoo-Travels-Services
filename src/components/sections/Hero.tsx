@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 /* ══════════════════════════════════════════
-   DESTINATION DATA
+   DESTINATION DATA (static fallback)
 ══════════════════════════════════════════ */
-const DESTINATIONS = [
+const STATIC_DESTINATIONS = [
   {
     id: "umrah",
     label: "Umrah",
@@ -116,6 +116,8 @@ const DESTINATIONS = [
   },
 ];
 
+type Destination = (typeof STATIC_DESTINATIONS)[0];
+
 const KARACHI = { x: 70, y: 50 };
 
 function buildBarcode() {
@@ -126,7 +128,7 @@ function buildBarcode() {
    ROUTE MAP SVG
 ══════════════════════════════════════════ */
 function RouteMap({ dest, flightTime, temp, tz }: {
-  dest: typeof DESTINATIONS[0];
+  dest: Destination;
   flightTime: string;
   temp: string;
   tz: string;
@@ -274,6 +276,7 @@ function RouteMap({ dest, flightTime, temp, tz }: {
    MAIN HERO COMPONENT
 ══════════════════════════════════════════ */
 export default function Hero() {
+  const [destinations, setDestinations] = useState<Destination[]>(STATIC_DESTINATIONS);
   const [active, setActive] = useState(0);
   const [fading, setFading] = useState(false);
   const [clockStr, setClockStr] = useState("");
@@ -283,7 +286,43 @@ export default function Hero() {
   const autoRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const dest = DESTINATIONS[active];
+  /* ── fetch live destinations from API, map to expected shape ── */
+  useEffect(() => {
+    fetch("/api/hero")
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.destinations && json.destinations.length > 0) {
+          const mapped: Destination[] = json.destinations
+            .filter((d: Record<string, unknown>) => d.active)
+            .map((d: Record<string, unknown>) => ({
+              id: String(d.id),
+              label: d.label as string,
+              city: d.city as string,
+              code: d.code as string,
+              country: d.country as string,
+              tagline: d.tagline as string,
+              desc: d.desc as string,
+              price: d.price as string,
+              temp: d.temp as string,
+              flight: d.flight as string,
+              tz: d.tz as string,
+              images: (d.images as string[]) || [],
+              bgImage: d.bg_image as string,
+              mapCoords: { x: d.map_x as number, y: d.map_y as number },
+              quote: {
+                text: d.quote_text as string,
+                name: d.quote_name as string,
+                role: d.quote_role as string,
+                initial: d.quote_initial as string,
+              },
+            }));
+          if (mapped.length > 0) setDestinations(mapped);
+        }
+      })
+      .catch(() => { /* keep static fallback */ });
+  }, []);
+
+  const dest = destinations[active];
 
   /* ── live clock ── */
   useEffect(() => {
@@ -319,7 +358,7 @@ export default function Hero() {
     if (autoRef.current) clearInterval(autoRef.current);
     autoRef.current = setInterval(() => {
       setActive((prev) => {
-        const next = (prev + 1) % DESTINATIONS.length;
+        const next = (prev + 1) % destinations.length;
         setFading(true);
         setTimeout(() => {
           setBarcode(buildBarcode());
@@ -398,7 +437,7 @@ export default function Hero() {
 
       {/* ══ Background images with diagonal mask ══ */}
       <div className="hero-bg">
-        {DESTINATIONS.map((d, i) => (
+        {destinations.map((d, i) => (
           <img
             key={d.id}
             src={d.bgImage}
@@ -501,117 +540,6 @@ export default function Hero() {
           <rect width="100%" height="100%" filter="url(#grain)" />
         </svg>
       </div>
-
-      {/* ══════════════════════════════════════════
-          NAVIGATION BAR
-      ══════════════════════════════════════════ */}
-      <nav
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 30,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "22px 40px",
-        }}
-      >
-        {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, var(--light), var(--sky))",
-              boxShadow: "0 4px 18px rgba(77,163,232,.25)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <span
-              style={{
-                fontFamily: "'DM Serif Display', serif",
-                fontSize: 18,
-                color: "#fff",
-              }}
-            >
-              B
-            </span>
-          </div>
-          <div>
-            <div
-              style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                fontSize: 12,
-                fontWeight: 600,
-                letterSpacing: "2.5px",
-                color: "#fff",
-                textTransform: "uppercase",
-              }}
-            >
-              BILLOO TRAVELS
-            </div>
-            <div
-              style={{
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 8,
-                letterSpacing: "3px",
-                color: "var(--sky)",
-                opacity: 0.45,
-              }}
-            >
-              Pvt Ltd · Est. 1969
-            </div>
-          </div>
-        </div>
-
-        {/* Nav links */}
-        <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-          {["Services", "Packages", "Gallery", "Contact"].map((link) => (
-            <a
-              key={link}
-              href={`#${link.toLowerCase()}`}
-              style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                fontSize: 10,
-                fontWeight: 400,
-                letterSpacing: "2px",
-                textTransform: "uppercase",
-                color: "rgba(255,255,255,.3)",
-                textDecoration: "none",
-                transition: "color 0.2s",
-              }}
-              onMouseEnter={(e) => ((e.target as HTMLAnchorElement).style.color = "var(--sky)")}
-              onMouseLeave={(e) => ((e.target as HTMLAnchorElement).style.color = "rgba(255,255,255,.3)")}
-            >
-              {link}
-            </a>
-          ))}
-          <button
-            style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontSize: 9.5,
-              fontWeight: 600,
-              letterSpacing: "1.5px",
-              textTransform: "uppercase",
-              color: "#fff",
-              background: "linear-gradient(135deg, var(--light), var(--sky))",
-              border: "none",
-              borderRadius: 4,
-              padding: "9px 24px",
-              cursor: "pointer",
-              transition: "opacity 0.2s",
-            }}
-          >
-            Book Now
-          </button>
-        </div>
-      </nav>
 
       {/* ══════════════════════════════════════════
           TICKER BAR
@@ -762,7 +690,7 @@ export default function Hero() {
         >
           {/* Destination Tabs */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 20 }}>
-            {DESTINATIONS.map((d, i) => (
+            {destinations.map((d, i) => (
               <button
                 key={d.id}
                 onClick={() => { switchTo(i); startAuto(); }}
@@ -1512,7 +1440,7 @@ export default function Hero() {
             {String(active + 1).padStart(2, "0")}
           </span>
           <div style={{ display: "flex", gap: 4, alignItems: "center", paddingBottom: 3 }}>
-            {DESTINATIONS.map((_, i) => (
+            {destinations.map((_, i) => (
               <div
                 key={i}
                 style={{
