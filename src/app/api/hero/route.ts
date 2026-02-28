@@ -15,12 +15,12 @@ export async function GET() {
   if (error) {
     // Table may not exist yet — return empty so page still works
     if (error.code === "42P01") {
-      return NextResponse.json({ destinations: [] });
+      return NextResponse.json({ destinations: [], tableExists: false });
     }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ destinations: data });
+  return NextResponse.json({ destinations: data, tableExists: true });
 }
 
 // POST /api/hero — create a new hero destination (admin only)
