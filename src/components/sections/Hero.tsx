@@ -1,184 +1,1617 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { STATS } from "@/lib/data";
-import { PlaneIcon, SearchIcon, CheckIcon } from "@/components/ui/Icons";
+import { useState, useEffect, useRef, useCallback } from "react";
 
-export default function Hero() {
+/* ══════════════════════════════════════════
+   DESTINATION DATA
+══════════════════════════════════════════ */
+const DESTINATIONS = [
+  {
+    id: "umrah",
+    label: "Umrah",
+    city: "Makkah",
+    code: "JED",
+    country: "Saudi Arabia",
+    tagline: "Your Sacred Journey, Elevated",
+    desc: "VIP pilgrimage · Five-star suites steps from Haram · Personal scholar guiding every ritual · Private SUV transfers · 99.8% visa success",
+    price: "450,000",
+    temp: "34°C",
+    flight: "~4h 15m",
+    tz: "AST",
+    images: [
+      "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=100&h=160&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=100&h=160&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1565552643951-b2e152973b06?w=100&h=160&fit=crop&q=80",
+    ],
+    bgImage:
+      "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?auto=format&fit=crop&q=85&w=2400",
+    mapCoords: { x: 62, y: 46 },
+    quote: {
+      text: "Flawless logistics let us focus entirely on worship. Truly transcendent.",
+      name: "Fatima H.",
+      role: "Executive Hajj '24",
+      initial: "F",
+    },
+  },
+  {
+    id: "hajj",
+    label: "Hajj 2026",
+    city: "Makkah",
+    code: "JED",
+    country: "Saudi Arabia",
+    tagline: "The Journey of a Lifetime",
+    desc: "Premium Hajj packages · Palace suites at Abraj Al Bait · Dedicated scholar · VIP transfers · Priority visa processing",
+    price: "1,250,000",
+    temp: "38°C",
+    flight: "~4h 15m",
+    tz: "AST",
+    images: [
+      "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=100&h=160&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=100&h=160&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1565552643951-b2e152973b06?w=100&h=160&fit=crop&q=80",
+    ],
+    bgImage:
+      "https://images.unsplash.com/photo-1564769625905-50e93615e769?auto=format&fit=crop&q=85&w=2400",
+    mapCoords: { x: 62, y: 46 },
+    quote: {
+      text: "The Clock Tower suite and VIP transfers exceeded all expectations.",
+      name: "Khalid A.",
+      role: "Royal Umrah '24",
+      initial: "K",
+    },
+  },
+  {
+    id: "turkey",
+    label: "Turkey",
+    city: "Istanbul",
+    code: "IST",
+    country: "Turkey",
+    tagline: "Where Continents Converge",
+    desc: "Ottoman heritage · Bosphorus cruises · Cappadocia balloon rides · Luxury boutique hotels · Halal dining curated",
+    price: "380,000",
+    temp: "18°C",
+    flight: "~5h 40m",
+    tz: "TRT",
+    images: [
+      "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=100&h=160&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1554535736-73565-4a1c?w=100&h=160&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=100&h=160&fit=crop&q=80",
+    ],
+    bgImage:
+      "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&q=85&w=2400",
+    mapCoords: { x: 54, y: 30 },
+    quote: {
+      text: "Istanbul with Billoo felt like traveling with family. Incredible detail.",
+      name: "Dr. Aisha S.",
+      role: "Turkey Tour '24",
+      initial: "A",
+    },
+  },
+  {
+    id: "dubai",
+    label: "Dubai",
+    city: "Dubai",
+    code: "DXB",
+    country: "UAE",
+    tagline: "Beyond Extraordinary",
+    desc: "Desert safaris · Sky-high dining · Beachfront suites · Burj Khalifa access · Curated shopping tours",
+    price: "320,000",
+    temp: "30°C",
+    flight: "~2h 30m",
+    tz: "GST",
+    images: [
+      "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=100&h=160&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?w=100&h=160&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=100&h=160&fit=crop&q=80",
+    ],
+    bgImage:
+      "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=85&w=2400",
+    mapCoords: { x: 66, y: 43 },
+    quote: {
+      text: "Our family trip was seamless. The personal concierge was a game changer.",
+      name: "Hasan R.",
+      role: "Dubai Luxury '24",
+      initial: "H",
+    },
+  },
+];
+
+const KARACHI = { x: 70, y: 50 };
+
+function buildBarcode() {
+  return Array.from({ length: 20 }, () => 8 + Math.floor(Math.random() * 13));
+}
+
+/* ══════════════════════════════════════════
+   ROUTE MAP SVG
+══════════════════════════════════════════ */
+function RouteMap({ dest, flightTime, temp, tz }: {
+  dest: typeof DESTINATIONS[0];
+  flightTime: string;
+  temp: string;
+  tz: string;
+}) {
+  const from = KARACHI;
+  const to = dest.mapCoords;
+  const midX = (from.x + to.x) / 2;
+  const midY = Math.min(from.y, to.y) - 14;
+  const pathD = `M${from.x},${from.y} Q${midX},${midY} ${to.x},${to.y}`;
+
+  const dots: { cx: number; cy: number }[] = [];
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 10; col++) {
+      dots.push({ cx: 5 + col * 10, cy: 5 + row * 9 });
+    }
+  }
+
   return (
-    <section
-      id="home"
-      className="relative min-h-[105vh] flex items-center overflow-hidden"
-    >
-      {/* Background layers */}
+    <div className="icard-inner" style={{ padding: "14px", height: "100%" }}>
+      {/* Live tag */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-fixed"
+        className="live-tag"
         style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1565552643951-b2e152973b06?auto=format&fit=crop&q=85&w=2400')",
+          position: "absolute",
+          top: 10,
+          right: 10,
+          background: "rgba(77,163,232,.1)",
+          border: "1px solid rgba(77,163,232,.2)",
+          borderRadius: 4,
+          padding: "2px 7px",
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 7,
+          color: "var(--sky)",
+          letterSpacing: "1px",
         }}
-      />
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(11,22,40,0.92) 0%, rgba(15,29,53,0.75) 40%, rgba(21,37,69,0.6) 100%)",
-        }}
-      />
-      {/* Ambient orbs */}
-      <div className="absolute top-[5%] right-[25%] w-[600px] h-[600px] rounded-full blur-[100px] bg-[radial-gradient(circle,rgba(77,163,232,0.08)_0%,transparent_70%)]" />
-      <div className="absolute bottom-[15%] left-[10%] w-[400px] h-[400px] rounded-full blur-[80px] bg-[radial-gradient(circle,rgba(92,184,255,0.05)_0%,transparent_70%)]" />
-
-      {/* Floating images */}
-      <div className="hidden lg:block absolute top-[15%] right-[5%] w-[180px] h-[240px] rounded-2xl overflow-hidden opacity-25 border border-white/10 animate-float">
-        <img
-          src="https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=200&h=260&fit=crop"
-          alt=""
-          className="w-full h-full object-cover"
-        />
-      </div>
-      <div className="hidden lg:block absolute bottom-[20%] right-[12%] w-[140px] h-[180px] rounded-xl overflow-hidden opacity-20 border border-white/[0.08] animate-float-delayed">
-        <img
-          src="https://images.unsplash.com/photo-1564769625905-50e93615e769?w=160&h=200&fit=crop"
-          alt=""
-          className="w-full h-full object-cover"
-        />
+      >
+        LIVE ROUTE
       </div>
 
-      {/* Content */}
-      <div className="relative max-w-[1280px] mx-auto px-6 md:px-9 w-full z-10 grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-12 lg:gap-[60px] items-center">
-        {/* Left */}
-        <motion.div
-          initial={{ opacity: 0, y: 28 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+      <svg
+        viewBox="0 0 100 75"
+        style={{ width: "100%", height: "100%" }}
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="1.2" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        {/* Grid dots */}
+        {dots.map((d, i) => (
+          <circle key={i} cx={d.cx} cy={d.cy} r={0.35} fill="rgba(77,163,232,.06)" />
+        ))}
+
+        {/* Route path */}
+        <path
+          d={pathD}
+          fill="none"
+          stroke="var(--light)"
+          strokeWidth={0.6}
+          strokeDasharray={200}
+          strokeDashoffset={0}
+          opacity={0.35}
+          style={{
+            animation: "routeDraw 2s cubic-bezier(0.16,1,0.3,1) forwards",
+          }}
+        />
+
+        {/* Flying dot */}
+        <circle
+          r={1.1}
+          fill="var(--light)"
+          filter="url(#glow)"
+          style={{
+            offsetPath: `path('${pathD}')`,
+            animation: "planeFly 2.5s cubic-bezier(0.16,1,0.3,1) infinite",
+          } as React.CSSProperties}
+        />
+
+        {/* Karachi marker */}
+        <circle cx={from.x} cy={from.y} r={1.3} fill="var(--light)" opacity={0.5} />
+        <circle cx={from.x} cy={from.y} r={3} fill="none" stroke="var(--light)" strokeWidth={0.4} opacity={0.3}>
+          <animate attributeName="r" values="3;6.5;3" dur="3s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.4;0;0.4" dur="3s" repeatCount="indefinite" />
+        </circle>
+        <text
+          x={from.x}
+          y={from.y + 4}
+          textAnchor="middle"
+          fontSize={3}
+          fill="var(--light)"
+          opacity={0.6}
+          fontFamily="JetBrains Mono"
         >
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2.5 bg-accent/10 border border-accent/20 rounded-full py-1.5 px-4 pl-1.5 mb-8">
-            <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center">
-              <PlaneIcon size={12} color="#fff" />
+          KHI
+        </text>
+
+        {/* Destination marker */}
+        <circle cx={to.x} cy={to.y} r={1.3} fill="var(--sky)" opacity={0.7} />
+        <circle cx={to.x} cy={to.y} r={3} fill="none" stroke="var(--sky)" strokeWidth={0.4} opacity={0.3}>
+          <animate attributeName="r" values="3;6.5;3" dur="2.5s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.5;0;0.5" dur="2.5s" repeatCount="indefinite" />
+        </circle>
+        <text
+          x={to.x}
+          y={to.y + 4}
+          textAnchor="middle"
+          fontSize={3}
+          fill="var(--sky)"
+          opacity={0.7}
+          fontFamily="JetBrains Mono"
+        >
+          {dest.code}
+        </text>
+      </svg>
+
+      {/* Bottom info */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 10,
+          left: 14,
+          right: 14,
+          display: "flex",
+          justifyContent: "space-between",
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 7.5,
+          color: "rgba(123,196,245,.5)",
+          letterSpacing: "0.5px",
+        }}
+      >
+        <span>Flight: {flightTime}</span>
+        <span>{temp} · {tz}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════
+   MAIN HERO COMPONENT
+══════════════════════════════════════════ */
+export default function Hero() {
+  const [active, setActive] = useState(0);
+  const [fading, setFading] = useState(false);
+  const [clockStr, setClockStr] = useState("");
+  const [barcode, setBarcode] = useState(buildBarcode());
+  const [stripKey, setStripKey] = useState(0);
+  const [mapKey, setMapKey] = useState(0);
+  const autoRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const dest = DESTINATIONS[active];
+
+  /* ── live clock ── */
+  useEffect(() => {
+    function tick() {
+      const now = new Date(
+        new Date().toLocaleString("en-US", { timeZone: "Asia/Karachi" })
+      );
+      const hh = String(now.getHours()).padStart(2, "0");
+      const mm = String(now.getMinutes()).padStart(2, "0");
+      const ss = String(now.getSeconds()).padStart(2, "0");
+      setClockStr(`${hh}:${mm}:${ss}`);
+    }
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  /* ── destination switch ── */
+  const switchTo = useCallback((idx: number) => {
+    if (idx === active) return;
+    setFading(true);
+    setTimeout(() => {
+      setActive(idx);
+      setBarcode(buildBarcode());
+      setStripKey((k) => k + 1);
+      setMapKey((k) => k + 1);
+      setFading(false);
+    }, 280);
+  }, [active]);
+
+  /* ── auto-rotate ── */
+  const startAuto = useCallback(() => {
+    if (autoRef.current) clearInterval(autoRef.current);
+    autoRef.current = setInterval(() => {
+      setActive((prev) => {
+        const next = (prev + 1) % DESTINATIONS.length;
+        setFading(true);
+        setTimeout(() => {
+          setBarcode(buildBarcode());
+          setStripKey((k) => k + 1);
+          setMapKey((k) => k + 1);
+          setFading(false);
+        }, 280);
+        return next;
+      });
+    }, 7000);
+  }, []);
+
+  useEffect(() => {
+    startAuto();
+    return () => { if (autoRef.current) clearInterval(autoRef.current); };
+  }, [startAuto]);
+
+  /* ── 3D tilt ── */
+  useEffect(() => {
+    const handlers: (() => void)[] = [];
+    cardRefs.current.forEach((card) => {
+      if (!card) return;
+      function onMove(e: MouseEvent) {
+        const rect = card!.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const x = (e.clientX - cx) / (rect.width / 2);
+        const y = (e.clientY - cy) / (rect.height / 2);
+        card!.style.transform = `perspective(800px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) scale(1.02)`;
+        // spotlight
+        const inner = card!.querySelector(".icard-spotlight") as HTMLElement | null;
+        if (inner) {
+          const lx = e.clientX - rect.left;
+          const ly = e.clientY - rect.top;
+          inner.style.background = `radial-gradient(circle at ${lx}px ${ly}px, rgba(77,163,232,.06), transparent 50%)`;
+        }
+      }
+      function onLeave() {
+        card!.style.transform = "";
+      }
+      card.addEventListener("mousemove", onMove);
+      card.addEventListener("mouseleave", onLeave);
+      handlers.push(() => {
+        card.removeEventListener("mousemove", onMove);
+        card.removeEventListener("mouseleave", onLeave);
+      });
+    });
+    return () => handlers.forEach((h) => h());
+  }, []);
+
+  /* ── ticker items ── */
+  const tickerItems = [
+    "✦ Hajj 2026 Bookings Open",
+    "✦ Licensed Agent ID 1251",
+    "✦ 15,000+ Pilgrims Since 1969",
+    "✦ 99.8% Visa Approval",
+    "✦ 5-Star Hotels Near Haram",
+    "✦ Istanbul Heritage Tours",
+    "✦ Dubai Packages from PKR 320K",
+    "✦ 24/7 Concierge Service",
+  ];
+
+  /* ── strip images: 4x3=12 tiles ── */
+  const stripImages = [
+    ...dest.images,
+    ...dest.images,
+    ...dest.images,
+    ...dest.images,
+  ];
+
+  /* ── progress bar restart helper ── */
+  const progressKey = `${active}`;
+
+  return (
+    <section id="home" className="hero-root">
+
+      {/* ══ Background images with diagonal mask ══ */}
+      <div className="hero-bg">
+        {DESTINATIONS.map((d, i) => (
+          <img
+            key={d.id}
+            src={d.bgImage}
+            alt={d.city}
+            className={i === active ? "active" : "inactive"}
+          />
+        ))}
+      </div>
+
+      {/* ══ Overlay system (5 layers) ══ */}
+      {/* 1. Diagonal gradient — keeps left dark */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "linear-gradient(100deg, var(--deep) 0%, var(--deep) 38%, rgba(6,15,27,.5) 50%, rgba(6,15,27,.15) 65%, rgba(6,15,27,.08) 80%, rgba(6,15,27,.2) 100%)",
+          zIndex: 2,
+          pointerEvents: "none",
+        }}
+      />
+      {/* 2. Bottom fade */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(to top, var(--deep) 0%, transparent 30%)",
+          zIndex: 3,
+          pointerEvents: "none",
+        }}
+      />
+      {/* 3. Top fade */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(to bottom, var(--deep) 0%, transparent 15%)",
+          zIndex: 3,
+          pointerEvents: "none",
+        }}
+      />
+      {/* 4. Blue light bleed */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          left: "calc(38% - 90px)",
+          width: 180,
+          background:
+            "linear-gradient(90deg, transparent, rgba(77,163,232,.04), transparent)",
+          zIndex: 4,
+          pointerEvents: "none",
+        }}
+      />
+      {/* 5. SVG diagonal line */}
+      <svg
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 4,
+          pointerEvents: "none",
+        }}
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <linearGradient id="diagLine" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgba(77,163,232,0)" />
+            <stop offset="35%" stopColor="rgba(77,163,232,.15)" />
+            <stop offset="65%" stopColor="rgba(77,163,232,.08)" />
+            <stop offset="100%" stopColor="rgba(77,163,232,0)" />
+          </linearGradient>
+        </defs>
+        <line
+          x1="40%"
+          y1="0"
+          x2="54%"
+          y2="100%"
+          stroke="url(#diagLine)"
+          strokeWidth="1"
+        />
+      </svg>
+
+      {/* ══ Scanline on image area ══ */}
+      <div className="hero-scanline-wrap" style={{ zIndex: 5 }}>
+        <div className="hero-scanline-bar" />
+      </div>
+
+      {/* ══ Morphing ambient blob ══ */}
+      <div className="hero-blob" style={{ zIndex: 1 }} />
+
+      {/* ══ Film grain ══ */}
+      <div className="hero-grain" style={{ zIndex: 6 }}>
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <filter id="grain">
+            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#grain)" />
+        </svg>
+      </div>
+
+      {/* ══════════════════════════════════════════
+          NAVIGATION BAR
+      ══════════════════════════════════════════ */}
+      <nav
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 30,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "22px 40px",
+        }}
+      >
+        {/* Logo */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, var(--light), var(--sky))",
+              boxShadow: "0 4px 18px rgba(77,163,232,.25)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "'DM Serif Display', serif",
+                fontSize: 18,
+                color: "#fff",
+              }}
+            >
+              B
+            </span>
+          </div>
+          <div>
+            <div
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: 12,
+                fontWeight: 600,
+                letterSpacing: "2.5px",
+                color: "#fff",
+                textTransform: "uppercase",
+              }}
+            >
+              BILLOO TRAVELS
             </div>
-            <span className="font-heading text-xs font-semibold text-accent-soft">
-              Premium Travel Partner · Agent ID 1251
+            <div
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 8,
+                letterSpacing: "3px",
+                color: "var(--sky)",
+                opacity: 0.45,
+              }}
+            >
+              Pvt Ltd · Est. 1969
+            </div>
+          </div>
+        </div>
+
+        {/* Nav links */}
+        <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+          {["Services", "Packages", "Gallery", "Contact"].map((link) => (
+            <a
+              key={link}
+              href={`#${link.toLowerCase()}`}
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: 10,
+                fontWeight: 400,
+                letterSpacing: "2px",
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,.3)",
+                textDecoration: "none",
+                transition: "color 0.2s",
+              }}
+              onMouseEnter={(e) => ((e.target as HTMLAnchorElement).style.color = "var(--sky)")}
+              onMouseLeave={(e) => ((e.target as HTMLAnchorElement).style.color = "rgba(255,255,255,.3)")}
+            >
+              {link}
+            </a>
+          ))}
+          <button
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: 9.5,
+              fontWeight: 600,
+              letterSpacing: "1.5px",
+              textTransform: "uppercase",
+              color: "#fff",
+              background: "linear-gradient(135deg, var(--light), var(--sky))",
+              border: "none",
+              borderRadius: 4,
+              padding: "9px 24px",
+              cursor: "pointer",
+              transition: "opacity 0.2s",
+            }}
+          >
+            Book Now
+          </button>
+        </div>
+      </nav>
+
+      {/* ══════════════════════════════════════════
+          TICKER BAR
+      ══════════════════════════════════════════ */}
+      <div
+        style={{
+          position: "absolute",
+          top: 72,
+          left: 0,
+          right: 0,
+          height: 28,
+          background: "rgba(6,15,27,.5)",
+          borderTop: "1px solid rgba(77,163,232,.05)",
+          borderBottom: "1px solid rgba(77,163,232,.05)",
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          zIndex: 20,
+        }}
+      >
+        <div className="hero-ticker-track">
+          {[...tickerItems, ...tickerItems].map((item, i) => (
+            <span
+              key={i}
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 9,
+                letterSpacing: "1px",
+                color: "rgba(123,196,245,.3)",
+                marginRight: 48,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════
+          MAIN 3-COLUMN LAYOUT
+      ══════════════════════════════════════════ */}
+      <div
+        style={{
+          position: "relative",
+          zIndex: 10,
+          maxWidth: 1520,
+          margin: "0 auto",
+          padding: "108px 40px 50px",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          gap: 24,
+        }}
+      >
+
+        {/* ── Column 1: Vertical Filmstrip ── */}
+        <div
+          style={{
+            width: 95,
+            flexShrink: 0,
+            position: "relative",
+            height: "70%",
+            overflow: "hidden",
+            borderRadius: 5,
+          }}
+        >
+          {/* Top fade */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 60,
+              background: "linear-gradient(to bottom, var(--deep), transparent)",
+              zIndex: 2,
+              pointerEvents: "none",
+            }}
+          />
+          {/* Bottom fade */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 60,
+              background: "linear-gradient(to top, var(--deep), transparent)",
+              zIndex: 2,
+              pointerEvents: "none",
+            }}
+          />
+          {/* Scrolling column */}
+          <div
+            key={stripKey}
+            className="strip-scroll"
+            style={{ display: "flex", flexDirection: "column", gap: 6 }}
+          >
+            {stripImages.map((src, i) => (
+              <div
+                key={i}
+                style={{
+                  width: "100%",
+                  height: 160,
+                  borderRadius: 3,
+                  overflow: "hidden",
+                  flexShrink: 0,
+                }}
+              >
+                <img
+                  src={src}
+                  alt=""
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </div>
+            ))}
+          </div>
+          {/* Side label */}
+          <div
+            style={{
+              position: "absolute",
+              left: -20,
+              top: "50%",
+              transform: "translateY(-50%) rotate(-90deg)",
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 7.5,
+              letterSpacing: "4px",
+              color: "rgba(77,163,232,.12)",
+              whiteSpace: "nowrap",
+              zIndex: 3,
+            }}
+          >
+            GALLERY
+          </div>
+        </div>
+
+        {/* ── Column 2: Text Content ── */}
+        <div
+          className={`hero-text-fade${fading ? " fading" : ""}`}
+          style={{
+            flex: 1,
+            maxWidth: 460,
+            display: "flex",
+            flexDirection: "column",
+            gap: 0,
+          }}
+        >
+          {/* Destination Tabs */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 20 }}>
+            {DESTINATIONS.map((d, i) => (
+              <button
+                key={d.id}
+                onClick={() => { switchTo(i); startAuto(); }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "7px 14px",
+                  background: i === active ? "rgba(77,163,232,.1)" : "rgba(255,255,255,.015)",
+                  border: `1px solid ${i === active ? "rgba(77,163,232,.22)" : "rgba(255,255,255,.04)"}`,
+                  borderRadius: 4,
+                  cursor: "pointer",
+                  transition: "all 0.3s",
+                }}
+              >
+                <div
+                  style={{
+                    width: 5,
+                    height: 5,
+                    borderRadius: "50%",
+                    background: i === active ? "var(--light)" : "rgba(255,255,255,.1)",
+                    boxShadow: i === active ? "0 0 6px var(--light)" : "none",
+                    transition: "all 0.3s",
+                  }}
+                />
+                <span
+                  style={{
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    fontSize: 10,
+                    letterSpacing: "1.5px",
+                    textTransform: "uppercase",
+                    color: i === active ? "var(--sky)" : "rgba(255,255,255,.3)",
+                  }}
+                >
+                  {d.label}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* Route code */}
+          <div
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 11,
+              color: "var(--light)",
+              opacity: 0.5,
+              letterSpacing: "2px",
+              marginBottom: 10,
+            }}
+          >
+            KHI → {dest.code}
+          </div>
+
+          {/* City name */}
+          <h1
+            style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: 72,
+              fontWeight: 400,
+              lineHeight: 0.92,
+              color: "#fff",
+              margin: "0 0 14px 0",
+            }}
+          >
+            {dest.city}
+          </h1>
+
+          {/* Country line */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              marginBottom: 14,
+            }}
+          >
+            <div
+              style={{
+                width: 28,
+                height: 1,
+                background: "linear-gradient(90deg, gold, transparent)",
+              }}
+            />
+            <span
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: 10,
+                letterSpacing: "4px",
+                textTransform: "uppercase",
+                color: "var(--sky)",
+              }}
+            >
+              {dest.country}
             </span>
           </div>
 
-          <h1 className="font-heading text-4xl md:text-[52px] font-bold text-white leading-[1.08] mb-5 tracking-tight">
-            Your Sacred Journey,
-            <br />
-            <span className="font-display italic text-accent font-normal text-[1.08em]">
-              Elevated
-            </span>
-          </h1>
-          <p className="text-[17px] text-white/55 leading-[1.85] max-w-[460px] mb-10">
-            Pakistan&apos;s premier agency for luxury Hajj, Umrah &
-            international tours. VIP access. Five-star comfort. Flawless
-            execution.
+          {/* Tagline */}
+          <p
+            style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontStyle: "italic",
+              fontSize: 18,
+              color: "rgba(123,196,245,.5)",
+              margin: "0 0 12px 0",
+            }}
+          >
+            {dest.tagline}
           </p>
 
-          {/* Stats */}
-          <div className="flex flex-col sm:flex-row gap-6 sm:gap-10">
-            {STATS.map((s, i) => (
-              <div
-                key={i}
-                className={`${
-                  i > 0 ? "sm:border-l sm:border-white/[0.08] sm:pl-7" : ""
-                }`}
-              >
-                <div className="font-heading text-2xl font-bold text-white">
+          {/* Description */}
+          <p
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: 12.5,
+              fontWeight: 300,
+              lineHeight: 1.85,
+              color: "rgba(255,255,255,.26)",
+              maxWidth: 400,
+              margin: 0,
+            }}
+          >
+            {dest.desc}
+          </p>
+
+          {/* CTA Buttons */}
+          <div style={{ display: "flex", gap: 10, marginTop: 28 }}>
+            <button
+              className="hero-btn-primary"
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: 10,
+                fontWeight: 600,
+                letterSpacing: "2.5px",
+                textTransform: "uppercase",
+                color: "#fff",
+                background: "linear-gradient(135deg, var(--light), var(--sky))",
+                border: "none",
+                borderRadius: 3,
+                padding: "13px 34px",
+                cursor: "pointer",
+                boxShadow: "0 4px 18px rgba(77,163,232,.15)",
+                transition: "transform 0.2s, box-shadow 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 28px rgba(77,163,232,.3)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.transform = "";
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 18px rgba(77,163,232,.15)";
+              }}
+            >
+              Explore Package
+            </button>
+            <button
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: 10,
+                fontWeight: 600,
+                letterSpacing: "2.5px",
+                textTransform: "uppercase",
+                color: "var(--sky)",
+                background: "transparent",
+                border: "1px solid rgba(77,163,232,.18)",
+                borderRadius: 3,
+                padding: "13px 34px",
+                cursor: "pointer",
+                transition: "border-color 0.2s, background 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(77,163,232,.45)";
+                (e.currentTarget as HTMLButtonElement).style.background = "rgba(77,163,232,.05)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(77,163,232,.18)";
+                (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+              }}
+            >
+              View All
+            </button>
+          </div>
+
+          {/* Stats row */}
+          <div style={{ display: "flex", gap: 28, marginTop: 32 }}>
+            {[
+              { value: "15,000+", label: "Pilgrims" },
+              { value: "55+", label: "Years" },
+              { value: "50+", label: "Cities" },
+            ].map((s) => (
+              <div key={s.label}>
+                <div
+                  className="grad-text"
+                  style={{
+                    fontFamily: "'DM Serif Display', serif",
+                    fontSize: 22,
+                    lineHeight: 1.1,
+                  }}
+                >
                   {s.value}
                 </div>
-                <div className="font-mono text-[10px] text-white/30 tracking-[1.5px] mt-1 uppercase">
+                <div
+                  style={{
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    fontSize: 9,
+                    letterSpacing: "2px",
+                    textTransform: "uppercase",
+                    color: "rgba(123,196,245,.2)",
+                    marginTop: 3,
+                  }}
+                >
                   {s.label}
                 </div>
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
-        {/* Glass Booking Form */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.9, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="hidden lg:block"
+        {/* ── Column 3: Info Cards ── */}
+        <div
+          style={{
+            width: 340,
+            flexShrink: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+          }}
         >
-          <div className="glass rounded-[22px] p-8 shadow-[0_32px_64px_rgba(0,0,0,0.2)]">
-            <h3 className="font-heading text-xl font-bold text-white mb-1.5">
-              Plan Your Journey
-            </h3>
-            <p className="text-[13px] text-white/40 mb-6">
-              Personalized quote within 24 hours
-            </p>
-            <div className="flex flex-col gap-3">
-              <input className="glass-input" placeholder="Full Name" />
-              <input className="glass-input" placeholder="Email Address" />
-              <input className="glass-input" placeholder="Phone Number" />
-              <select
-                className="glass-input cursor-pointer appearance-none"
-                defaultValue=""
-              >
-                <option value="" disabled className="text-slate-400">
-                  Select Destination
-                </option>
-                <option value="u" className="text-slate-700">
-                  Umrah — Makkah & Madinah
-                </option>
-                <option value="h" className="text-slate-700">
-                  Hajj 2025
-                </option>
-                <option value="t" className="text-slate-700">
-                  Turkey — Istanbul
-                </option>
-                <option value="d" className="text-slate-700">
-                  Dubai — UAE
-                </option>
-              </select>
-              <select
-                className="glass-input cursor-pointer appearance-none"
-                defaultValue=""
-              >
-                <option value="" disabled className="text-slate-400">
-                  Package Tier
-                </option>
-                <option value="e" className="text-slate-700">
-                  Economy
-                </option>
-                <option value="b" className="text-slate-700">
-                  Business
-                </option>
-                <option value="f" className="text-slate-700">
-                  First Class
-                </option>
-              </select>
-              <button className="w-full flex items-center justify-center gap-2 bg-accent text-white py-3.5 rounded-[10px] font-heading text-sm font-semibold mt-1 hover:bg-accent-dark transition-all hover:-translate-y-px hover:shadow-lg border-none cursor-pointer">
-                <SearchIcon size={16} color="#fff" /> Search Packages
-              </button>
-            </div>
-            <div className="flex items-center justify-center gap-3.5 mt-4 flex-wrap">
-              {["Instant Quote", "No Hidden Fees", "Free Cancellation"].map(
-                (t) => (
+
+          {/* ── Card 1: Boarding Pass ── */}
+          <div
+            className="icard"
+            ref={(el) => { cardRefs.current[0] = el; }}
+          >
+            <div className="icard-spotlight" />
+            <div className="icard-inner" style={{ padding: "16px" }}>
+              <div style={{ display: "flex", gap: 0 }}>
+
+                {/* Left section: airport codes */}
+                <div
+                  style={{
+                    width: 48,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    flexShrink: 0,
+                    paddingRight: 12,
+                  }}
+                >
                   <span
-                    key={t}
-                    className="flex items-center gap-1 text-[10px] text-white/30"
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 7.5,
+                      color: "rgba(123,196,245,.3)",
+                      letterSpacing: "1px",
+                      marginBottom: 4,
+                    }}
                   >
-                    <CheckIcon size={12} color="rgba(77,163,232,0.5)" />
-                    {t}
+                    FROM
                   </span>
-                )
-              )}
+                  <span
+                    style={{
+                      fontFamily: "'DM Serif Display', serif",
+                      fontSize: 26,
+                      color: "#fff",
+                      lineHeight: 1,
+                    }}
+                  >
+                    KHI
+                  </span>
+                  <span style={{ fontSize: 14, opacity: 0.4, margin: "8px 0" }}>✈</span>
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 7.5,
+                      color: "rgba(123,196,245,.3)",
+                      letterSpacing: "1px",
+                      marginBottom: 4,
+                    }}
+                  >
+                    TO
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "'DM Serif Display', serif",
+                      fontSize: 26,
+                      color: "var(--light)",
+                      lineHeight: 1,
+                    }}
+                  >
+                    {dest.code}
+                  </span>
+                </div>
+
+                {/* Perforated divider */}
+                <div
+                  style={{
+                    width: 1,
+                    borderLeft: "1px dashed rgba(77,163,232,.08)",
+                    marginRight: 12,
+                    alignSelf: "stretch",
+                  }}
+                />
+
+                {/* Right section */}
+                <div style={{ flex: 1, position: "relative" }}>
+                  {/* Barcode top-right */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                      display: "flex",
+                      gap: 1.5,
+                      alignItems: "flex-end",
+                    }}
+                  >
+                    {barcode.map((h, i) => (
+                      <div
+                        key={i}
+                        className="bc-bar"
+                        style={{
+                          width: 2,
+                          height: h,
+                          background: "rgba(123,196,245,.12)",
+                          transition: "background 0.3s",
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Header */}
+                  <div
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 7.5,
+                      color: "rgba(123,196,245,.2)",
+                      letterSpacing: "2px",
+                      marginBottom: 6,
+                    }}
+                  >
+                    BILLOO TRAVELS · BOARDING PASS
+                  </div>
+
+                  {/* City + country */}
+                  <div
+                    style={{
+                      fontFamily: "'DM Serif Display', serif",
+                      fontSize: 20,
+                      color: "#fff",
+                      lineHeight: 1.1,
+                    }}
+                  >
+                    {dest.city}
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'Plus Jakarta Sans', sans-serif",
+                      fontSize: 11,
+                      color: "rgba(255,255,255,.3)",
+                      marginBottom: 10,
+                    }}
+                  >
+                    {dest.country}
+                  </div>
+
+                  {/* Flight info row */}
+                  <div style={{ display: "flex", gap: 18 }}>
+                    {[
+                      { label: "FLIGHT", value: dest.flight },
+                      { label: "TEMP", value: dest.temp },
+                      { label: "FROM PKR", value: dest.price },
+                    ].map((info) => (
+                      <div key={info.label}>
+                        <div
+                          style={{
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: 7,
+                            color: "rgba(123,196,245,.3)",
+                            letterSpacing: "1px",
+                            marginBottom: 2,
+                          }}
+                        >
+                          {info.label}
+                        </div>
+                        <div
+                          style={{
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: 13,
+                            color: "#fff",
+                            fontWeight: 500,
+                          }}
+                        >
+                          {info.value}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Hover reveal */}
+                  <div className="boarding-reveal">
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        className="hero-btn-primary"
+                        style={{
+                          fontFamily: "'Plus Jakarta Sans', sans-serif",
+                          fontSize: 8.5,
+                          fontWeight: 600,
+                          letterSpacing: "1.5px",
+                          textTransform: "uppercase",
+                          color: "#fff",
+                          background: "linear-gradient(135deg, var(--light), var(--sky))",
+                          border: "none",
+                          borderRadius: 3,
+                          padding: "7px 16px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Book This Package
+                      </button>
+                      <button
+                        style={{
+                          fontFamily: "'Plus Jakarta Sans', sans-serif",
+                          fontSize: 8.5,
+                          fontWeight: 600,
+                          letterSpacing: "1.5px",
+                          textTransform: "uppercase",
+                          color: "var(--sky)",
+                          background: "transparent",
+                          border: "1px solid rgba(77,163,232,.2)",
+                          borderRadius: 3,
+                          padding: "7px 16px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </motion.div>
+
+          {/* ── Card 2: Route Map ── */}
+          <div
+            className="icard"
+            ref={(el) => { cardRefs.current[1] = el; }}
+            style={{ height: 150 }}
+          >
+            <div className="icard-spotlight" />
+            <RouteMap
+              key={mapKey}
+              dest={dest}
+              flightTime={dest.flight}
+              temp={dest.temp}
+              tz={dest.tz}
+            />
+          </div>
+
+          {/* ── Card 3: Testimonial ── */}
+          <div
+            className="icard"
+            ref={(el) => { cardRefs.current[2] = el; }}
+          >
+            <div className="icard-spotlight" />
+            <div className="icard-inner" style={{ padding: "14px 16px" }}>
+              {/* Top row */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  marginBottom: 8,
+                }}
+              >
+                {/* Quote mark */}
+                <span
+                  style={{
+                    fontFamily: "'DM Serif Display', serif",
+                    fontSize: 28,
+                    color: "var(--light)",
+                    opacity: 0.12,
+                    lineHeight: 1,
+                  }}
+                >
+                  "
+                </span>
+                {/* Stars */}
+                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="star-box"
+                      style={{
+                        width: 16,
+                        height: 16,
+                        borderRadius: 3,
+                        background:
+                          i < 4
+                            ? "linear-gradient(135deg, var(--light), var(--sky))"
+                            : "linear-gradient(135deg, var(--light) 50%, rgba(77,163,232,.2) 50%)",
+                      }}
+                    />
+                  ))}
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 11,
+                      color: "var(--sky)",
+                      marginLeft: 3,
+                    }}
+                  >
+                    4.9
+                  </span>
+                </div>
+              </div>
+
+              {/* Quote text */}
+              <p
+                style={{
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  fontSize: 13,
+                  fontStyle: "italic",
+                  fontWeight: 300,
+                  lineHeight: 1.7,
+                  color: "rgba(255,255,255,.4)",
+                  margin: "0 0 12px 0",
+                }}
+              >
+                {dest.quote.text}
+              </p>
+
+              {/* Bottom row */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                {/* Avatar + name */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      background: "linear-gradient(135deg, var(--blue), var(--light))",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontFamily: "'DM Serif Display', serif",
+                      fontSize: 14,
+                      color: "#fff",
+                    }}
+                  >
+                    {dest.quote.initial}
+                  </div>
+                  <div>
+                    <div
+                      style={{
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                        fontSize: 12,
+                        color: "#fff",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {dest.quote.name}
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: 8.5,
+                        color: "rgba(123,196,245,.4)",
+                      }}
+                    >
+                      {dest.quote.role}
+                    </div>
+                  </div>
+                </div>
+                {/* Verified badge */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 5,
+                    background: "rgba(34,197,94,.06)",
+                    border: "1px solid rgba(34,197,94,.15)",
+                    borderRadius: 20,
+                    padding: "3px 8px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 5,
+                      height: 5,
+                      borderRadius: "50%",
+                      background: "#22C55E",
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 7.5,
+                      color: "#4ade80",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    VERIFIED
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Card 4: Clock + License (side by side) ── */}
+          <div style={{ display: "flex", gap: 10 }}>
+            {/* Clock card */}
+            <div
+              className="icard"
+              ref={(el) => { cardRefs.current[3] = el; }}
+              style={{ flex: 1 }}
+            >
+              <div className="icard-spotlight" />
+              <div className="icard-inner" style={{ padding: "12px 14px" }}>
+                <div
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 7,
+                    color: "rgba(123,196,245,.22)",
+                    letterSpacing: "1px",
+                    marginBottom: 6,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Local Time · Karachi
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 18,
+                    color: "#fff",
+                    fontWeight: 500,
+                    fontVariantNumeric: "tabular-nums",
+                    display: "flex",
+                    alignItems: "baseline",
+                    gap: 1,
+                  }}
+                >
+                  {clockStr ? (
+                    <>
+                      <span>{clockStr.slice(0, 2)}</span>
+                      <span className="clock-colon">:</span>
+                      <span>{clockStr.slice(3, 5)}</span>
+                      <span
+                        style={{ fontSize: "72%", opacity: 0.35 }}
+                      >
+                        <span className="clock-colon">:</span>
+                        {clockStr.slice(6, 8)}
+                      </span>
+                    </>
+                  ) : (
+                    <span>--:--</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* License card */}
+            <div
+              className="icard"
+              ref={(el) => { cardRefs.current[4] = el; }}
+              style={{ flex: 1 }}
+            >
+              <div className="icard-spotlight" />
+              <div className="icard-inner" style={{ padding: "12px 14px" }}>
+                <div
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 7,
+                    color: "rgba(123,196,245,.22)",
+                    letterSpacing: "1px",
+                    marginBottom: 6,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  License Status
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div
+                    className="license-dot"
+                    style={{
+                      width: 7,
+                      height: 7,
+                      borderRadius: "50%",
+                      background: "#22C55E",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 12,
+                      color: "#fff",
+                      fontWeight: 500,
+                    }}
+                  >
+                    ID 1251
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        {/* End Column 3 */}
+      </div>
+      {/* End 3-column layout */}
+
+      {/* ══════════════════════════════════════════
+          BOTTOM BAR
+      ══════════════════════════════════════════ */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 20,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+          padding: "0 40px 18px",
+        }}
+      >
+        {/* Left: slide progress */}
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 10 }}>
+          <span
+            style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: 18,
+              color: "var(--light)",
+              lineHeight: 1,
+            }}
+          >
+            {String(active + 1).padStart(2, "0")}
+          </span>
+          <div style={{ display: "flex", gap: 4, alignItems: "center", paddingBottom: 3 }}>
+            {DESTINATIONS.map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  width: 28,
+                  height: 3,
+                  borderRadius: 2,
+                  background: "rgba(255,255,255,.04)",
+                  overflow: "hidden",
+                  position: "relative",
+                }}
+              >
+                {i < active && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "rgba(77,163,232,.18)",
+                    }}
+                  />
+                )}
+                {i === active && (
+                  <div
+                    key={progressKey}
+                    className="progress-fill"
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "linear-gradient(90deg, var(--light), var(--sky))",
+                      width: 0,
+                      animation: "progressFill 7s linear forwards",
+                    }}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+          <span
+            style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: 10,
+              color: "rgba(255,255,255,.1)",
+              paddingBottom: 1,
+            }}
+          >
+            / 04
+          </span>
+        </div>
+
+        {/* Center: scroll indicator */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 4,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: 7.5,
+              letterSpacing: "3px",
+              color: "rgba(123,196,245,.13)",
+            }}
+          >
+            SCROLL
+          </span>
+          <div
+            style={{
+              width: 1,
+              height: 18,
+              background: "linear-gradient(to bottom, rgba(77,163,232,.2), transparent)",
+            }}
+          />
+        </div>
+
+        {/* Right: social links */}
+        <div style={{ display: "flex", gap: 18, paddingBottom: 2 }}>
+          {["Facebook", "Instagram", "YouTube"].map((s) => (
+            <a
+              key={s}
+              href="#"
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: 9,
+                letterSpacing: "1.5px",
+                color: "rgba(255,255,255,.12)",
+                textDecoration: "none",
+                transition: "color 0.2s",
+              }}
+              onMouseEnter={(e) => ((e.target as HTMLAnchorElement).style.color = "var(--sky)")}
+              onMouseLeave={(e) => ((e.target as HTMLAnchorElement).style.color = "rgba(255,255,255,.12)")}
+            >
+              {s}
+            </a>
+          ))}
+        </div>
       </div>
 
-      {/* Scroll cue */}
-      <div className="absolute bottom-7 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 opacity-40">
-        <div className="font-mono text-[9px] text-white tracking-[3px]">
-          SCROLL
-        </div>
-        <div className="w-px h-7 bg-gradient-to-b from-white to-transparent" />
-      </div>
     </section>
   );
 }
