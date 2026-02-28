@@ -1249,7 +1249,7 @@ export default function Hero() {
                     lineHeight: 1,
                   }}
                 >
-                  "
+                  &ldquo;
                 </span>
                 {/* Stars */}
                 <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
