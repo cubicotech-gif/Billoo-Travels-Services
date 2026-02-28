@@ -331,13 +331,14 @@ export default function HeroAdminPage() {
     setLoading(true);
     const res = await fetch("/api/hero");
     const json = await res.json();
-    if (json.destinations && json.destinations.length > 0) {
-      setDestinations(json.destinations);
-      setIsUsingStatic(false);
-    } else {
-      // Table empty or not yet created — show static defaults as read-only preview
+    if (json.tableExists === false) {
+      // Table doesn't exist yet — show SQL setup notice + static preview
       setDestinations(STATIC_DEFAULTS);
       setIsUsingStatic(true);
+    } else {
+      // Table exists (may be empty after running SQL — that's fine)
+      setDestinations(json.destinations || []);
+      setIsUsingStatic(false);
     }
     setLoading(false);
   }
