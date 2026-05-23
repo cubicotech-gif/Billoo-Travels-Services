@@ -8,11 +8,11 @@ import SeasonalSpotlight from "@/components/sections/SeasonalSpotlight";
 import Packages from "@/components/sections/Packages";
 import Services from "@/components/sections/Services";
 import HowItWorks from "@/components/sections/HowItWorks";
+import AccreditationStrip from "@/components/sections/AccreditationStrip";
 import CTAStrip from "@/components/sections/CTAStrip";
-import Pricing from "@/components/sections/Pricing";
-import { Team, Testimonials } from "@/components/sections/GalleryTeamTestimonials";
-import { FAQ, Blog, Contact } from "@/components/sections/FAQBlogContact";
-import { Footer, WhatsAppWidget } from "@/components/sections/FooterWhatsApp";
+import { Testimonials } from "@/components/sections/GalleryTeamTestimonials";
+import { FAQ, Contact } from "@/components/sections/FAQBlogContact";
+import { Footer, WhatsAppWidget, StickyMobileCTA } from "@/components/sections/FooterWhatsApp";
 
 export default function HomePage() {
   return (
@@ -30,20 +30,20 @@ export default function HomePage() {
       <Services />
       {/* Process */}
       <HowItWorks />
-      {/* Compare */}
-      <Pricing />
+      {/* Authority / accreditation */}
+      <AccreditationStrip />
       {/* Proof */}
       <Testimonials />
-      <Team />
       {/* Objections */}
       <FAQ />
       {/* Close */}
       <CTAStrip />
       <Contact />
-      {/* SEO / content */}
-      <Blog />
       <Footer />
+      {/* Clearance for the sticky mobile bar */}
+      <div className="h-14 md:hidden" />
       <WhatsAppWidget />
+      <StickyMobileCTA />
     </CurrencyProvider>
   );
 }
