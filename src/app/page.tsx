@@ -3,6 +3,7 @@
 import { CurrencyProvider } from "@/lib/currency";
 import Navbar from "@/components/sections/Navbar";
 import Hero from "@/components/sections/Hero";
+import UmrahSeason from "@/components/sections/UmrahSeason";
 import Services from "@/components/sections/Services";
 import CTAStrip from "@/components/sections/CTAStrip";
 import Packages from "@/components/sections/Packages";
@@ -16,6 +17,7 @@ export default function HomePage() {
     <CurrencyProvider>
       <Navbar />
       <Hero />
+      <UmrahSeason />
       <Services />
       <CTAStrip />
       <Packages />

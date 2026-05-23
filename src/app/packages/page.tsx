@@ -49,6 +49,12 @@ export default function PackagesPage() {
   const { currency } = useCurrency();
 
   useEffect(() => {
+    // Honor deep links like /packages?type=Umrah (e.g. from the homepage Umrah banner)
+    const urlType = new URLSearchParams(window.location.search).get("type");
+    if (urlType && (TABS as readonly string[]).includes(urlType)) {
+      setTab(urlType);
+    }
+
     fetch("/api/packages")
       .then((r) => r.json())
       .then((d) => setPackages(d.packages || []))
