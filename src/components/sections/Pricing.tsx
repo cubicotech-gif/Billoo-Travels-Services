@@ -22,7 +22,7 @@ export default function Pricing() {
   const { currency } = useCurrency();
 
   return (
-    <section id="pricing" className="py-24 px-6 md:px-9 bg-surface">
+    <section id="pricing" className="py-16 md:py-20 px-6 md:px-9 bg-surface">
       <div className="max-w-[1060px] mx-auto">
         <div className="text-center mb-14">
           <SectionHeading label="Pricing" title="Select Your" highlight="Class" centered />

@@ -6,7 +6,7 @@ import AdminLayout from "@/components/AdminLayout";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface UmrahSection {
+interface Spotlight {
   enabled: boolean;
   eyebrow: string;
   title: string;
@@ -18,9 +18,21 @@ interface UmrahSection {
   season_note: string;
   cta_label: string;
   cta_link: string;
+  spotlight_type: string;
+  secondary_enabled: boolean;
+  secondary_type: string;
+  secondary_eyebrow: string;
+  secondary_title: string;
+  secondary_title_highlight: string;
+  secondary_subtitle: string;
+  secondary_bg_image: string;
+  secondary_cta_label: string;
+  secondary_cta_link: string;
 }
 
-const EMPTY: UmrahSection = {
+const CATEGORIES = ["Umrah", "Hajj", "Holidays", "Honeymoon"];
+
+const EMPTY: Spotlight = {
   enabled: true,
   eyebrow: "",
   title: "",
@@ -32,6 +44,16 @@ const EMPTY: UmrahSection = {
   season_note: "",
   cta_label: "Explore Umrah Packages",
   cta_link: "/packages?type=Umrah",
+  spotlight_type: "Umrah",
+  secondary_enabled: false,
+  secondary_type: "Holidays",
+  secondary_eyebrow: "",
+  secondary_title: "",
+  secondary_title_highlight: "",
+  secondary_subtitle: "",
+  secondary_bg_image: "",
+  secondary_cta_label: "Explore Holidays",
+  secondary_cta_link: "/packages?type=Holidays",
 };
 
 const CLS =
@@ -52,7 +74,19 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   );
 }
 
-function ImageField({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${on ? "bg-[#4DA3E8]" : "bg-slate-300"}`}
+    >
+      <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${on ? "translate-x-6" : ""}`} />
+    </button>
+  );
+}
+
+function ImageField({ label = "Background Image", value, onChange }: { label?: string; value: string; onChange: (url: string) => void }) {
   const [busy, setBusy] = useState(false);
   const ref = useRef<HTMLInputElement>(null);
 
@@ -61,7 +95,7 @@ function ImageField({ value, onChange }: { value: string; onChange: (url: string
     const fd = new FormData();
     fd.append("file", file);
     fd.append("bucket", "media");
-    fd.append("folder", "umrah");
+    fd.append("folder", "spotlight");
     const res = await fetch("/api/upload", { method: "POST", body: fd });
     const j = await res.json();
     setBusy(false);
@@ -69,7 +103,7 @@ function ImageField({ value, onChange }: { value: string; onChange: (url: string
   }
 
   return (
-    <Field label="Background Image">
+    <Field label={label}>
       <div className="flex gap-2">
         <input
           value={value}
@@ -97,11 +131,7 @@ function ImageField({ value, onChange }: { value: string; onChange: (url: string
         />
       </div>
       {value && (
-        <img
-          src={value}
-          alt="preview"
-          className="mt-2 h-28 w-full object-cover rounded-lg border border-slate-200"
-        />
+        <img src={value} alt="preview" className="mt-2 h-28 w-full object-cover rounded-lg border border-slate-200" />
       )}
     </Field>
   );
@@ -109,8 +139,8 @@ function ImageField({ value, onChange }: { value: string; onChange: (url: string
 
 // ─── Main page ──────────────────────────────────────────────────────────────
 
-export default function UmrahAdminPage() {
-  const [form, setForm] = useState<UmrahSection>(EMPTY);
+export default function SpotlightAdminPage() {
+  const [form, setForm] = useState<Spotlight>(EMPTY);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [tableExists, setTableExists] = useState<boolean | null>(null);
@@ -121,8 +151,16 @@ export default function UmrahAdminPage() {
     setTimeout(() => setToast(""), 3500);
   }
 
-  function set<K extends keyof UmrahSection>(k: K, v: UmrahSection[K]) {
+  function set<K extends keyof Spotlight>(k: K, v: Spotlight[K]) {
     setForm((f) => ({ ...f, [k]: v }));
+  }
+
+  // Changing a category auto-points its CTA link at that category's packages.
+  function setPrimaryType(t: string) {
+    setForm((f) => ({ ...f, spotlight_type: t, cta_link: `/packages?type=${t}` }));
+  }
+  function setSecondaryType(t: string) {
+    setForm((f) => ({ ...f, secondary_type: t, secondary_cta_link: `/packages?type=${t}` }));
   }
 
   async function load() {
@@ -156,7 +194,7 @@ export default function UmrahAdminPage() {
       notify("Error: " + json.error);
       return;
     }
-    notify("Saved! The homepage banner is updated.");
+    notify("Saved! The homepage spotlight is updated.");
   }
 
   return (
@@ -164,15 +202,14 @@ export default function UmrahAdminPage() {
       <div className="max-w-3xl mx-auto">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-[#0B1628]" style={{ fontFamily: "'Sora', sans-serif" }}>
-              Umrah Season
-            </h1>
-            <p className="text-sm text-slate-400 mt-0.5">
-              Your permanent seasonal banner on the homepage. Update it each season (1448, 1449…).
-            </p>
-          </div>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-[#0B1628]" style={{ fontFamily: "'Sora', sans-serif" }}>
+            Seasonal Spotlight
+          </h1>
+          <p className="text-sm text-slate-400 mt-0.5">
+            Two homepage banners you control per season — point the <strong>primary</strong> at whatever&apos;s
+            peaking (Umrah, Hajj, Holidays…) and use the <strong>secondary</strong> for the next-best category.
+          </p>
         </div>
 
         {/* DB setup notice */}
@@ -188,8 +225,8 @@ export default function UmrahAdminPage() {
               </p>
               <p className="text-xs text-amber-700 mt-1 leading-relaxed">
                 Go to <strong>Supabase → SQL Editor</strong>, paste the SQL from
-                <code className="mx-1 px-1.5 py-0.5 bg-amber-100 rounded text-amber-800 font-mono text-[11px]">umrah-section-setup.sql</code>
-                in the repository root, and click <strong>Run</strong>. It creates the table and seeds the 1448 banner.
+                <code className="mx-1 px-1.5 py-0.5 bg-amber-100 rounded text-amber-800 font-mono text-[11px]">seasonal-spotlight-setup.sql</code>
+                in the repository root, and click <strong>Run</strong>.
               </p>
             </div>
           </div>
@@ -209,21 +246,26 @@ export default function UmrahAdminPage() {
             <div className="bg-white rounded-2xl border border-slate-200 p-5 flex items-center justify-between">
               <div>
                 <p className="font-semibold text-[#0B1628] text-sm" style={{ fontFamily: "'Sora', sans-serif" }}>
-                  Show section on homepage
+                  Show spotlight on homepage
                 </p>
-                <p className="text-xs text-slate-400 mt-0.5">Turn off to hide the whole banner between seasons.</p>
+                <p className="text-xs text-slate-400 mt-0.5">Turn off to hide both banners between seasons.</p>
               </div>
-              <button
-                type="button"
-                onClick={() => set("enabled", !form.enabled)}
-                className={`relative w-12 h-6 rounded-full transition-colors ${form.enabled ? "bg-[#4DA3E8]" : "bg-slate-300"}`}
-              >
-                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${form.enabled ? "translate-x-6" : ""}`} />
-              </button>
+              <Toggle on={form.enabled} onClick={() => set("enabled", !form.enabled)} />
             </div>
 
-            {/* Content card */}
+            {/* ── PRIMARY ── */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
+              <div className="flex items-center justify-between">
+                <h2 className="font-bold text-[#0B1628]" style={{ fontFamily: "'Sora', sans-serif" }}>Primary Spotlight</h2>
+                <span className="font-mono text-[10px] tracking-[1px] uppercase text-slate-400">Large banner</span>
+              </div>
+
+              <Field label="Spotlight category" hint="Which category this banner features. Auto-points the button below at it.">
+                <select value={form.spotlight_type} onChange={(e) => setPrimaryType(e.target.value)} className={CLS + " cursor-pointer"}>
+                  {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+                </select>
+              </Field>
+
               <Field label="Eyebrow (small tag above title)" hint="e.g. NEW SEASON · 1448 AH">
                 <input value={form.eyebrow} onChange={(e) => set("eyebrow", e.target.value)} placeholder="NEW SEASON · 1448 AH" className={CLS} />
               </Field>
@@ -242,47 +284,89 @@ export default function UmrahAdminPage() {
               </Field>
 
               <ImageField value={form.bg_image} onChange={(url) => set("bg_image", url)} />
-            </div>
 
-            {/* Badges card */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
-              <div className="flex items-center justify-between">
+              {/* Badges */}
+              <div className="border-t border-slate-100 pt-5 space-y-4">
                 <Field label="Early-bird badge text" hint="e.g. Early-Bird Pricing · Limited Seats">
                   <input value={form.badge_text} onChange={(e) => set("badge_text", e.target.value)} placeholder="Early-Bird Pricing · Limited Seats" className={CLS} />
                 </Field>
+                <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                  <input type="checkbox" checked={form.badge_enabled} onChange={(e) => set("badge_enabled", e.target.checked)} className="w-4 h-4 accent-[#4DA3E8]" />
+                  Show the early-bird badge
+                </label>
+                <Field label="Season note (green pill)" hint="e.g. Bookings now open">
+                  <input value={form.season_note} onChange={(e) => set("season_note", e.target.value)} placeholder="Bookings now open" className={CLS} />
+                </Field>
               </div>
-              <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
-                <input type="checkbox" checked={form.badge_enabled} onChange={(e) => set("badge_enabled", e.target.checked)} className="w-4 h-4 accent-[#4DA3E8]" />
-                Show the early-bird badge
-              </label>
-              <Field label="Season note (green pill)" hint="e.g. Bookings now open">
-                <input value={form.season_note} onChange={(e) => set("season_note", e.target.value)} placeholder="Bookings now open" className={CLS} />
-              </Field>
-            </div>
 
-            {/* CTA card */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
-              <div className="grid grid-cols-2 gap-4">
+              {/* CTA */}
+              <div className="border-t border-slate-100 pt-5 grid grid-cols-2 gap-4">
                 <Field label="Button label">
                   <input value={form.cta_label} onChange={(e) => set("cta_label", e.target.value)} placeholder="Explore Umrah Packages" className={CLS} />
                 </Field>
-                <Field label="Button link" hint="Default opens the Umrah tab on the packages page">
+                <Field label="Button link" hint="Auto-set from the category above; edit if needed.">
                   <input value={form.cta_link} onChange={(e) => set("cta_link", e.target.value)} placeholder="/packages?type=Umrah" className={CLS} />
                 </Field>
               </div>
             </div>
 
-            {/* Hot packages info */}
+            {/* ── SECONDARY ── */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="font-bold text-[#0B1628]" style={{ fontFamily: "'Sora', sans-serif" }}>Secondary Spotlight</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">A smaller band under the primary, for the next category.</p>
+                </div>
+                <Toggle on={form.secondary_enabled} onClick={() => set("secondary_enabled", !form.secondary_enabled)} />
+              </div>
+
+              <Field label="Spotlight category">
+                <select value={form.secondary_type} onChange={(e) => setSecondaryType(e.target.value)} className={CLS + " cursor-pointer"}>
+                  {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+                </select>
+              </Field>
+
+              <Field label="Eyebrow" hint="e.g. ALSO THIS SEASON">
+                <input value={form.secondary_eyebrow} onChange={(e) => set("secondary_eyebrow", e.target.value)} placeholder="ALSO THIS SEASON" className={CLS} />
+              </Field>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Title">
+                  <input value={form.secondary_title} onChange={(e) => set("secondary_title", e.target.value)} placeholder="Worldwide" className={CLS} />
+                </Field>
+                <Field label="Highlighted part">
+                  <input value={form.secondary_title_highlight} onChange={(e) => set("secondary_title_highlight", e.target.value)} placeholder="Holidays" className={CLS} />
+                </Field>
+              </div>
+
+              <Field label="Subtitle">
+                <textarea value={form.secondary_subtitle} onChange={(e) => set("secondary_subtitle", e.target.value)} rows={2} placeholder="One short line about this category…" className={CLS + " resize-none"} />
+              </Field>
+
+              <ImageField label="Background Image" value={form.secondary_bg_image} onChange={(url) => set("secondary_bg_image", url)} />
+
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Button label">
+                  <input value={form.secondary_cta_label} onChange={(e) => set("secondary_cta_label", e.target.value)} placeholder="Explore Holidays" className={CLS} />
+                </Field>
+                <Field label="Button link" hint="Auto-set from the category above.">
+                  <input value={form.secondary_cta_link} onChange={(e) => set("secondary_cta_link", e.target.value)} placeholder="/packages?type=Holidays" className={CLS} />
+                </Field>
+              </div>
+            </div>
+
+            {/* Packages info */}
             <div className="bg-[#EBF5FF] rounded-2xl border border-[#4DA3E8]/20 p-5 flex gap-3 items-start">
               <svg className="flex-shrink-0 mt-0.5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2B7CC4" strokeWidth="2">
                 <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
               </svg>
               <div className="flex-1 min-w-0 text-sm text-[#2B7CC4]">
-                <p className="font-semibold" style={{ fontFamily: "'Sora', sans-serif" }}>About the &ldquo;hot packages&rdquo; shown here</p>
+                <p className="font-semibold" style={{ fontFamily: "'Sora', sans-serif" }}>Where do the package cards show?</p>
                 <p className="text-xs mt-1 leading-relaxed text-[#2B7CC4]/90">
-                  The package cards under this banner are pulled automatically from your <strong>Umrah</strong> packages that are marked <strong>Featured</strong>.
-                  Manage them in{" "}
-                  <Link href="/admin/packages" className="underline font-semibold">Packages</Link> — tick &ldquo;Featured&rdquo; on any Umrah package and it appears here.
+                  These spotlights are headline banners only. Your actual package cards live in the{" "}
+                  <strong>Packages</strong> section right below them, where tabs are generated automatically from
+                  whatever categories you use. Manage them in{" "}
+                  <Link href="/admin/packages" className="underline font-semibold">Packages</Link>.
                 </p>
               </div>
             </div>

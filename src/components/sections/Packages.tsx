@@ -24,7 +24,7 @@ interface DbPackage {
   featured: boolean;
 }
 
-const TABS = ["All", "Umrah", "Hajj"] as const;
+const TYPE_ORDER = ["Umrah", "Hajj", "Holidays", "Honeymoon"];
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?auto=format&fit=crop&q=80&w=800";
 
 function fmtPrice(p: DbPackage, currency: string) {
@@ -46,28 +46,34 @@ export default function Packages() {
       .finally(() => setLoading(false));
   }, []);
 
+  const presentTypes = Array.from(new Set(packages.map((p) => p.type))).sort(
+    (a, b) => (TYPE_ORDER.indexOf(a) + 1 || 99) - (TYPE_ORDER.indexOf(b) + 1 || 99)
+  );
+  const tabs = ["All", ...presentTypes];
   const filtered = packages.filter((p) => tab === "All" || p.type === tab);
 
   return (
-    <section id="packages" className="py-24 px-6 md:px-9 bg-surface-alt">
+    <section id="packages" className="py-16 md:py-20 px-6 md:px-9 bg-surface-alt">
       <div className="max-w-[1280px] mx-auto">
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12">
           <SectionHeading label="Featured Packages" title="Curated" highlight="Journeys" />
-          <div className="flex gap-2">
-            {TABS.map((t) => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`px-5 py-1.5 rounded-full font-heading text-[13px] font-medium cursor-pointer transition-all border ${
-                  tab === t ? "bg-midnight text-white border-midnight" : "bg-transparent text-slate-500 border-slate-200 hover:border-accent hover:text-accent"
-                }`}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
+          {tabs.length > 1 && (
+            <div className="flex gap-2 flex-wrap">
+              {tabs.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className={`px-5 py-1.5 rounded-full font-heading text-[13px] font-medium cursor-pointer transition-all border ${
+                    tab === t ? "bg-midnight text-white border-midnight" : "bg-transparent text-slate-500 border-slate-200 hover:border-accent hover:text-accent"
+                  }`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Skeleton */}

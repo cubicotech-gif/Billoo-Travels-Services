@@ -9,7 +9,7 @@ import ScrollReveal from "@/components/ui/ScrollReveal";
 // ─── GALLERY ───
 export function Gallery() {
   return (
-    <section id="gallery" className="py-24 px-6 md:px-9 bg-surface-alt">
+    <section id="gallery" className="py-16 md:py-20 px-6 md:px-9 bg-surface-alt">
       <div className="max-w-[1280px] mx-auto">
         <div className="text-center mb-12">
           <SectionHeading label="Gallery" title="Moments of" highlight="Devotion" centered />
@@ -42,7 +42,7 @@ export function Gallery() {
 // ─── TEAM ───
 export function Team() {
   return (
-    <section className="py-24 px-6 md:px-9 bg-surface">
+    <section className="py-16 md:py-20 px-6 md:px-9 bg-surface">
       <div className="max-w-[1100px] mx-auto">
         <div className="text-center mb-8">
           <SectionHeading label="Leadership" title="The Team Behind" highlight="Your Journey" centered />
@@ -86,7 +86,7 @@ export function Testimonials() {
   }, []);
 
   return (
-    <section className="relative py-24 px-6 md:px-9 overflow-hidden">
+    <section className="relative py-16 md:py-20 px-6 md:px-9 overflow-hidden">
       {/* BG Image */}
       <div
         className="absolute inset-0 bg-cover bg-center"

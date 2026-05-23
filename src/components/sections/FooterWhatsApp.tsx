@@ -129,7 +129,7 @@ export function Footer() {
       <div className="max-w-[1280px] mx-auto mt-12 pt-5 border-t border-white/[0.06] flex flex-col sm:flex-row justify-between gap-3">
         <span className="text-xs text-white/25">© 2025 Billoo Travels Services Pvt Ltd. All Rights Reserved.</span>
         <div className="flex gap-5">
-          {[{ label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }, { label: "Refunds", href: "/refunds" }].map((l) => (
+          {[{ label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }, { label: "Refunds", href: "/refunds" }, { label: "Admin", href: "/admin" }].map((l) => (
             <a key={l.label} href={l.href} className="text-white/25 no-underline text-xs hover:text-accent transition-colors">{l.label}</a>
           ))}
         </div>

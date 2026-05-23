@@ -372,7 +372,7 @@ export default function AdminPackages() {
             <div>
               <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Type</label>
               <select value={form.type} onChange={(e) => setF("type", e.target.value)} className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] cursor-pointer focus:outline-none focus:border-[#4DA3E8]">
-                <option>Umrah</option><option>Hajj</option><option>Tour</option>
+                <option>Umrah</option><option>Hajj</option><option>Holidays</option><option>Honeymoon</option>
               </select>
             </div>
             <div>
@@ -479,7 +479,7 @@ export default function AdminPackages() {
       <div className="flex flex-col sm:flex-row gap-3 mb-5">
         <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by title or hotel…" className="px-4 py-2.5 rounded-lg border border-slate-200 text-sm bg-white flex-1 max-w-xs focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300" />
         <div className="flex gap-2 flex-wrap">
-          {["All", "Umrah", "Hajj", "active", "draft", "archived"].map((f) => (
+          {["All", "Umrah", "Hajj", "Holidays", "Honeymoon", "active", "draft", "archived"].map((f) => (
             <button key={f} onClick={() => setFilter(f)} className={`px-4 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all border ${filter === f ? "bg-[#0B1628] text-white border-[#0B1628]" : "bg-white text-slate-500 border-slate-200 hover:border-[#4DA3E8]"}`} style={{ fontFamily: "'Sora', sans-serif" }}>
               {f.charAt(0).toUpperCase() + f.slice(1)}
             </button>

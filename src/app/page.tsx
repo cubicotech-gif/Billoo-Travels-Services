@@ -4,13 +4,13 @@ import { CurrencyProvider } from "@/lib/currency";
 import Navbar from "@/components/sections/Navbar";
 import Hero from "@/components/sections/Hero";
 import TrustBar from "@/components/sections/TrustBar";
-import UmrahSeason from "@/components/sections/UmrahSeason";
+import SeasonalSpotlight from "@/components/sections/SeasonalSpotlight";
 import Packages from "@/components/sections/Packages";
 import Services from "@/components/sections/Services";
 import HowItWorks from "@/components/sections/HowItWorks";
 import CTAStrip from "@/components/sections/CTAStrip";
 import Pricing from "@/components/sections/Pricing";
-import { Gallery, Team, Testimonials } from "@/components/sections/GalleryTeamTestimonials";
+import { Team, Testimonials } from "@/components/sections/GalleryTeamTestimonials";
 import { FAQ, Blog, Contact } from "@/components/sections/FAQBlogContact";
 import { Footer, WhatsAppWidget } from "@/components/sections/FooterWhatsApp";
 
@@ -22,9 +22,9 @@ export default function HomePage() {
       <Hero />
       {/* Trust */}
       <TrustBar />
-      {/* Seasonal offer */}
-      <UmrahSeason />
-      {/* Product */}
+      {/* Seasonal offers (primary + secondary) */}
+      <SeasonalSpotlight />
+      {/* Product — full catalogue */}
       <Packages />
       {/* Why us */}
       <Services />
@@ -34,7 +34,6 @@ export default function HomePage() {
       <Pricing />
       {/* Proof */}
       <Testimonials />
-      <Gallery />
       <Team />
       {/* Objections */}
       <FAQ />
