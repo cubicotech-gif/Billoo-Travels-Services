@@ -41,6 +41,16 @@ export async function PATCH(request: NextRequest) {
     "season_note",
     "cta_label",
     "cta_link",
+    "spotlight_type",
+    "secondary_enabled",
+    "secondary_type",
+    "secondary_eyebrow",
+    "secondary_title",
+    "secondary_title_highlight",
+    "secondary_subtitle",
+    "secondary_bg_image",
+    "secondary_cta_label",
+    "secondary_cta_link",
   ];
   const updates: Record<string, unknown> = {};
   for (const key of allowed) {

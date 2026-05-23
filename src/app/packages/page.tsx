@@ -8,7 +8,7 @@ import { useCurrency } from "@/lib/currency";
 import { CalendarIcon, ArrowIcon } from "@/components/ui/Icons";
 import Link from "next/link";
 
-const TABS = ["All", "Umrah", "Hajj"] as const;
+const TYPE_ORDER = ["Umrah", "Hajj", "Holidays", "Honeymoon"];
 const SORTS = ["Popular", "Price: Low", "Price: High", "Duration"] as const;
 
 interface DbPackage {
@@ -49,9 +49,9 @@ export default function PackagesPage() {
   const { currency } = useCurrency();
 
   useEffect(() => {
-    // Honor deep links like /packages?type=Umrah (e.g. from the homepage Umrah banner)
+    // Honor deep links like /packages?type=Holidays (e.g. from the homepage spotlights)
     const urlType = new URLSearchParams(window.location.search).get("type");
-    if (urlType && (TABS as readonly string[]).includes(urlType)) {
+    if (urlType && TYPE_ORDER.includes(urlType)) {
       setTab(urlType);
     }
 
@@ -60,6 +60,11 @@ export default function PackagesPage() {
       .then((d) => setPackages(d.packages || []))
       .finally(() => setLoading(false));
   }, []);
+
+  const presentTypes = Array.from(new Set(packages.map((p) => p.type))).sort(
+    (a, b) => (TYPE_ORDER.indexOf(a) + 1 || 99) - (TYPE_ORDER.indexOf(b) + 1 || 99)
+  );
+  const tabs = ["All", ...presentTypes];
 
   let filtered = packages.filter((p) => tab === "All" || p.type === tab);
   if (sort === "Price: Low") filtered = [...filtered].sort((a, b) => getPrice(a, currency) - getPrice(b, currency));
@@ -82,8 +87,8 @@ export default function PackagesPage() {
           {/* Filters */}
           <ScrollReveal>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
-              <div className="flex gap-2">
-                {TABS.map((t) => (
+              <div className="flex gap-2 flex-wrap">
+                {tabs.map((t) => (
                   <button
                     key={t}
                     onClick={() => setTab(t)}

@@ -566,7 +566,7 @@ export default function Hero() {
       <div
         style={{
           position: "absolute",
-          top: 72,
+          top: 80,
           left: 0,
           right: 0,
           height: 28,
@@ -607,7 +607,7 @@ export default function Hero() {
           zIndex: 10,
           maxWidth: 1520,
           margin: "0 auto",
-          padding: "108px 40px 50px",
+          padding: "116px 40px 50px",
           height: "100%",
           display: "flex",
           alignItems: "center",

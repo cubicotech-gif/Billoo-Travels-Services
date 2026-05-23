@@ -7,7 +7,7 @@ import ScrollReveal from "@/components/ui/ScrollReveal";
 
 export default function Services() {
   return (
-    <section id="services" className="py-24 px-6 md:px-9 bg-surface">
+    <section id="services" className="py-16 md:py-20 px-6 md:px-9 bg-surface">
       <div className="max-w-[1280px] mx-auto">
         <div className="text-center mb-14">
           <SectionHeading label="Our Services" title="Everything You Need," highlight="Under One Roof" centered />

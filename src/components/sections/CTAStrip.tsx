@@ -18,7 +18,7 @@ export default function CTAStrip() {
             Today
           </h2>
           <p className="text-[15px] text-white/60 leading-relaxed mb-7">
-            20+ years of trusted service. 15,000+ satisfied pilgrims. Your journey deserves the best.
+            55+ years of trusted service. 15,000+ satisfied pilgrims. Your journey deserves the best.
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
             <a

@@ -35,7 +35,7 @@ export default function HowItWorks() {
   if (steps.length === 0) return null;
 
   return (
-    <section id="how-it-works" className="py-24 px-6 md:px-9 bg-surface">
+    <section id="how-it-works" className="py-16 md:py-20 px-6 md:px-9 bg-surface">
       <div className="max-w-[1280px] mx-auto">
         <div className="text-center mb-14">
           <SectionHeading

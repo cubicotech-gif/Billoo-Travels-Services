@@ -11,7 +11,7 @@ export function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section className="py-24 px-6 md:px-9 bg-surface">
+    <section className="py-16 md:py-20 px-6 md:px-9 bg-surface">
       <div className="max-w-[800px] mx-auto">
         <div className="text-center mb-12">
           <SectionHeading label="FAQ" title="Common" highlight="Questions" centered />
@@ -51,7 +51,7 @@ export function FAQ() {
 // ─── BLOG ───
 export function Blog() {
   return (
-    <section className="py-24 px-6 md:px-9 bg-surface-alt">
+    <section className="py-16 md:py-20 px-6 md:px-9 bg-surface-alt">
       <div className="max-w-[1280px] mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12">
           <SectionHeading label="Journal" title="Travel" highlight="Insights" />
@@ -101,7 +101,7 @@ export function Contact() {
   ];
 
   return (
-    <section id="contact" className="py-24 px-6 md:px-9 bg-surface">
+    <section id="contact" className="py-16 md:py-20 px-6 md:px-9 bg-surface">
       <div className="max-w-[1100px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
         <ScrollReveal>
           <div>

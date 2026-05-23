@@ -32,7 +32,7 @@ const NAV = [
   { label: "Dashboard", href: "/admin", icon: "Dashboard" },
   { label: "Hero Section", href: "/admin/hero", icon: "Hero" },
   { label: "Homepage", href: "/admin/homepage", icon: "Homepage" },
-  { label: "Umrah Season", href: "/admin/umrah", icon: "Umrah" },
+  { label: "Seasonal Spotlight", href: "/admin/umrah", icon: "Umrah" },
   { label: "Bookings", href: "/admin/bookings", icon: "Bookings" },
   { label: "Invoices", href: "/admin/invoices", icon: "Invoices" },
   { label: "Packages", href: "/admin/packages", icon: "Packages" },

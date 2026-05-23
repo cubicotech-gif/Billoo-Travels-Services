@@ -55,7 +55,7 @@ export default function Navbar() {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-400 ${
         scrolled
           ? "py-2 bg-white/97 backdrop-blur-xl border-b border-slate-200/80 shadow-sm"
-          : "py-4 bg-transparent"
+          : "py-3 bg-transparent"
       }`}
     >
       <div className="max-w-[1320px] mx-auto px-6 md:px-10 flex items-center justify-between">
@@ -69,7 +69,7 @@ export default function Navbar() {
               style={{
                 width: logo_width,
                 height: logo_height,
-                maxHeight: 80,
+                maxHeight: 46,
                 objectFit: "contain",
               }}
               className="transition-all duration-400"
@@ -79,8 +79,8 @@ export default function Navbar() {
               {/* Gradient circle badge — matches hero section style */}
               <div
                 style={{
-                  width: 54,
-                  height: 54,
+                  width: 44,
+                  height: 44,
                   borderRadius: "50%",
                   background: scrolled
                     ? "linear-gradient(135deg, #0B1628, #1a3054)"
@@ -100,7 +100,7 @@ export default function Navbar() {
                 <span
                   style={{
                     fontFamily: "'DM Serif Display', serif",
-                    fontSize: 22,
+                    fontSize: 18,
                     color: scrolled ? "#4DA3E8" : "#fff",
                     lineHeight: 1,
                     transition: "color 0.4s",
@@ -148,28 +148,6 @@ export default function Navbar() {
 
           <div className={`h-[18px] w-px ${scrolled ? "bg-slate-200" : "bg-white/[0.15]"}`} />
 
-          {/* Social Icons */}
-          <div className="flex items-center gap-2">
-            {SOCIAL.map((s) => (
-              <a
-                key={s.label}
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={s.label}
-                className={`flex items-center justify-center w-7 h-7 rounded-md transition-all ${
-                  scrolled
-                    ? "text-slate-400 hover:text-[#4DA3E8] hover:bg-[#EBF5FF]"
-                    : "text-white/50 hover:text-white hover:bg-white/10"
-                }`}
-              >
-                {s.icon}
-              </a>
-            ))}
-          </div>
-
-          <div className={`h-[18px] w-px ${scrolled ? "bg-slate-200" : "bg-white/[0.15]"}`} />
-
           {/* Currency Switcher */}
           <div
             className={`flex rounded-lg overflow-hidden border ${
@@ -203,24 +181,6 @@ export default function Navbar() {
             }`}
           >
             Book Now
-          </Link>
-
-          {/* Admin Panel */}
-          <Link
-            href="/admin"
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg font-heading text-[12px] font-semibold no-underline transition-all hover:-translate-y-px ${
-              scrolled
-                ? "bg-[#4DA3E8] text-white hover:bg-[#2B7CC4] shadow-sm"
-                : "bg-[#4DA3E8]/80 text-white hover:bg-[#4DA3E8] border border-[#4DA3E8]/40 backdrop-blur-lg"
-            }`}
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <rect x="3" y="3" width="7" height="7" rx="1.5"/>
-              <rect x="14" y="3" width="7" height="7" rx="1.5"/>
-              <rect x="3" y="14" width="7" height="7" rx="1.5"/>
-              <rect x="14" y="14" width="7" height="7" rx="1.5"/>
-            </svg>
-            Admin
           </Link>
         </div>
 
@@ -263,19 +223,6 @@ export default function Navbar() {
                   onClick={() => setMobileOpen(false)}
                 >
                   Book Now
-                </Link>
-                <Link
-                  href="/admin"
-                  className="bg-[#4DA3E8] text-white px-5 py-2.5 rounded-lg font-heading text-[13px] font-semibold no-underline flex items-center gap-1.5"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                    <rect x="3" y="3" width="7" height="7" rx="1.5"/>
-                    <rect x="14" y="3" width="7" height="7" rx="1.5"/>
-                    <rect x="3" y="14" width="7" height="7" rx="1.5"/>
-                    <rect x="14" y="14" width="7" height="7" rx="1.5"/>
-                  </svg>
-                  Admin
                 </Link>
               </div>
               {/* Currency in mobile */}
