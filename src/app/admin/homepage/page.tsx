@@ -13,6 +13,10 @@ interface Step {
   title: string;
   desc: string;
 }
+interface Accreditation {
+  name: string;
+  logo: string;
+}
 interface HomepageContent {
   trust_enabled: boolean;
   trust_items: TrustItem[];
@@ -22,6 +26,9 @@ interface HomepageContent {
   steps_highlight: string;
   steps_subtitle: string;
   steps: Step[];
+  accred_enabled: boolean;
+  accred_label: string;
+  accreditations: Accreditation[];
 }
 
 const EMPTY: HomepageContent = {
@@ -33,6 +40,9 @@ const EMPTY: HomepageContent = {
   steps_highlight: "Four Steps",
   steps_subtitle: "",
   steps: [],
+  accred_enabled: true,
+  accred_label: "Accredited & Trusted",
+  accreditations: [],
 };
 
 const CLS =
@@ -95,6 +105,7 @@ export default function HomepageAdminPage() {
           ...json.content,
           trust_items: Array.isArray(json.content.trust_items) ? json.content.trust_items : [],
           steps: Array.isArray(json.content.steps) ? json.content.steps : [],
+          accreditations: Array.isArray(json.content.accreditations) ? json.content.accreditations : [],
         });
       }
     } catch {
@@ -129,6 +140,26 @@ export default function HomepageAdminPage() {
     set("steps", form.steps.filter((_, idx) => idx !== i));
   }
 
+  // ── accreditation helpers ──
+  function setAccred(i: number, key: keyof Accreditation, v: string) {
+    set("accreditations", form.accreditations.map((a, idx) => (idx === i ? { ...a, [key]: v } : a)));
+  }
+  function addAccred() {
+    set("accreditations", [...form.accreditations, { name: "", logo: "" }]);
+  }
+  function removeAccred(i: number) {
+    set("accreditations", form.accreditations.filter((_, idx) => idx !== i));
+  }
+  async function uploadLogo(i: number, file: File) {
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("bucket", "media");
+    fd.append("folder", "accreditations");
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const j = await res.json();
+    if (j.url) setAccred(i, "logo", j.url);
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -156,7 +187,7 @@ export default function HomepageAdminPage() {
             Homepage
           </h1>
           <p className="text-sm text-slate-400 mt-0.5">
-            Edit the trust bar (under the hero) and the &ldquo;How It Works&rdquo; steps.
+            Edit the trust bar, accreditation logos, and the &ldquo;How It Works&rdquo; steps.
           </p>
         </div>
 
@@ -232,6 +263,66 @@ export default function HomepageAdminPage() {
                 style={{ fontFamily: "'Sora', sans-serif" }}
               >
                 + Add trust item
+              </button>
+            </div>
+
+            {/* ── ACCREDITATIONS ── */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="font-bold text-[#0B1628]" style={{ fontFamily: "'Sora', sans-serif" }}>Accreditations &amp; Partners</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Logo strip of memberships &amp; approvals (IATA, Nusuk, Ministry…). Builds trust.</p>
+                </div>
+                <Toggle on={form.accred_enabled} onClick={() => set("accred_enabled", !form.accred_enabled)} />
+              </div>
+
+              <Field label="Section label" hint="Small caption above the logos, e.g. Accredited & Trusted">
+                <input value={form.accred_label} onChange={(e) => set("accred_label", e.target.value)} className={CLS} />
+              </Field>
+
+              <div className="space-y-2.5 mt-4">
+                {form.accreditations.map((a, i) => (
+                  <div key={i} className="flex gap-2 items-center bg-slate-50 border border-slate-200 rounded-xl p-2.5">
+                    {a.logo ? (
+                      <img src={a.logo} alt={a.name} className="h-9 w-12 object-contain rounded bg-white border border-slate-200 flex-shrink-0" />
+                    ) : (
+                      <span className="h-9 w-12 rounded bg-white border border-dashed border-slate-200 flex items-center justify-center text-[9px] text-slate-300 flex-shrink-0">no logo</span>
+                    )}
+                    <input
+                      value={a.name}
+                      onChange={(e) => setAccred(i, "name", e.target.value)}
+                      placeholder="Name (shown if no logo), e.g. IATA Accredited"
+                      className={CLS + " flex-1"}
+                    />
+                    <label className="px-3 py-2 text-xs rounded-lg border border-slate-200 bg-white hover:bg-[#EBF5FF] hover:text-[#4DA3E8] hover:border-[#4DA3E8] cursor-pointer transition-all whitespace-nowrap">
+                      Logo
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) uploadLogo(i, f);
+                        }}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => removeAccred(i)}
+                      className="text-slate-300 hover:text-red-500 bg-transparent border-none cursor-pointer text-xl leading-none flex-shrink-0 px-1"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={addAccred}
+                className="mt-3 px-4 py-2 text-xs font-semibold rounded-lg bg-[#EBF5FF] text-[#4DA3E8] hover:bg-[#4DA3E8] hover:text-white border-none cursor-pointer transition-all"
+                style={{ fontFamily: "'Sora', sans-serif" }}
+              >
+                + Add accreditation
               </button>
             </div>
 

@@ -38,6 +38,9 @@ export async function PATCH(request: NextRequest) {
     "steps_highlight",
     "steps_subtitle",
     "steps",
+    "accred_enabled",
+    "accred_label",
+    "accreditations",
   ];
   const updates: Record<string, unknown> = {};
   for (const key of allowed) {
