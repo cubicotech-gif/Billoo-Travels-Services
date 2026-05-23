@@ -443,6 +443,14 @@ export default function Hero() {
   /* ── progress bar restart helper ── */
   const progressKey = `${active}`;
 
+  /* ── destination-aware deep links for CTAs ── */
+  const destLabel = (dest.label || "").toLowerCase();
+  const packageHref = destLabel.includes("umrah")
+    ? "/packages?type=Umrah"
+    : destLabel.includes("hajj")
+    ? "/packages?type=Hajj"
+    : "/packages";
+
   return (
     <section id="home" className="hero-root">
 
@@ -829,14 +837,17 @@ export default function Hero() {
 
           {/* CTA Buttons */}
           <div style={{ display: "flex", gap: 10, marginTop: 28 }}>
-            <button
+            <a
+              href={packageHref}
               className="hero-btn-primary"
               style={{
+                display: "inline-block",
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontSize: 10,
                 fontWeight: 600,
                 letterSpacing: "2.5px",
                 textTransform: "uppercase",
+                textDecoration: "none",
                 color: "#fff",
                 background: "linear-gradient(135deg, var(--light), var(--sky))",
                 border: "none",
@@ -847,23 +858,26 @@ export default function Hero() {
                 transition: "transform 0.2s, box-shadow 0.2s",
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 28px rgba(77,163,232,.3)";
+                (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-2px)";
+                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 8px 28px rgba(77,163,232,.3)";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.transform = "";
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 18px rgba(77,163,232,.15)";
+                (e.currentTarget as HTMLAnchorElement).style.transform = "";
+                (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 18px rgba(77,163,232,.15)";
               }}
             >
               Explore Package
-            </button>
-            <button
+            </a>
+            <a
+              href="/packages"
               style={{
+                display: "inline-block",
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontSize: 10,
                 fontWeight: 600,
                 letterSpacing: "2.5px",
                 textTransform: "uppercase",
+                textDecoration: "none",
                 color: "var(--sky)",
                 background: "transparent",
                 border: "1px solid rgba(77,163,232,.18)",
@@ -873,16 +887,16 @@ export default function Hero() {
                 transition: "border-color 0.2s, background 0.2s",
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(77,163,232,.45)";
-                (e.currentTarget as HTMLButtonElement).style.background = "rgba(77,163,232,.05)";
+                (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(77,163,232,.45)";
+                (e.currentTarget as HTMLAnchorElement).style.background = "rgba(77,163,232,.05)";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(77,163,232,.18)";
-                (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(77,163,232,.18)";
+                (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
               }}
             >
               View All
-            </button>
+            </a>
           </div>
 
           {/* Stats row */}
@@ -1104,14 +1118,17 @@ export default function Hero() {
                   {/* Hover reveal */}
                   <div className="boarding-reveal">
                     <div style={{ display: "flex", gap: 8 }}>
-                      <button
+                      <a
+                        href="/booking"
                         className="hero-btn-primary"
                         style={{
+                          display: "inline-block",
                           fontFamily: "'Plus Jakarta Sans', sans-serif",
                           fontSize: 8.5,
                           fontWeight: 600,
                           letterSpacing: "1.5px",
                           textTransform: "uppercase",
+                          textDecoration: "none",
                           color: "#fff",
                           background: "linear-gradient(135deg, var(--light), var(--sky))",
                           border: "none",
@@ -1121,14 +1138,17 @@ export default function Hero() {
                         }}
                       >
                         Book This Package
-                      </button>
-                      <button
+                      </a>
+                      <a
+                        href={packageHref}
                         style={{
+                          display: "inline-block",
                           fontFamily: "'Plus Jakarta Sans', sans-serif",
                           fontSize: 8.5,
                           fontWeight: 600,
                           letterSpacing: "1.5px",
                           textTransform: "uppercase",
+                          textDecoration: "none",
                           color: "var(--sky)",
                           background: "transparent",
                           border: "1px solid rgba(77,163,232,.2)",
@@ -1138,7 +1158,7 @@ export default function Hero() {
                         }}
                       >
                         Details
-                      </button>
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -1530,10 +1550,16 @@ export default function Hero() {
 
         {/* Right: social links */}
         <div style={{ display: "flex", gap: 18, paddingBottom: 2 }}>
-          {["Facebook", "Instagram", "YouTube"].map((s) => (
+          {[
+            { name: "Facebook", url: "https://www.facebook.com/people/Billoo-Travels-Services-Pvt-Ltd/61573636793379/" },
+            { name: "Instagram", url: "https://instagram.com/billootravels" },
+            { name: "YouTube", url: "https://youtube.com/@billootravels" },
+          ].map(({ name: s, url }) => (
             <a
               key={s}
-              href="#"
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontSize: 9,

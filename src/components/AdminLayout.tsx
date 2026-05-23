@@ -10,6 +10,7 @@ const icons = {
   Dashboard: (c: string) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>,
   Hero: (c: string) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 10l5-4 4 3 4-5 7 6"/><circle cx="7.5" cy="7.5" r="1.5" fill={c} stroke="none"/><path d="M2 20h20"/></svg>,
   Umrah: (c: string) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/><path d="M17 4l.7 1.6L19.3 6l-1.6.4L17 8l-.4-1.6L15 6l1.6-.4z" fill={c} stroke="none"/></svg>,
+  Homepage: (c: string) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>,
   Packages: (c: string) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>,
   Blog: (c: string) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5"><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z"/><path d="M6 8h12M6 12h8M6 16h10"/></svg>,
   Testimonials: (c: string) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
@@ -30,6 +31,7 @@ const icons = {
 const NAV = [
   { label: "Dashboard", href: "/admin", icon: "Dashboard" },
   { label: "Hero Section", href: "/admin/hero", icon: "Hero" },
+  { label: "Homepage", href: "/admin/homepage", icon: "Homepage" },
   { label: "Umrah Season", href: "/admin/umrah", icon: "Umrah" },
   { label: "Bookings", href: "/admin/bookings", icon: "Bookings" },
   { label: "Invoices", href: "/admin/invoices", icon: "Invoices" },
