@@ -151,31 +151,13 @@ export const TESTIMONIALS = [
   },
 ];
 
-// ─── TEAM ───
+// ─── TEAM / LEADERSHIP ───
 export const TEAM = [
   {
-    name: "Mr. Shoaib Zakaria",
-    role: "Chief Executive Officer",
+    name: "Danish Bangloria",
+    role: "Founder & Chief Executive",
     img: "/images/team-ceo.jpg",
     placeholder: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=500&fit=crop&crop=face",
-  },
-  {
-    name: "Danish Zakariya",
-    role: "Managing Director",
-    img: "/images/team-md.jpg",
-    placeholder: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=500&fit=crop&crop=face",
-  },
-  {
-    name: "Ahmad Raza",
-    role: "Head of Operations",
-    img: "/images/team-ops.jpg",
-    placeholder: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=500&fit=crop&crop=face",
-  },
-  {
-    name: "Sara Khan",
-    role: "Client Relations",
-    img: "/images/team-cr.jpg",
-    placeholder: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=500&fit=crop&crop=face",
   },
 ];
 
