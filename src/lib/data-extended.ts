@@ -110,26 +110,44 @@ export const BLOGS_DETAILED = BLOGS.map((b) => ({
 
 // ─── ABOUT PAGE DATA ───
 export const ABOUT = {
+  // Short, punchy intro shown beside the story
+  intro: "Five decades of guiding pilgrims to the House of Allah — with care, integrity, and an unwavering devotion to service.",
   story: [
-    "Founded in 2000 by the visionary Sharif family, Billoo Travels began with a simple yet profound mission: to make the sacred journey of Hajj and Umrah accessible, comfortable, and spiritually enriching for every Pakistani pilgrim.",
-    "Over two decades, we've grown from a small Karachi-based office into one of Pakistan's most trusted travel agencies, serving over 15,000 pilgrims and earning the trust of families across the nation.",
-    "Today, under the leadership of CEO Mr. Shoaib Zakaria, we continue to raise the bar in premium spiritual travel — combining five-star hospitality with deep respect for the sanctity of the journey.",
+    "Billoo Travel Service was founded in 1969 by the late Zakaria Mohammad Sharif, shortly after his own first Hajj pilgrimage. What began as a heartfelt mission to guide fellow pilgrims has grown, over more than five decades, into one of Pakistan's most trusted names in spiritual travel.",
+    "From a single Karachi office, we have served over 15,000 pilgrims and earned the confidence of families across the nation — one sacred journey at a time. Every booking we handle carries the same promise the founder made on day one: honesty, comfort, and reverence for the journey.",
+    "Today, under the leadership of Danish Bangloria, Billoo Travels continues to raise the standard for premium Hajj and Umrah travel — pairing five-star hospitality with the deep respect this journey deserves.",
   ],
   mission: "To elevate every sacred journey through meticulous planning, elite hospitality, and an unwavering commitment to our clients' spiritual and physical comfort.",
-  vision: "To be the most trusted name in premium Hajj and Umrah travel across South Asia, known for excellence, integrity, and devotion to service.",
+  vision: "To remain the most trusted name in premium Hajj and Umrah travel across South Asia — known for excellence, integrity, and devotion to service.",
   values: [
-    { title: "Excellence", desc: "Every detail matters. We deliver nothing less than exceptional service." },
-    { title: "Trust", desc: "20+ years of transparent, honest relationships with our pilgrims." },
-    { title: "Devotion", desc: "We approach every journey with the reverence it deserves." },
-    { title: "Innovation", desc: "Constantly improving our services with modern solutions." },
+    { icon: "Shield", title: "Trust", desc: "Five decades of transparent, honest relationships with the families we serve." },
+    { icon: "Kaaba", title: "Devotion", desc: "We approach every pilgrimage with the reverence and care it deserves." },
+    { icon: "Check", title: "Excellence", desc: "Every detail matters — we settle for nothing less than exceptional service." },
+    { icon: "Globe", title: "Care", desc: "Dedicated coordinators and 24/7 support, from your first call to your safe return." },
+  ],
+  // ─── WHY CHOOSE US ───
+  whyChooseUs: [
+    { icon: "Shield", title: "Ministry-Approved", desc: "A fully licensed Hajj & Umrah operator (Agent ID 1251), recognised by the Ministry of Religious Affairs." },
+    { icon: "Kaaba", title: "Steps From the Haram", desc: "Hand-picked 4 & 5-star hotels within walking distance of Masjid al-Haram and Masjid an-Nabawi." },
+    { icon: "Visa", title: "End-to-End Visa Support", desc: "We manage the entire visa process — documentation, submission and follow-up — so you don't have to." },
+    { icon: "Headset", title: "24/7 Concierge", desc: "A dedicated coordinator on call throughout your journey, in Pakistan and in the Kingdom." },
+    { icon: "Plane", title: "Seamless Logistics", desc: "Flights, transfers, ziyarat and meals arranged into one effortless, well-paced itinerary." },
+    { icon: "Check", title: "Transparent Pricing", desc: "Clear, all-inclusive packages with no hidden costs — what you're quoted is what you pay." },
+  ],
+  // ─── ACCREDITATIONS / LICENSES ───
+  credentials: [
+    "Ministry of Religious Affairs — Approved Operator",
+    "Hajj & Umrah Agent ID 1251",
+    "IATA Accredited Agency",
+    "Saudi Nusuk / Umrah Platform Partner",
   ],
   milestones: [
-    { year: "2000", event: "Billoo Travels founded in Karachi" },
-    { year: "2005", event: "Received Ministry of Hajj License (ID 1251)" },
-    { year: "2010", event: "Expanded to premium 5-star packages" },
-    { year: "2015", event: "10,000th pilgrim served milestone" },
-    { year: "2020", event: "Launched digital booking platform" },
-    { year: "2024", event: "15,000+ pilgrims served with 4.9★ rating" },
+    { year: "1969", event: "Billoo Travel Service founded in Karachi by Zakaria Mohammad Sharif" },
+    { year: "1990s", event: "Established as a trusted neighbourhood Hajj & Umrah operator" },
+    { year: "2010", event: "Expanded into premium 5-star pilgrimage packages" },
+    { year: "2018", event: "Crossed 10,000 pilgrims served" },
+    { year: "2020", event: "Launched our digital booking platform" },
+    { year: "2024", event: "15,000+ pilgrims served with a 4.9★ client rating" },
   ],
   team: TEAM,
 };
