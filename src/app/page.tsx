@@ -4,6 +4,7 @@ import { CurrencyProvider } from "@/lib/currency";
 import Navbar from "@/components/sections/Navbar";
 import Hero from "@/components/sections/Hero";
 import TrustBar from "@/components/sections/TrustBar";
+import HajjRegistration from "@/components/sections/HajjRegistration";
 import SeasonalSpotlight from "@/components/sections/SeasonalSpotlight";
 import Packages from "@/components/sections/Packages";
 import Services from "@/components/sections/Services";
@@ -22,6 +23,8 @@ export default function HomePage() {
       <Hero />
       {/* Trust */}
       <TrustBar />
+      {/* Hajj 2027 registration promotion */}
+      <HajjRegistration />
       {/* Seasonal offers (primary + secondary) */}
       <SeasonalSpotlight />
       {/* Product — full catalogue */}
