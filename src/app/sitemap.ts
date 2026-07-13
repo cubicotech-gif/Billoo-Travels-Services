@@ -5,6 +5,7 @@ const BASE = "https://billootravels.com";
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages = [
     { url: `${BASE}/`, changeFrequency: "weekly" as const, priority: 1.0 },
+    { url: `${BASE}/hajj`, changeFrequency: "weekly" as const, priority: 0.95 },
     { url: `${BASE}/about`, changeFrequency: "monthly" as const, priority: 0.8 },
     { url: `${BASE}/packages`, changeFrequency: "weekly" as const, priority: 0.9 },
     { url: `${BASE}/packages/1`, changeFrequency: "weekly" as const, priority: 0.85 },
