@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSiteSettings } from "@/lib/siteSettings";
 import SectionHeading from "@/components/ui/SectionHeading";
 import ScrollReveal from "@/components/ui/ScrollReveal";
@@ -30,28 +30,44 @@ function Stars({ value = 5, size = 14 }: { value?: number; size?: number }) {
   );
 }
 
+function loadScript(src: string) {
+  if (!src) return;
+  if (document.querySelector(`script[src="${src}"]`)) {
+    // Script already present — nudge known providers to re-scan for new widgets
+    const w = window as unknown as { eapps?: { onInit?: () => void } };
+    w.eapps?.onInit?.();
+    return;
+  }
+  const s = document.createElement("script");
+  s.src = src;
+  s.async = true;
+  document.body.appendChild(s);
+}
+
 /**
- * Injects the provider's widget container and loads its platform script once.
- * Works with Elfsight, Featurable, Trustindex and similar embed snippets.
+ * Injects the provider's widget container and loads its platform script(s).
+ * Works with Elfsight, Featurable, Trustindex and similar snippets — and is
+ * forgiving: you can paste the whole snippet (script + div) into one field,
+ * or keep the div and script separate. Scripts injected via innerHTML don't
+ * execute, so we extract any <script src> and load it properly.
  */
 function WidgetEmbed({ html, script }: { html: string; script?: string | null }) {
-  const ref = useRef<HTMLDivElement>(null);
+  // Strip <script> tags out of the markup — we load them ourselves below.
+  const cleanedHtml = useMemo(
+    () => html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ""),
+    [html]
+  );
 
   useEffect(() => {
-    if (!script) return;
-    if (document.querySelector(`script[src="${script}"]`)) {
-      // Script already present — nudge known providers to re-scan for new widgets
-      const w = window as unknown as { eapps?: { onInit?: () => void } };
-      w.eapps?.onInit?.();
-      return;
-    }
-    const s = document.createElement("script");
-    s.src = script;
-    s.async = true;
-    document.body.appendChild(s);
-  }, [script]);
+    // Load any script srcs found inside the pasted embed…
+    const re = /<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(html)) !== null) loadScript(m[1]);
+    // …plus the explicit script field, if provided.
+    if (script) loadScript(script);
+  }, [html, script]);
 
-  return <div ref={ref} dangerouslySetInnerHTML={{ __html: html }} />;
+  return <div dangerouslySetInnerHTML={{ __html: cleanedHtml }} />;
 }
 
 interface DbTestimonial {
@@ -72,7 +88,13 @@ export default function GoogleReviews({ tone = "dark" }: Props) {
   const s = useSiteSettings();
   const [fallback, setFallback] = useState<DbTestimonial[]>([]);
 
-  const hasWidget = Boolean(s.google_reviews_enabled && s.google_reviews_embed);
+  // Only treat the embed as a real widget if it actually looks like widget markup —
+  // guards against accidentally pasting plain text (e.g. the SQL setup) into the field.
+  const embed = s.google_reviews_embed || "";
+  const looksLikeWidget =
+    /<(div|ins|iframe|script|blockquote)\b/i.test(embed) ||
+    /elfsight|featurable|trustindex|elfsight-app|\.elf\.site/i.test(embed);
+  const hasWidget = Boolean(s.google_reviews_enabled && embed && looksLikeWidget);
 
   // When no live widget is configured, fall back to published reviews from the admin panel
   useEffect(() => {
