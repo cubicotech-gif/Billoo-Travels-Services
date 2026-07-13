@@ -10,8 +10,9 @@ import Packages from "@/components/sections/Packages";
 import Services from "@/components/sections/Services";
 import HowItWorks from "@/components/sections/HowItWorks";
 import AccreditationStrip from "@/components/sections/AccreditationStrip";
+import Licenses from "@/components/sections/Licenses";
 import CTAStrip from "@/components/sections/CTAStrip";
-import { Testimonials } from "@/components/sections/GalleryTeamTestimonials";
+import GoogleReviews from "@/components/sections/GoogleReviews";
 import { FAQ, Contact } from "@/components/sections/FAQBlogContact";
 import { Footer, WhatsAppWidget, StickyMobileCTA } from "@/components/sections/FooterWhatsApp";
 
@@ -35,8 +36,10 @@ export default function HomePage() {
       <HowItWorks />
       {/* Authority / accreditation */}
       <AccreditationStrip />
-      {/* Proof */}
-      <Testimonials />
+      {/* Licensed & verified documents */}
+      <Licenses />
+      {/* Proof — real Google reviews */}
+      <GoogleReviews tone="dark" />
       {/* Objections */}
       <FAQ />
       {/* Close */}

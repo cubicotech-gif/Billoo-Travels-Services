@@ -17,6 +17,12 @@ interface Accreditation {
   name: string;
   logo: string;
 }
+interface License {
+  title: string;
+  issuer: string;
+  image: string;
+  doc_url: string;
+}
 interface HomepageContent {
   trust_enabled: boolean;
   trust_items: TrustItem[];
@@ -29,6 +35,9 @@ interface HomepageContent {
   accred_enabled: boolean;
   accred_label: string;
   accreditations: Accreditation[];
+  licenses_enabled: boolean;
+  licenses_label: string;
+  licenses: License[];
 }
 
 const EMPTY: HomepageContent = {
@@ -43,6 +52,9 @@ const EMPTY: HomepageContent = {
   accred_enabled: true,
   accred_label: "Accredited & Trusted",
   accreditations: [],
+  licenses_enabled: true,
+  licenses_label: "Officially Licensed & Verified",
+  licenses: [],
 };
 
 const CLS =
@@ -106,6 +118,7 @@ export default function HomepageAdminPage() {
           trust_items: Array.isArray(json.content.trust_items) ? json.content.trust_items : [],
           steps: Array.isArray(json.content.steps) ? json.content.steps : [],
           accreditations: Array.isArray(json.content.accreditations) ? json.content.accreditations : [],
+          licenses: Array.isArray(json.content.licenses) ? json.content.licenses : [],
         });
       }
     } catch {
@@ -160,6 +173,38 @@ export default function HomepageAdminPage() {
     if (j.url) setAccred(i, "logo", j.url);
   }
 
+  // ── licence helpers ──
+  function setLicense(i: number, key: keyof License, v: string) {
+    set("licenses", form.licenses.map((l, idx) => (idx === i ? { ...l, [key]: v } : l)));
+  }
+  function addLicense() {
+    set("licenses", [...form.licenses, { title: "", issuer: "", image: "", doc_url: "" }]);
+  }
+  function removeLicense(i: number) {
+    set("licenses", form.licenses.filter((_, idx) => idx !== i));
+  }
+  const [licenseUploading, setLicenseUploading] = useState<number | null>(null);
+  async function uploadLicenseDoc(i: number, file: File) {
+    setLicenseUploading(i);
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("bucket", "documents");
+    fd.append("folder", "licenses");
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const j = await res.json();
+    if (j.url) {
+      const isPdf = /\.pdf($|\?)/i.test(j.url);
+      // doc_url is what opens on click; image is the preview (only for image uploads)
+      setForm((f) => ({
+        ...f,
+        licenses: f.licenses.map((l, idx) =>
+          idx === i ? { ...l, doc_url: j.url, image: isPdf ? l.image : j.url } : l
+        ),
+      }));
+    }
+    setLicenseUploading(null);
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -187,7 +232,7 @@ export default function HomepageAdminPage() {
             Homepage
           </h1>
           <p className="text-sm text-slate-400 mt-0.5">
-            Edit the trust bar, accreditation logos, and the &ldquo;How It Works&rdquo; steps.
+            Edit the trust bar, accreditation logos, licence documents, and the &ldquo;How It Works&rdquo; steps.
           </p>
         </div>
 
@@ -323,6 +368,84 @@ export default function HomepageAdminPage() {
                 style={{ fontFamily: "'Sora', sans-serif" }}
               >
                 + Add accreditation
+              </button>
+            </div>
+
+            {/* ── LICENSES & CREDENTIALS ── */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="font-bold text-[#0B1628]" style={{ fontFamily: "'Sora', sans-serif" }}>Licences &amp; Credentials</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Upload the real Munazzam, Ministry of Religious Affairs, Nusuk &amp; IATA documents. Shown as verifiable trust proof (images or PDF).</p>
+                </div>
+                <Toggle on={form.licenses_enabled} onClick={() => set("licenses_enabled", !form.licenses_enabled)} />
+              </div>
+
+              <Field label="Section label" hint="Small caption under the heading, e.g. Officially Licensed & Verified">
+                <input value={form.licenses_label} onChange={(e) => set("licenses_label", e.target.value)} className={CLS} />
+              </Field>
+
+              <div className="space-y-3 mt-4">
+                {form.licenses.map((l, i) => (
+                  <div key={i} className="flex gap-3 items-start bg-slate-50 border border-slate-200 rounded-xl p-3">
+                    {/* Preview */}
+                    {l.image ? (
+                      <img src={l.image} alt={l.title} className="h-16 w-16 object-cover rounded-lg bg-white border border-slate-200 flex-shrink-0" />
+                    ) : l.doc_url ? (
+                      <span className="h-16 w-16 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[10px] font-semibold text-[#4DA3E8] flex-shrink-0">PDF</span>
+                    ) : (
+                      <span className="h-16 w-16 rounded-lg bg-white border border-dashed border-slate-200 flex items-center justify-center text-[9px] text-slate-300 flex-shrink-0 text-center px-1">no file</span>
+                    )}
+                    <div className="flex-1 space-y-2 min-w-0">
+                      <input
+                        value={l.title}
+                        onChange={(e) => setLicense(i, "title", e.target.value)}
+                        placeholder="Title, e.g. Hajj Group Organizer Licence"
+                        className={CLS}
+                      />
+                      <input
+                        value={l.issuer}
+                        onChange={(e) => setLicense(i, "issuer", e.target.value)}
+                        placeholder="Issuer, e.g. Ministry of Religious Affairs / Munazzam / Nusuk"
+                        className={CLS}
+                      />
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <label className="px-3 py-2 text-xs rounded-lg border border-slate-200 bg-white hover:bg-[#EBF5FF] hover:text-[#4DA3E8] hover:border-[#4DA3E8] cursor-pointer transition-all whitespace-nowrap">
+                          {licenseUploading === i ? "Uploading…" : l.doc_url ? "Replace file" : "Upload image / PDF"}
+                          <input
+                            type="file"
+                            accept="image/*,application/pdf"
+                            className="hidden"
+                            onChange={(e) => {
+                              const f = e.target.files?.[0];
+                              if (f) uploadLicenseDoc(i, f);
+                            }}
+                          />
+                        </label>
+                        {l.doc_url && (
+                          <a href={l.doc_url} target="_blank" rel="noopener noreferrer" className="text-xs text-[#4DA3E8] hover:underline">
+                            View file ↗
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeLicense(i)}
+                      className="text-slate-300 hover:text-red-500 bg-transparent border-none cursor-pointer text-xl leading-none flex-shrink-0 px-1"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={addLicense}
+                className="mt-3 px-4 py-2 text-xs font-semibold rounded-lg bg-[#EBF5FF] text-[#4DA3E8] hover:bg-[#4DA3E8] hover:text-white border-none cursor-pointer transition-all"
+                style={{ fontFamily: "'Sora', sans-serif" }}
+              >
+                + Add licence / credential
               </button>
             </div>
 
