@@ -6,18 +6,19 @@ import InnerLayout from "@/components/InnerLayout";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import SectionHeading from "@/components/ui/SectionHeading";
 import HajjLeadForm from "@/components/sections/HajjLeadForm";
+import GoogleReviews from "@/components/sections/GoogleReviews";
+import Licenses from "@/components/sections/Licenses";
+import HajjPackages from "@/components/sections/HajjPackages";
 import {
   CheckIcon,
   ArrowIcon,
   KaabaIcon,
-  ShieldIcon,
   ChevronDownIcon,
-  QuoteIcon,
   ClockIcon,
   PhoneIcon,
 } from "@/components/ui/Icons";
 import { ICON_MAP } from "@/components/ui/Icons";
-import { CONTACT, TESTIMONIALS, getImageSrc } from "@/lib/data";
+import { CONTACT } from "@/lib/data";
 import {
   HAJJ,
   HAJJ_BENEFITS,
@@ -27,13 +28,6 @@ import {
   HAJJ_INCLUDED,
   HAJJ_FAQ,
 } from "@/lib/hajj";
-
-const CREDENTIALS = [
-  "Ministry of Religious Affairs — Approved Operator",
-  "Hajj & Umrah Agent ID 1251",
-  "IATA Accredited Agency",
-  "Saudi Nusuk Platform Partner",
-];
 
 function scrollToRegister(e: React.MouseEvent) {
   e.preventDefault();
@@ -257,67 +251,14 @@ export default function HajjLandingPage() {
         </div>
       </section>
 
-      {/* ══════════ TESTIMONIALS ══════════ */}
-      <section className="py-20 md:py-24 px-6 md:px-9 bg-surface-alt">
-        <div className="max-w-[1180px] mx-auto">
-          <div className="text-center mb-14">
-            <SectionHeading
-              label="From Our Pilgrims"
-              title="Journeys We've"
-              highlight="Been Trusted With"
-              centered
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {TESTIMONIALS.map((t, i) => (
-              <ScrollReveal key={t.name} delay={i * 0.08}>
-                <div className="h-full bg-white rounded-2xl p-7 border border-slate-200 relative">
-                  <div className="absolute top-5 right-5">
-                    <QuoteIcon size={36} />
-                  </div>
-                  <p className="text-[14px] text-slate-600 leading-relaxed mb-6 relative z-10">
-                    &ldquo;{t.text}&rdquo;
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={getImageSrc(t.img, t.placeholder)}
-                      alt={t.name}
-                      className="w-11 h-11 rounded-full object-cover border border-slate-200"
-                    />
-                    <div>
-                      <div className="font-heading text-sm font-bold text-midnight">{t.name}</div>
-                      <div className="font-mono text-[10px] tracking-[1px] uppercase text-accent mt-0.5">
-                        {t.role}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ══════════ HAJJ PACKAGES (from admin panel) ══════════ */}
+      <HajjPackages />
 
-      {/* ══════════ LICENSED & ACCREDITED ══════════ */}
-      <section className="py-16 px-6 md:px-9 bg-surface border-y border-slate-200">
-        <div className="max-w-[1100px] mx-auto text-center">
-          <div className="font-mono text-[11px] tracking-[2px] uppercase text-slate-400 mb-7">
-            Licensed &amp; Accredited
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
-            {CREDENTIALS.map((c, i) => (
-              <ScrollReveal key={c} delay={i * 0.06}>
-                <div className="inline-flex items-center gap-2.5 bg-white rounded-full pl-3 pr-5 py-2.5 border border-slate-200">
-                  <span className="w-6 h-6 rounded-full bg-accent-pale flex items-center justify-center shrink-0">
-                    <ShieldIcon size={13} color="#4DA3E8" />
-                  </span>
-                  <span className="font-heading text-[13px] font-semibold text-ink">{c}</span>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ══════════ LICENSED & VERIFIED DOCUMENTS ══════════ */}
+      <Licenses tone="surface" />
+
+      {/* ══════════ REAL GOOGLE REVIEWS ══════════ */}
+      <GoogleReviews tone="light" />
 
       {/* ══════════ FAQ ══════════ */}
       <section className="py-20 md:py-24 px-6 md:px-9 bg-surface-alt">

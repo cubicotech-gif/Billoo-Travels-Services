@@ -9,12 +9,23 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("site_settings")
-    .select("logo_url, logo_width, logo_height")
+    .select(
+      "logo_url, logo_width, logo_height, google_reviews_enabled, google_reviews_embed, google_reviews_script, google_reviews_url, google_rating, google_reviews_count"
+    )
     .eq("id", 1)
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // Columns may not exist yet (migration not run) — fall back to the core fields
+    const fallback = await supabase
+      .from("site_settings")
+      .select("logo_url, logo_width, logo_height")
+      .eq("id", 1)
+      .single();
+    if (fallback.error) {
+      return NextResponse.json({ error: fallback.error.message }, { status: 500 });
+    }
+    return NextResponse.json(fallback.data);
   }
 
   return NextResponse.json(data);
@@ -26,7 +37,17 @@ export async function PATCH(request: NextRequest) {
   const supabase = createAdminClient();
   const body = await request.json();
 
-  const allowed = ["logo_url", "logo_width", "logo_height"];
+  const allowed = [
+    "logo_url",
+    "logo_width",
+    "logo_height",
+    "google_reviews_enabled",
+    "google_reviews_embed",
+    "google_reviews_script",
+    "google_reviews_url",
+    "google_rating",
+    "google_reviews_count",
+  ];
   const updates: Record<string, unknown> = {};
   for (const key of allowed) {
     if (key in body) updates[key] = body[key];

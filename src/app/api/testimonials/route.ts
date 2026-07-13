@@ -3,14 +3,19 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/testimonials — admin: all (published + hidden)
-export async function GET() {
+// GET /api/testimonials — admin: all; public: ?published=1 returns published only
+export async function GET(request: NextRequest) {
   const supabase = createAdminClient();
+  const publishedOnly = request.nextUrl.searchParams.get("published") === "1";
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("testimonials")
     .select("*")
     .order("created_at", { ascending: false });
+
+  if (publishedOnly) query = query.eq("published", true);
+
+  const { data, error } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
