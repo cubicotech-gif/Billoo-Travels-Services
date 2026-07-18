@@ -230,9 +230,10 @@ export const FAQS = [
 ];
 
 // ─── NAV LINKS ───
-export const NAV_LINKS = [
+// `highlight` renders the link as a stand-out accent pill (see Navbar).
+export const NAV_LINKS: { label: string; href: string; highlight?: boolean }[] = [
   { label: "Home", href: "/" },
-  { label: "Hajj 2027", href: "/hajj" },
+  { label: "Hajj 2027", href: "/hajj", highlight: true },
   { label: "Packages", href: "/packages" },
   { label: "Pricing", href: "/#pricing" },
   { label: "Gallery", href: "/#gallery" },
