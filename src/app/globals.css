@@ -402,3 +402,52 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* ══════════════════════════════════════════
+   PDF BROCHURE / PRINT STYLES
+══════════════════════════════════════════ */
+
+/* On-screen the brochure sits centred on a light backdrop. */
+.brochure-shell {
+  background: #E2E8F0;
+  min-height: 100vh;
+}
+.brochure-sheet {
+  width: 210mm;
+  max-width: 100%;
+  margin: 0 auto;
+  background: #fff;
+  color: #0B1628;
+}
+
+@media print {
+  /* Keep native background colours in the printed PDF */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  /* Hide anything not part of the printed brochure */
+  .no-print {
+    display: none !important;
+  }
+  .brochure-shell {
+    background: #fff !important;
+  }
+  .brochure-sheet {
+    width: 100%;
+    margin: 0;
+    box-shadow: none !important;
+  }
+  .brochure-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

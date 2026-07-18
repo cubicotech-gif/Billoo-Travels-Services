@@ -132,19 +132,33 @@ export default function Navbar() {
 
         {/* ── Desktop Nav ── */}
         <div className="hidden md:flex items-center gap-5">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className={`font-heading text-[13px] font-medium no-underline transition-colors ${
-                scrolled
-                  ? "text-slate-500 hover:text-[#4DA3E8]"
-                  : "text-white/70 hover:text-white"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {NAV_LINKS.map((link) =>
+            link.highlight ? (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="group relative inline-flex items-center gap-1.5 rounded-full pl-3 pr-3.5 py-1.5 font-heading text-[13px] font-semibold no-underline text-white bg-gradient-to-r from-[#4DA3E8] to-[#2B7CC4] shadow-[0_4px_16px_rgba(77,163,232,0.35)] transition-all hover:-translate-y-px hover:shadow-[0_6px_20px_rgba(77,163,232,0.5)]"
+              >
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-300" />
+                </span>
+                {link.label}
+              </Link>
+            ) : (
+              <Link
+                key={link.label}
+                href={link.href}
+                className={`font-heading text-[13px] font-medium no-underline transition-colors ${
+                  scrolled
+                    ? "text-slate-500 hover:text-[#4DA3E8]"
+                    : "text-white/70 hover:text-white"
+                }`}
+              >
+                {link.label}
+              </Link>
+            )
+          )}
 
           <div className={`h-[18px] w-px ${scrolled ? "bg-slate-200" : "bg-white/[0.15]"}`} />
 
@@ -206,16 +220,31 @@ export default function Navbar() {
             className="md:hidden bg-white border-t border-slate-200 overflow-hidden"
           >
             <div className="px-6 py-5 flex flex-col gap-3.5">
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className="font-heading text-[13px] font-medium text-slate-500 no-underline hover:text-[#4DA3E8]"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {NAV_LINKS.map((link) =>
+                link.highlight ? (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    className="inline-flex items-center gap-2 self-start rounded-full pl-3 pr-4 py-2 font-heading text-[13px] font-semibold no-underline text-white bg-gradient-to-r from-[#4DA3E8] to-[#2B7CC4] shadow-[0_4px_16px_rgba(77,163,232,0.35)]"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <span className="relative flex h-2 w-2 shrink-0">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-300" />
+                    </span>
+                    {link.label}
+                  </Link>
+                ) : (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    className="font-heading text-[13px] font-medium text-slate-500 no-underline hover:text-[#4DA3E8]"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                )
+              )}
               <div className="flex gap-2 mt-1">
                 <Link
                   href="/booking"

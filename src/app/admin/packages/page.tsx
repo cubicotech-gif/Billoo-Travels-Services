@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
 import AdminLayout from "@/components/AdminLayout";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -15,6 +16,7 @@ interface Package {
   hotel: string;
   hotel_short: string | null;
   dates: string | null;
+  currency: string | null;
   includes: string[];
   price_pkr: number;
   price_usd: number;
@@ -33,6 +35,7 @@ interface Package {
 
 const emptyForm = {
   title: "", type: "Umrah", nights: "", hotel: "", hotel_short: "", dates: "",
+  currency: "SAR",
   price_pkr: "", price_usd: "", price_sar: "", status: "active", featured: false,
   badge: "", img: "", overview: "",
   includes: [] as string[],
@@ -257,6 +260,7 @@ export default function AdminPackages() {
       hotel: form.hotel,
       hotel_short: form.hotel_short || form.hotel,
       dates: form.dates || null,
+      currency: form.currency,
       price_pkr: Number(form.price_pkr) || 0,
       price_usd: Number(form.price_usd) || 0,
       price_sar: Number(form.price_sar) || 0,
@@ -309,6 +313,7 @@ export default function AdminPackages() {
     setForm({
       title: p.title, type: p.type, nights: p.nights, hotel: p.hotel,
       hotel_short: p.hotel_short || "", dates: p.dates || "",
+      currency: p.currency || "SAR",
       price_pkr: String(p.price_pkr), price_usd: String(p.price_usd), price_sar: String(p.price_sar),
       status: p.status, featured: p.featured, badge: p.badge || "", img: p.img || "",
       overview: p.overview || "",
@@ -415,6 +420,23 @@ export default function AdminPackages() {
 
           {/* ── PRICING ── */}
           <p className="text-[10px] tracking-[2px] text-slate-400 uppercase font-semibold mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>── Pricing</p>
+          <div className="mb-4 max-w-xs">
+            <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Display Currency *</label>
+            <div className="flex gap-2">
+              {["SAR", "USD"].map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setF("currency", c)}
+                  className={`flex-1 px-4 py-2.5 rounded-lg border text-sm font-semibold cursor-pointer transition-all ${form.currency === c ? "bg-[#4DA3E8] text-white border-[#4DA3E8]" : "bg-white text-slate-500 border-slate-200 hover:border-[#4DA3E8]"}`}
+                  style={{ fontFamily: "'Sora', sans-serif" }}
+                >
+                  {c === "SAR" ? "SAR — Saudi Riyals" : "USD — US Dollars"}
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1.5">This currency is shown on the site, PDF brochure and social cards, and groups the package on the Hajj page.</p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             {[
               { label: "Price (PKR)", key: "price_pkr", placeholder: "1250000" },
@@ -534,6 +556,7 @@ export default function AdminPackages() {
                     <td className="px-5 py-3.5">
                       <div className="flex gap-3">
                         <button onClick={() => startEdit(p)} className="text-[#4DA3E8] text-xs font-semibold bg-transparent border-none cursor-pointer hover:underline" style={{ fontFamily: "'Sora', sans-serif" }}>Edit</button>
+                        <Link href={`/admin/packages/${p.id}/share`} className="text-emerald-500 text-xs font-semibold no-underline hover:underline" style={{ fontFamily: "'Sora', sans-serif" }}>Share</Link>
                         <button onClick={() => handleDelete(p.id)} className="text-red-400 text-xs font-semibold bg-transparent border-none cursor-pointer hover:underline" style={{ fontFamily: "'Sora', sans-serif" }}>Delete</button>
                       </div>
                     </td>
