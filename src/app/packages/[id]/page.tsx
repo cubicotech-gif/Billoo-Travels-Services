@@ -6,6 +6,7 @@ import InnerLayout from "@/components/InnerLayout";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { useCurrency } from "@/lib/currency";
 import { CheckIcon, XIcon, CalendarIcon, ArrowIcon, PhoneIcon } from "@/components/ui/Icons";
+import { formatPkgPrice } from "@/lib/packageCurrency";
 import Link from "next/link";
 
 interface ItineraryItem { day: string; title: string; desc: string; }
@@ -18,6 +19,7 @@ interface DbPackage {
   hotel: string;
   hotel_short: string | null;
   dates: string | null;
+  currency: string | null;
   includes: string[];
   price_pkr: number;
   price_usd: number;
@@ -83,6 +85,10 @@ export default function PackageDetailPage() {
   }
 
   const imgSrc = pkg.img || FALLBACK_IMG;
+  const isHajj = (pkg.type || "").toLowerCase() === "hajj";
+  // Hajj packages are quoted in a single native currency (USD/SAR, no PKR);
+  // other package types keep the site-wide currency switcher.
+  const displayPrice = isHajj ? formatPkgPrice(pkg) : fmtPrice(pkg, currency);
 
   return (
     <InnerLayout>
@@ -214,7 +220,7 @@ export default function PackageDetailPage() {
               <ScrollReveal>
                 <div className="bg-white rounded-2xl border border-slate-200 p-7 shadow-[0_8px_24px_rgba(0,0,0,0.04)]">
                   <div className="font-mono text-[10px] text-slate-400 tracking-[1.5px] uppercase mb-1">Starting from</div>
-                  <div className="font-heading text-3xl font-bold text-accent mb-1">{fmtPrice(pkg, currency)}</div>
+                  <div className="font-heading text-3xl font-bold text-accent mb-1">{displayPrice}</div>
                   <div className="text-sm text-slate-400 mb-6">per person</div>
 
                   <div className="space-y-3 mb-6">
@@ -247,6 +253,16 @@ export default function PackageDetailPage() {
                   <button className="w-full bg-transparent text-midnight py-3.5 rounded-lg font-heading text-sm font-semibold border-[1.5px] border-slate-200 hover:border-accent hover:text-accent transition-all cursor-pointer flex items-center justify-center gap-2">
                     <PhoneIcon color="#4DA3E8" /> Call for Custom Quote
                   </button>
+                  {isHajj && (
+                    <a
+                      href={`/packages/${pkg.id}/brochure`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full mt-3 bg-midnight text-white py-3.5 rounded-lg font-heading text-sm font-semibold hover:bg-midnight-light transition-all flex items-center justify-center gap-2 no-underline"
+                    >
+                      ⬇ Download PDF Brochure
+                    </a>
+                  )}
                 </div>
               </ScrollReveal>
 
