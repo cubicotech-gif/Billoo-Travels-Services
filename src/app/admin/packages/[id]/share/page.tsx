@@ -12,6 +12,7 @@ import { formatPkgPrice, pkgCurrency } from "@/lib/packageCurrency";
 interface DbPackage {
   id: number;
   type: string;
+  code: string | null;
   title: string;
   nights: string;
   hotel: string;
@@ -210,7 +211,7 @@ Or reply to this message and our advisor will call you back, InshaAllah.`,
                   </div>
                 </div>
                 <span className="text-[8px] tracking-[1.5px] uppercase bg-[#4DA3E8] px-2 py-1 rounded-md font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                  {pkg.type}
+                  {pkg.type}{pkg.code ? ` · ${pkg.code}` : ""}
                 </span>
               </div>
 

@@ -6,7 +6,9 @@ import InnerLayout from "@/components/InnerLayout";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { useCurrency } from "@/lib/currency";
 import { CheckIcon, XIcon, CalendarIcon, ArrowIcon, PhoneIcon } from "@/components/ui/Icons";
-import { formatPkgPrice } from "@/lib/packageCurrency";
+import { formatPkgPrice, pkgCurrency } from "@/lib/packageCurrency";
+import { Pricing, hasPricing } from "@/lib/pricing";
+import PricingTable from "@/components/ui/PricingTable";
 import Link from "next/link";
 
 interface ItineraryItem { day: string; title: string; desc: string; }
@@ -14,6 +16,7 @@ interface ItineraryItem { day: string; title: string; desc: string; }
 interface DbPackage {
   id: number;
   type: string;
+  code: string | null;
   title: string;
   nights: string;
   hotel: string;
@@ -24,6 +27,7 @@ interface DbPackage {
   price_pkr: number;
   price_usd: number;
   price_sar: number;
+  pricing: Pricing | null;
   badge: string | null;
   img: string | null;
   overview: string | null;
@@ -101,6 +105,7 @@ export default function PackageDetailPage() {
             <div className="flex gap-2 mb-3">
               {pkg.badge && <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-accent text-white">{pkg.badge}</span>}
               <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-white/90 text-midnight">{pkg.type}</span>
+              {pkg.code && <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-white/15 text-white border border-white/25">PKG {pkg.code}</span>}
               {pkg.featured && <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-amber-400 text-white">★ Featured</span>}
             </div>
             <h1 className="font-heading text-3xl md:text-5xl font-bold text-white mb-2">{pkg.title}</h1>
@@ -142,6 +147,18 @@ export default function PackageDetailPage() {
                       <span key={f} className="text-[13px] font-semibold text-accent bg-accent-pale px-3 py-1.5 rounded-lg">{f}</span>
                     ))}
                   </div>
+                </div>
+              </ScrollReveal>
+            )}
+
+            {isHajj && hasPricing(pkg.pricing) && (
+              <ScrollReveal>
+                <div className="mb-12">
+                  <h2 className="font-heading text-2xl font-bold text-midnight mb-4">Per-Person Pricing</h2>
+                  <PricingTable pricing={pkg.pricing} currency={pkgCurrency(pkg)} />
+                  <p className="text-[12px] text-slate-400 mt-3">
+                    Prices are per person. Airline ticket &amp; Qurbani not included. Book early — prices &amp; packages subject to change.
+                  </p>
                 </div>
               </ScrollReveal>
             )}

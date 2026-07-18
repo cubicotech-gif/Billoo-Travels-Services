@@ -7,12 +7,15 @@ import { CONTACT } from "@/lib/data";
 import { HAJJ } from "@/lib/hajj";
 import { SITE } from "@/lib/seo";
 import { formatPkgPrice, pkgCurrency, CURRENCY_LABEL } from "@/lib/packageCurrency";
+import { Pricing, hasPricing } from "@/lib/pricing";
+import PricingTable from "@/components/ui/PricingTable";
 
 interface ItineraryItem { day: string; title: string; desc: string; }
 
 interface DbPackage {
   id: number;
   type: string;
+  code: string | null;
   title: string;
   nights: string;
   hotel: string;
@@ -22,6 +25,7 @@ interface DbPackage {
   price_pkr: number;
   price_usd: number;
   price_sar: number;
+  pricing: Pricing | null;
   includes: string[];
   badge: string | null;
   img: string | null;
@@ -122,6 +126,7 @@ export default function PackageBrochurePage() {
             <div className="flex flex-wrap items-center gap-2 mb-2.5">
               <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-[#4DA3E8] text-white">{pkg.type}</span>
               {pkg.badge && <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-white/90 text-[#0B1628]">{pkg.badge}</span>}
+              {pkg.code && <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-white/10 text-[#7EC8FF] border border-white/20">PKG {pkg.code}</span>}
             </div>
             <h1 className="font-display text-[34px] leading-[1.05] text-white">{pkg.title}</h1>
           </div>
@@ -172,6 +177,19 @@ export default function PackageBrochurePage() {
                   <span key={h} className="text-[11px] font-semibold text-[#2B7CC4] bg-[#EBF5FF] px-3 py-1.5 rounded-md">{h}</span>
                 ))}
               </div>
+            </section>
+          )}
+
+          {/* Pricing matrix */}
+          {hasPricing(pkg.pricing) && (
+            <section className="mb-7 brochure-break">
+              <h2 className="font-heading text-[15px] font-bold text-[#0B1628] mb-3 flex items-center gap-2">
+                <span className="w-6 h-px bg-[#4DA3E8]" /> Per-Person Pricing
+              </h2>
+              <PricingTable pricing={pkg.pricing} currency={currency} variant="brochure" />
+              <p className="text-[9.5px] text-slate-400 mt-2 font-mono">
+                Prices per person in {CURRENCY_LABEL[currency]}. Ticket &amp; Qurbani not included. Book early — prices subject to change.
+              </p>
             </section>
           )}
 

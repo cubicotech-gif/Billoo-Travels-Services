@@ -11,6 +11,7 @@ interface ItineraryItem { day: string; title: string; desc: string; }
 interface Package {
   id: number;
   type: string;
+  code: string | null;
   title: string;
   nights: string;
   hotel: string;
@@ -34,7 +35,7 @@ interface Package {
 }
 
 const emptyForm = {
-  title: "", type: "Umrah", nights: "", hotel: "", hotel_short: "", dates: "",
+  title: "", type: "Umrah", code: "", nights: "", hotel: "", hotel_short: "", dates: "",
   currency: "SAR",
   price_pkr: "", price_usd: "", price_sar: "", status: "active", featured: false,
   badge: "", img: "", overview: "",
@@ -255,6 +256,7 @@ export default function AdminPackages() {
     setSaving(true);
     const body = {
       type: form.type,
+      code: form.code || null,
       title: form.title,
       nights: form.nights,
       hotel: form.hotel,
@@ -311,7 +313,7 @@ export default function AdminPackages() {
 
   function startEdit(p: Package) {
     setForm({
-      title: p.title, type: p.type, nights: p.nights, hotel: p.hotel,
+      title: p.title, type: p.type, code: p.code || "", nights: p.nights, hotel: p.hotel,
       hotel_short: p.hotel_short || "", dates: p.dates || "",
       currency: p.currency || "SAR",
       price_pkr: String(p.price_pkr), price_usd: String(p.price_usd), price_sar: String(p.price_sar),
@@ -373,6 +375,10 @@ export default function AdminPackages() {
             <div>
               <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Badge Label</label>
               <input value={form.badge} onChange={(e) => setF("badge", e.target.value)} placeholder="e.g. Most Booked" className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300" />
+            </div>
+            <div>
+              <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>PKG Code</label>
+              <input value={form.code} onChange={(e) => setF("code", e.target.value)} placeholder="e.g. UB 001" className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300" />
             </div>
             <div>
               <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Type</label>
