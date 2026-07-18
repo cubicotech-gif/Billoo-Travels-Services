@@ -11,6 +11,7 @@ interface ItineraryItem { day: string; title: string; desc: string; }
 interface Package {
   id: number;
   type: string;
+  code: string | null;
   title: string;
   nights: string;
   hotel: string;
@@ -27,6 +28,8 @@ interface Package {
   itinerary: ItineraryItem[];
   included_items: string[];
   not_included: string[];
+  add_ons: string[];
+  notes: string[];
   gallery: string[];
   status: string;
   featured: boolean;
@@ -34,7 +37,7 @@ interface Package {
 }
 
 const emptyForm = {
-  title: "", type: "Umrah", nights: "", hotel: "", hotel_short: "", dates: "",
+  title: "", type: "Umrah", code: "", nights: "", hotel: "", hotel_short: "", dates: "",
   currency: "SAR",
   price_pkr: "", price_usd: "", price_sar: "", status: "active", featured: false,
   badge: "", img: "", overview: "",
@@ -42,6 +45,8 @@ const emptyForm = {
   itinerary: [] as ItineraryItem[],
   included_items: [] as string[],
   not_included: [] as string[],
+  add_ons: [] as string[],
+  notes: [] as string[],
   gallery: [] as string[],
 };
 
@@ -255,6 +260,7 @@ export default function AdminPackages() {
     setSaving(true);
     const body = {
       type: form.type,
+      code: form.code || null,
       title: form.title,
       nights: form.nights,
       hotel: form.hotel,
@@ -273,6 +279,8 @@ export default function AdminPackages() {
       itinerary: form.itinerary,
       included_items: form.included_items,
       not_included: form.not_included,
+      add_ons: form.add_ons,
+      notes: form.notes,
       gallery: form.gallery,
     };
 
@@ -311,7 +319,7 @@ export default function AdminPackages() {
 
   function startEdit(p: Package) {
     setForm({
-      title: p.title, type: p.type, nights: p.nights, hotel: p.hotel,
+      title: p.title, type: p.type, code: p.code || "", nights: p.nights, hotel: p.hotel,
       hotel_short: p.hotel_short || "", dates: p.dates || "",
       currency: p.currency || "SAR",
       price_pkr: String(p.price_pkr), price_usd: String(p.price_usd), price_sar: String(p.price_sar),
@@ -321,6 +329,8 @@ export default function AdminPackages() {
       itinerary: Array.isArray(p.itinerary) ? p.itinerary : [],
       included_items: Array.isArray(p.included_items) ? p.included_items : [],
       not_included: Array.isArray(p.not_included) ? p.not_included : [],
+      add_ons: Array.isArray(p.add_ons) ? p.add_ons : [],
+      notes: Array.isArray(p.notes) ? p.notes : [],
       gallery: Array.isArray(p.gallery) ? p.gallery : [],
     });
     setEditingId(p.id);
@@ -373,6 +383,10 @@ export default function AdminPackages() {
             <div>
               <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Badge Label</label>
               <input value={form.badge} onChange={(e) => setF("badge", e.target.value)} placeholder="e.g. Most Booked" className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300" />
+            </div>
+            <div>
+              <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>PKG Code</label>
+              <input value={form.code} onChange={(e) => setF("code", e.target.value)} placeholder="e.g. UB 001" className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300" />
             </div>
             <div>
               <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Type</label>
@@ -479,6 +493,13 @@ export default function AdminPackages() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <TagInput label="What's Included" values={form.included_items} onChange={(v) => setF("included_items", v)} />
             <TagInput label="Not Included" values={form.not_included} onChange={(v) => setF("not_included", v)} />
+          </div>
+
+          {/* ── OPTIONAL ADD-ONS / NOTES ── */}
+          <p className="text-[10px] tracking-[2px] text-slate-400 uppercase font-semibold mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>── Optional Add-ons &amp; Good-to-Know Notes</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <TagInput label="Optional Upgrades & Add-ons" values={form.add_ons} onChange={(v) => setF("add_ons", v)} />
+            <TagInput label="Good to Know (notes)" values={form.notes} onChange={(v) => setF("notes", v)} />
           </div>
 
           {/* ── GALLERY ── */}

@@ -6,14 +6,16 @@ import InnerLayout from "@/components/InnerLayout";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { useCurrency } from "@/lib/currency";
 import { CheckIcon, XIcon, CalendarIcon, ArrowIcon, PhoneIcon } from "@/components/ui/Icons";
-import { formatPkgPrice } from "@/lib/packageCurrency";
+import { formatPkgPrice, pkgCurrency } from "@/lib/packageCurrency";
+import { Pricing, hasPricing } from "@/lib/pricing";
+import PricingOptions from "@/components/ui/PricingOptions";
+import Itinerary, { ItItem } from "@/components/ui/Itinerary";
 import Link from "next/link";
-
-interface ItineraryItem { day: string; title: string; desc: string; }
 
 interface DbPackage {
   id: number;
   type: string;
+  code: string | null;
   title: string;
   nights: string;
   hotel: string;
@@ -24,12 +26,15 @@ interface DbPackage {
   price_pkr: number;
   price_usd: number;
   price_sar: number;
+  pricing: Pricing | null;
   badge: string | null;
   img: string | null;
   overview: string | null;
-  itinerary: ItineraryItem[];
+  itinerary: ItItem[];
   included_items: string[];
   not_included: string[];
+  add_ons: string[];
+  notes: string[];
   gallery: string[];
   status: string;
   featured: boolean;
@@ -101,6 +106,7 @@ export default function PackageDetailPage() {
             <div className="flex gap-2 mb-3">
               {pkg.badge && <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-accent text-white">{pkg.badge}</span>}
               <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-white/90 text-midnight">{pkg.type}</span>
+              {pkg.code && <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-white/15 text-white border border-white/25">PKG {pkg.code}</span>}
               {pkg.featured && <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-amber-400 text-white">★ Featured</span>}
             </div>
             <h1 className="font-heading text-3xl md:text-5xl font-bold text-white mb-2">{pkg.title}</h1>
@@ -146,23 +152,28 @@ export default function PackageDetailPage() {
               </ScrollReveal>
             )}
 
+            {isHajj && hasPricing(pkg.pricing) && (
+              <ScrollReveal>
+                <div className="mb-12">
+                  <h2 className="font-heading text-2xl font-bold text-midnight mb-2">Choose Your Hotel &amp; Room</h2>
+                  {pkg.pricing!.tiers!.length > 1 && (
+                    <p className="text-[14px] text-slate-500 mb-5 leading-relaxed max-w-[560px]">
+                      Both options follow the same itinerary and include the same services — only the hotels differ. Pick the hotel that suits you, then your room type.
+                    </p>
+                  )}
+                  <PricingOptions pricing={pkg.pricing} currency={pkgCurrency(pkg)} />
+                  <p className="text-[12px] text-slate-400 mt-4">
+                    Prices are per person. Airline ticket &amp; Qurbani not included. Book early — prices &amp; packages subject to change.
+                  </p>
+                </div>
+              </ScrollReveal>
+            )}
+
             {pkg.itinerary?.length > 0 && (
               <ScrollReveal>
                 <div className="mb-12">
-                  <h2 className="font-heading text-2xl font-bold text-midnight mb-6">Itinerary</h2>
-                  <div className="space-y-4">
-                    {pkg.itinerary.map((item, i) => (
-                      <div key={i} className="flex gap-4 p-5 bg-surface-alt rounded-2xl border border-slate-200">
-                        <div className="w-16 shrink-0">
-                          <div className="font-mono text-[10px] text-accent tracking-[1.5px] font-semibold">{item.day}</div>
-                        </div>
-                        <div>
-                          <h4 className="font-heading text-[15px] font-bold text-midnight mb-1">{item.title}</h4>
-                          <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <h2 className="font-heading text-2xl font-bold text-midnight mb-6">Your Hajj Journey</h2>
+                  <Itinerary items={pkg.itinerary} />
                 </div>
               </ScrollReveal>
             )}
@@ -194,6 +205,36 @@ export default function PackageDetailPage() {
                       </div>
                     </div>
                   )}
+                </div>
+              </ScrollReveal>
+            )}
+
+            {pkg.add_ons?.length > 0 && (
+              <ScrollReveal>
+                <div className="mb-12">
+                  <h2 className="font-heading text-2xl font-bold text-midnight mb-4">Optional Upgrades &amp; Add-ons</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {pkg.add_ons.map((item, i) => (
+                      <div key={i} className="flex items-start gap-2.5 p-4 bg-white rounded-xl border border-slate-200 text-sm text-slate-600">
+                        <span className="text-accent font-bold shrink-0 mt-0.5">＋</span><span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </ScrollReveal>
+            )}
+
+            {pkg.notes?.length > 0 && (
+              <ScrollReveal>
+                <div className="mb-12 p-6 bg-surface-alt rounded-2xl border border-slate-200">
+                  <h2 className="font-heading text-lg font-bold text-midnight mb-4">Good to Know</h2>
+                  <ul className="space-y-2.5">
+                    {pkg.notes.map((item, i) => (
+                      <li key={i} className="flex items-start gap-2.5 text-[13.5px] text-slate-500 leading-relaxed">
+                        <span className="text-slate-400 shrink-0 mt-1.5 w-1 h-1 rounded-full bg-slate-300" /><span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </ScrollReveal>
             )}
