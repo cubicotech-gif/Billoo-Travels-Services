@@ -33,6 +33,8 @@ interface DbPackage {
   itinerary: ItItem[];
   included_items: string[];
   not_included: string[];
+  add_ons: string[];
+  notes: string[];
   gallery: string[];
   status: string;
   featured: boolean;
@@ -203,6 +205,36 @@ export default function PackageDetailPage() {
                       </div>
                     </div>
                   )}
+                </div>
+              </ScrollReveal>
+            )}
+
+            {pkg.add_ons?.length > 0 && (
+              <ScrollReveal>
+                <div className="mb-12">
+                  <h2 className="font-heading text-2xl font-bold text-midnight mb-4">Optional Upgrades &amp; Add-ons</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {pkg.add_ons.map((item, i) => (
+                      <div key={i} className="flex items-start gap-2.5 p-4 bg-white rounded-xl border border-slate-200 text-sm text-slate-600">
+                        <span className="text-accent font-bold shrink-0 mt-0.5">＋</span><span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </ScrollReveal>
+            )}
+
+            {pkg.notes?.length > 0 && (
+              <ScrollReveal>
+                <div className="mb-12 p-6 bg-surface-alt rounded-2xl border border-slate-200">
+                  <h2 className="font-heading text-lg font-bold text-midnight mb-4">Good to Know</h2>
+                  <ul className="space-y-2.5">
+                    {pkg.notes.map((item, i) => (
+                      <li key={i} className="flex items-start gap-2.5 text-[13.5px] text-slate-500 leading-relaxed">
+                        <span className="text-slate-400 shrink-0 mt-1.5 w-1 h-1 rounded-full bg-slate-300" /><span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </ScrollReveal>
             )}

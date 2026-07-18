@@ -32,6 +32,8 @@ interface DbPackage {
   itinerary: ItItem[];
   included_items: string[];
   not_included: string[];
+  add_ons: string[];
+  notes: string[];
 }
 
 export default function PackageBrochurePage() {
@@ -234,6 +236,38 @@ export default function PackageBrochurePage() {
                   </ul>
                 </div>
               )}
+            </section>
+          )}
+
+          {/* Optional upgrades & add-ons */}
+          {pkg.add_ons?.length > 0 && (
+            <section className="mb-6 brochure-break">
+              <h2 className="font-display text-[19px] font-semibold text-[#0B1628] mb-3 flex items-center gap-2">
+                <span className="w-6 h-px bg-[#4DA3E8]" /> Optional Upgrades &amp; Add-ons
+              </h2>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
+                {pkg.add_ons.map((item, i) => (
+                  <div key={i} className="flex items-start gap-2 text-[11px] text-slate-600 leading-snug">
+                    <span className="text-[#4DA3E8] shrink-0">＋</span>{item}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Good to know */}
+          {pkg.notes?.length > 0 && (
+            <section className="mb-2 brochure-break">
+              <h2 className="font-display text-[19px] font-semibold text-[#0B1628] mb-3 flex items-center gap-2">
+                <span className="w-6 h-px bg-[#4DA3E8]" /> Good to Know
+              </h2>
+              <ul className="space-y-1.5">
+                {pkg.notes.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-[11px] text-slate-500 leading-snug">
+                    <span className="text-slate-400 shrink-0">•</span>{item}
+                  </li>
+                ))}
+              </ul>
             </section>
           )}
         </div>

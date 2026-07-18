@@ -28,6 +28,8 @@ interface Package {
   itinerary: ItineraryItem[];
   included_items: string[];
   not_included: string[];
+  add_ons: string[];
+  notes: string[];
   gallery: string[];
   status: string;
   featured: boolean;
@@ -43,6 +45,8 @@ const emptyForm = {
   itinerary: [] as ItineraryItem[],
   included_items: [] as string[],
   not_included: [] as string[],
+  add_ons: [] as string[],
+  notes: [] as string[],
   gallery: [] as string[],
 };
 
@@ -275,6 +279,8 @@ export default function AdminPackages() {
       itinerary: form.itinerary,
       included_items: form.included_items,
       not_included: form.not_included,
+      add_ons: form.add_ons,
+      notes: form.notes,
       gallery: form.gallery,
     };
 
@@ -323,6 +329,8 @@ export default function AdminPackages() {
       itinerary: Array.isArray(p.itinerary) ? p.itinerary : [],
       included_items: Array.isArray(p.included_items) ? p.included_items : [],
       not_included: Array.isArray(p.not_included) ? p.not_included : [],
+      add_ons: Array.isArray(p.add_ons) ? p.add_ons : [],
+      notes: Array.isArray(p.notes) ? p.notes : [],
       gallery: Array.isArray(p.gallery) ? p.gallery : [],
     });
     setEditingId(p.id);
@@ -485,6 +493,13 @@ export default function AdminPackages() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <TagInput label="What's Included" values={form.included_items} onChange={(v) => setF("included_items", v)} />
             <TagInput label="Not Included" values={form.not_included} onChange={(v) => setF("not_included", v)} />
+          </div>
+
+          {/* ── OPTIONAL ADD-ONS / NOTES ── */}
+          <p className="text-[10px] tracking-[2px] text-slate-400 uppercase font-semibold mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>── Optional Add-ons &amp; Good-to-Know Notes</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <TagInput label="Optional Upgrades & Add-ons" values={form.add_ons} onChange={(v) => setF("add_ons", v)} />
+            <TagInput label="Good to Know (notes)" values={form.notes} onChange={(v) => setF("notes", v)} />
           </div>
 
           {/* ── GALLERY ── */}
