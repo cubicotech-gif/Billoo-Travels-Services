@@ -21,20 +21,20 @@ export default function PricingOptions({
   const brochure = variant === "brochure";
 
   return (
-    <div className={`grid gap-${brochure ? "3" : "4"} ${multi ? "sm:grid-cols-2" : "sm:grid-cols-1 max-w-md"}`}>
+    <div className={`grid gap-${brochure ? "2.5" : "4"} ${multi ? "sm:grid-cols-2" : "sm:grid-cols-1 max-w-md"}`}>
       {tiers.map((t, i) => (
         <div
           key={t.key}
-          className="rounded-2xl border border-slate-200 overflow-hidden bg-white"
+          className="rounded-xl border border-slate-200 overflow-hidden bg-white brochure-break"
         >
           {/* Option header */}
-          <div className={`bg-accent-pale/60 border-b border-slate-200 ${brochure ? "px-4 py-3" : "px-5 py-4"}`}>
+          <div className={`bg-accent-pale/60 border-b border-slate-200 ${brochure ? "px-3 py-2" : "px-5 py-4"}`}>
             {multi && (
-              <div className={`font-body text-accent-dark font-semibold ${brochure ? "text-[10px]" : "text-[12px]"}`}>
+              <div className={`font-body text-accent-dark font-semibold ${brochure ? "text-[9.5px]" : "text-[12px]"}`}>
                 Option {i + 1}
               </div>
             )}
-            <div className={`font-display text-midnight leading-tight ${brochure ? "text-[15px]" : "text-[18px]"}`}>
+            <div className={`font-display text-midnight leading-tight ${brochure ? "text-[13px]" : "text-[18px]"}`}>
               {t.label || "Hotel"}
             </div>
           </div>
@@ -47,15 +47,15 @@ export default function PricingOptions({
               return (
                 <div
                   key={ri}
-                  className={`flex items-center justify-between ${brochure ? "px-4 py-2" : "px-5 py-3"}`}
+                  className={`flex items-center justify-between ${brochure ? "px-3 py-1.5" : "px-5 py-3"}`}
                 >
-                  <span className={`font-body text-slate-600 ${brochure ? "text-[11px]" : "text-[13.5px]"}`}>
+                  <span className={`font-body text-slate-600 ${brochure ? "text-[10px]" : "text-[13.5px]"}`}>
                     {r.room}
-                    <span className={`text-slate-400 ml-1 ${brochure ? "text-[9px]" : "text-[11px]"}`}>per person</span>
+                    <span className={`text-slate-400 ml-1 ${brochure ? "text-[8.5px]" : "text-[11px]"}`}>per person</span>
                   </span>
                   <span
                     className={`font-heading font-bold ${isNum ? "text-midnight" : "text-slate-300 font-body font-normal italic"} ${
-                      brochure ? "text-[12px]" : "text-[15px]"
+                      brochure ? "text-[11.5px]" : "text-[15px]"
                     }`}
                     style={{ fontVariantNumeric: "tabular-nums" }}
                   >

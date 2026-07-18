@@ -60,7 +60,7 @@ export default function Itinerary({
   const groups = groupByStage(items);
 
   return (
-    <div className={brochure ? "space-y-3" : "space-y-4"}>
+    <div className={brochure ? "space-y-2" : "space-y-4"}>
       {groups.map((g, gi) => {
         const isHajjDays = /days of hajj/i.test(g.stage);
         const first = dayNum(g.items[0].day);
@@ -69,24 +69,24 @@ export default function Itinerary({
         return (
           <div
             key={gi}
-            className={`rounded-2xl border overflow-hidden brochure-break ${
+            className={`rounded-xl border overflow-hidden brochure-break ${
               isHajjDays ? "border-accent/30" : "border-slate-200"
             }`}
           >
             {/* Stage header */}
             <div
-              className={`flex items-center justify-between gap-3 ${brochure ? "px-4 py-2.5" : "px-5 py-3"} ${
+              className={`flex items-center justify-between gap-3 ${brochure ? "px-3 py-1.5" : "px-5 py-3"} ${
                 isHajjDays ? "bg-accent text-white" : "bg-surface-alt"
               }`}
             >
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 <span className={`inline-block rounded-full ${isHajjDays ? "bg-white" : "bg-accent"} ${brochure ? "w-1.5 h-1.5" : "w-2 h-2"}`} />
-                <span className={`font-display ${isHajjDays ? "text-white" : "text-midnight"} ${brochure ? "text-[14px]" : "text-[16px]"}`}>
+                <span className={`font-display ${isHajjDays ? "text-white" : "text-midnight"} ${brochure ? "text-[12.5px]" : "text-[16px]"}`}>
                   {g.stage}
                 </span>
               </div>
               {range && (
-                <span className={`font-body font-semibold ${isHajjDays ? "text-white/85" : "text-slate-400"} ${brochure ? "text-[10px]" : "text-[12px]"}`}>
+                <span className={`font-body font-semibold ${isHajjDays ? "text-white/85" : "text-slate-400"} ${brochure ? "text-[9.5px]" : "text-[12px]"}`}>
                   {range}
                 </span>
               )}
@@ -95,15 +95,15 @@ export default function Itinerary({
             {/* Day rows */}
             <div className="divide-y divide-slate-100 bg-white">
               {g.items.map((it, i) => (
-                <div key={i} className={`flex items-start gap-3 ${brochure ? "px-4 py-2" : "px-5 py-3"}`}>
-                  <div className={`shrink-0 font-heading font-bold text-midnight ${brochure ? "text-[11px] w-[42px]" : "text-[13px] w-[52px]"}`}>
+                <div key={i} className={`flex items-start gap-2.5 ${brochure ? "px-3 py-1" : "px-5 py-3"}`}>
+                  <div className={`shrink-0 font-heading font-bold text-midnight ${brochure ? "text-[10px] w-[38px]" : "text-[13px] w-[52px]"}`}>
                     Day {dayNum(it.day)}
                   </div>
-                  <div className={`shrink-0 ${brochure ? "w-[86px]" : "w-[112px]"}`}>
-                    {it.date && <div className={`font-body text-slate-500 ${brochure ? "text-[10px]" : "text-[12px]"}`}>{it.date}</div>}
-                    {it.hijri && <div className={`font-body text-accent-dark ${brochure ? "text-[9px]" : "text-[11px]"}`}>{it.hijri}</div>}
+                  <div className={`shrink-0 ${brochure ? "w-[78px]" : "w-[112px]"}`}>
+                    {it.date && <div className={`font-body text-slate-500 ${brochure ? "text-[9px]" : "text-[12px]"}`}>{it.date}</div>}
+                    {it.hijri && <div className={`font-body text-accent-dark ${brochure ? "text-[8.5px]" : "text-[11px]"}`}>{it.hijri}</div>}
                   </div>
-                  <div className={`flex-1 font-body text-slate-600 leading-snug ${brochure ? "text-[10.5px]" : "text-[13px]"}`}>
+                  <div className={`flex-1 font-body text-slate-600 leading-snug ${brochure ? "text-[9.5px]" : "text-[13px]"}`}>
                     {it.stay}
                   </div>
                 </div>
