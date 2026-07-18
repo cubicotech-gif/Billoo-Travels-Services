@@ -9,8 +9,7 @@ import { SITE } from "@/lib/seo";
 import { formatPkgPrice, pkgCurrency, CURRENCY_LABEL } from "@/lib/packageCurrency";
 import { Pricing, hasPricing } from "@/lib/pricing";
 import PricingOptions from "@/components/ui/PricingOptions";
-
-interface ItineraryItem { day: string; title: string; desc: string; }
+import Itinerary, { ItItem } from "@/components/ui/Itinerary";
 
 interface DbPackage {
   id: number;
@@ -30,7 +29,7 @@ interface DbPackage {
   badge: string | null;
   img: string | null;
   overview: string | null;
-  itinerary: ItineraryItem[];
+  itinerary: ItItem[];
   included_items: string[];
   not_included: string[];
 }
@@ -202,21 +201,9 @@ export default function PackageBrochurePage() {
           {pkg.itinerary?.length > 0 && (
             <section className="mb-7">
               <h2 className="font-display text-[19px] font-semibold text-[#0B1628] mb-3 flex items-center gap-2">
-                <span className="w-6 h-px bg-[#4DA3E8]" /> Day-by-Day Itinerary
+                <span className="w-6 h-px bg-[#4DA3E8]" /> Your Hajj Journey
               </h2>
-              <div className="space-y-2.5">
-                {pkg.itinerary.map((item, i) => (
-                  <div key={i} className="flex gap-3.5 brochure-break">
-                    <div className="w-16 shrink-0 pt-0.5">
-                      <div className="font-body text-[10px] font-bold text-[#4DA3E8]">{item.day}</div>
-                    </div>
-                    <div className="flex-1 border-l-2 border-slate-100 pl-3.5 pb-1">
-                      <h4 className="font-heading text-[12.5px] font-bold text-[#0B1628] mb-0.5">{item.title}</h4>
-                      {item.desc && <p className="text-[11.5px] text-slate-500 leading-relaxed">{item.desc}</p>}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <Itinerary items={pkg.itinerary} variant="brochure" />
             </section>
           )}
 

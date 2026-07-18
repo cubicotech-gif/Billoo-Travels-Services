@@ -9,9 +9,8 @@ import { CheckIcon, XIcon, CalendarIcon, ArrowIcon, PhoneIcon } from "@/componen
 import { formatPkgPrice, pkgCurrency } from "@/lib/packageCurrency";
 import { Pricing, hasPricing } from "@/lib/pricing";
 import PricingOptions from "@/components/ui/PricingOptions";
+import Itinerary, { ItItem } from "@/components/ui/Itinerary";
 import Link from "next/link";
-
-interface ItineraryItem { day: string; title: string; desc: string; }
 
 interface DbPackage {
   id: number;
@@ -31,7 +30,7 @@ interface DbPackage {
   badge: string | null;
   img: string | null;
   overview: string | null;
-  itinerary: ItineraryItem[];
+  itinerary: ItItem[];
   included_items: string[];
   not_included: string[];
   gallery: string[];
@@ -171,20 +170,8 @@ export default function PackageDetailPage() {
             {pkg.itinerary?.length > 0 && (
               <ScrollReveal>
                 <div className="mb-12">
-                  <h2 className="font-heading text-2xl font-bold text-midnight mb-6">Itinerary</h2>
-                  <div className="space-y-4">
-                    {pkg.itinerary.map((item, i) => (
-                      <div key={i} className="flex gap-4 p-5 bg-surface-alt rounded-2xl border border-slate-200">
-                        <div className="w-16 shrink-0">
-                          <div className="font-mono text-[10px] text-accent tracking-[1.5px] font-semibold">{item.day}</div>
-                        </div>
-                        <div>
-                          <h4 className="font-heading text-[15px] font-bold text-midnight mb-1">{item.title}</h4>
-                          <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <h2 className="font-heading text-2xl font-bold text-midnight mb-6">Your Hajj Journey</h2>
+                  <Itinerary items={pkg.itinerary} />
                 </div>
               </ScrollReveal>
             )}
