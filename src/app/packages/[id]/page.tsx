@@ -8,7 +8,7 @@ import { useCurrency } from "@/lib/currency";
 import { CheckIcon, XIcon, CalendarIcon, ArrowIcon, PhoneIcon } from "@/components/ui/Icons";
 import { formatPkgPrice, pkgCurrency } from "@/lib/packageCurrency";
 import { Pricing, hasPricing } from "@/lib/pricing";
-import PricingTable from "@/components/ui/PricingTable";
+import PricingOptions from "@/components/ui/PricingOptions";
 import Link from "next/link";
 
 interface ItineraryItem { day: string; title: string; desc: string; }
@@ -154,9 +154,14 @@ export default function PackageDetailPage() {
             {isHajj && hasPricing(pkg.pricing) && (
               <ScrollReveal>
                 <div className="mb-12">
-                  <h2 className="font-heading text-2xl font-bold text-midnight mb-4">Per-Person Pricing</h2>
-                  <PricingTable pricing={pkg.pricing} currency={pkgCurrency(pkg)} />
-                  <p className="text-[12px] text-slate-400 mt-3">
+                  <h2 className="font-heading text-2xl font-bold text-midnight mb-2">Choose Your Hotel &amp; Room</h2>
+                  {pkg.pricing!.tiers!.length > 1 && (
+                    <p className="text-[14px] text-slate-500 mb-5 leading-relaxed max-w-[560px]">
+                      Both options follow the same itinerary and include the same services — only the hotels differ. Pick the hotel that suits you, then your room type.
+                    </p>
+                  )}
+                  <PricingOptions pricing={pkg.pricing} currency={pkgCurrency(pkg)} />
+                  <p className="text-[12px] text-slate-400 mt-4">
                     Prices are per person. Airline ticket &amp; Qurbani not included. Book early — prices &amp; packages subject to change.
                   </p>
                 </div>

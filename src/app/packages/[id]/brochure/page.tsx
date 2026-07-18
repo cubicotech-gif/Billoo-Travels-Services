@@ -8,7 +8,7 @@ import { HAJJ } from "@/lib/hajj";
 import { SITE } from "@/lib/seo";
 import { formatPkgPrice, pkgCurrency, CURRENCY_LABEL } from "@/lib/packageCurrency";
 import { Pricing, hasPricing } from "@/lib/pricing";
-import PricingTable from "@/components/ui/PricingTable";
+import PricingOptions from "@/components/ui/PricingOptions";
 
 interface ItineraryItem { day: string; title: string; desc: string; }
 
@@ -86,7 +86,7 @@ export default function PackageBrochurePage() {
           ← Back to Share Kit
         </Link>
         <div className="flex items-center gap-2.5">
-          <span className="hidden sm:inline text-white/50 text-xs font-mono mr-2">
+          <span className="hidden sm:inline text-white/50 text-xs font-body mr-2">
             Tip: choose “Save as PDF” as the printer
           </span>
           <button
@@ -110,13 +110,13 @@ export default function PackageBrochurePage() {
                 <span className="font-display text-lg text-white leading-none">B</span>
               </div>
               <div>
-                <div className="font-heading text-[15px] font-bold tracking-[2.5px] uppercase">Billoo Travels</div>
-                <div className="font-mono text-[8px] tracking-[3px] text-[#7EC8FF]/70">PVT LTD · EST. 1969</div>
+                <div className="font-heading text-[15px] font-bold tracking-[2px] uppercase">Billoo Travels</div>
+                <div className="font-body text-[9px] tracking-[1.5px] text-[#7EC8FF]/70">Pvt Ltd · Est. 1969</div>
               </div>
             </div>
             <div className="text-right">
-              <div className="font-mono text-[10px] tracking-[2px] uppercase text-[#7EC8FF]">Hajj {HAJJ.year} · {HAJJ.hijri}</div>
-              <div className="inline-flex items-center gap-1.5 mt-1.5 bg-emerald-400/15 border border-emerald-400/40 text-emerald-300 font-mono text-[9px] font-semibold tracking-[1px] px-2.5 py-1 rounded-full">
+              <div className="font-display italic text-[13px] text-[#7EC8FF]">Hajj {HAJJ.year} · {HAJJ.hijri}</div>
+              <div className="inline-flex items-center gap-1.5 mt-1.5 bg-emerald-400/15 border border-emerald-400/40 text-emerald-300 font-body text-[10px] font-semibold px-2.5 py-1 rounded-full">
                 Approved Operator · Agent ID {CONTACT.agentId}
               </div>
             </div>
@@ -124,11 +124,11 @@ export default function PackageBrochurePage() {
 
           <div className="relative mt-7">
             <div className="flex flex-wrap items-center gap-2 mb-2.5">
-              <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-[#4DA3E8] text-white">{pkg.type}</span>
-              {pkg.badge && <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-white/90 text-[#0B1628]">{pkg.badge}</span>}
-              {pkg.code && <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-white/10 text-[#7EC8FF] border border-white/20">PKG {pkg.code}</span>}
+              <span className="font-body text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#4DA3E8] text-white">{pkg.type}</span>
+              {pkg.badge && <span className="font-body text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white/90 text-[#0B1628]">{pkg.badge}</span>}
+              {pkg.code && <span className="font-body text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white/10 text-[#7EC8FF] border border-white/20">PKG {pkg.code}</span>}
             </div>
-            <h1 className="font-display text-[34px] leading-[1.05] text-white">{pkg.title}</h1>
+            <h1 className="font-display text-[34px] leading-[1.08] text-white">{pkg.title}</h1>
           </div>
         </div>
 
@@ -148,9 +148,9 @@ export default function PackageBrochurePage() {
             { k: `Price (${currency})`, v: price, accent: true },
           ].map((f, i) => (
             <div key={i} className={`px-5 py-4 ${i < 3 ? "border-r border-slate-200" : ""}`}>
-              <div className="font-mono text-[8.5px] tracking-[1.5px] uppercase text-slate-400 mb-1">{f.k}</div>
+              <div className="font-body text-[10px] text-slate-400 mb-1">{f.k}</div>
               <div className={`font-heading text-[13px] font-bold leading-snug ${f.accent ? "text-[#4DA3E8]" : "text-[#0B1628]"}`}>{f.v}</div>
-              {f.accent && <div className="font-mono text-[8px] text-slate-400 mt-0.5">per person</div>}
+              {f.accent && <div className="font-body text-[9px] text-slate-400 mt-0.5">from · per person</div>}
             </div>
           ))}
         </div>
@@ -159,7 +159,7 @@ export default function PackageBrochurePage() {
           {/* Overview */}
           {pkg.overview && (
             <section className="mb-7 brochure-break">
-              <h2 className="font-heading text-[15px] font-bold text-[#0B1628] mb-2 flex items-center gap-2">
+              <h2 className="font-display text-[19px] font-semibold text-[#0B1628] mb-2 flex items-center gap-2">
                 <span className="w-6 h-px bg-[#4DA3E8]" /> Overview
               </h2>
               <p className="text-[12.5px] text-slate-600 leading-relaxed">{pkg.overview}</p>
@@ -169,7 +169,7 @@ export default function PackageBrochurePage() {
           {/* Highlights */}
           {pkg.includes?.length > 0 && (
             <section className="mb-7 brochure-break">
-              <h2 className="font-heading text-[15px] font-bold text-[#0B1628] mb-3 flex items-center gap-2">
+              <h2 className="font-display text-[19px] font-semibold text-[#0B1628] mb-3 flex items-center gap-2">
                 <span className="w-6 h-px bg-[#4DA3E8]" /> Package Highlights
               </h2>
               <div className="flex flex-wrap gap-2">
@@ -180,14 +180,19 @@ export default function PackageBrochurePage() {
             </section>
           )}
 
-          {/* Pricing matrix */}
+          {/* Pricing — hotel options */}
           {hasPricing(pkg.pricing) && (
             <section className="mb-7 brochure-break">
-              <h2 className="font-heading text-[15px] font-bold text-[#0B1628] mb-3 flex items-center gap-2">
-                <span className="w-6 h-px bg-[#4DA3E8]" /> Per-Person Pricing
+              <h2 className="font-display text-[19px] font-semibold text-[#0B1628] mb-1.5 flex items-center gap-2">
+                <span className="w-6 h-px bg-[#4DA3E8]" /> Choose Your Hotel &amp; Room
               </h2>
-              <PricingTable pricing={pkg.pricing} currency={currency} variant="brochure" />
-              <p className="text-[9.5px] text-slate-400 mt-2 font-mono">
+              {pkg.pricing!.tiers!.length > 1 && (
+                <p className="text-[11px] text-slate-500 mb-3 leading-relaxed">
+                  Both options include the same itinerary and services — only the hotels differ. Pick the hotel that suits you, then your room type.
+                </p>
+              )}
+              <PricingOptions pricing={pkg.pricing} currency={currency} variant="brochure" />
+              <p className="text-[10px] text-slate-400 mt-2.5">
                 Prices per person in {CURRENCY_LABEL[currency]}. Ticket &amp; Qurbani not included. Book early — prices subject to change.
               </p>
             </section>
@@ -196,14 +201,14 @@ export default function PackageBrochurePage() {
           {/* Itinerary */}
           {pkg.itinerary?.length > 0 && (
             <section className="mb-7">
-              <h2 className="font-heading text-[15px] font-bold text-[#0B1628] mb-3 flex items-center gap-2">
+              <h2 className="font-display text-[19px] font-semibold text-[#0B1628] mb-3 flex items-center gap-2">
                 <span className="w-6 h-px bg-[#4DA3E8]" /> Day-by-Day Itinerary
               </h2>
               <div className="space-y-2.5">
                 {pkg.itinerary.map((item, i) => (
                   <div key={i} className="flex gap-3.5 brochure-break">
-                    <div className="w-14 shrink-0 pt-0.5">
-                      <div className="font-mono text-[9px] font-semibold tracking-[1px] text-[#4DA3E8]">{item.day}</div>
+                    <div className="w-16 shrink-0 pt-0.5">
+                      <div className="font-body text-[10px] font-bold text-[#4DA3E8]">{item.day}</div>
                     </div>
                     <div className="flex-1 border-l-2 border-slate-100 pl-3.5 pb-1">
                       <h4 className="font-heading text-[12.5px] font-bold text-[#0B1628] mb-0.5">{item.title}</h4>
@@ -260,15 +265,15 @@ export default function PackageBrochurePage() {
             </div>
           </div>
           <div className="border-t border-white/10 mt-4 pt-3 flex flex-wrap items-center justify-between gap-2">
-            <div className="font-mono text-[8.5px] tracking-[1px] text-white/40">{CONTACT.address}</div>
-            <div className="font-mono text-[8.5px] tracking-[1px] text-white/40">
+            <div className="font-body text-[9.5px] text-white/45">{CONTACT.address}</div>
+            <div className="font-body text-[9.5px] text-white/45">
               Priced in {CURRENCY_LABEL[currency]} · Government-Approved Hajj &amp; Umrah Operator
             </div>
           </div>
         </div>
       </div>
 
-      <div className="no-print text-center py-6 text-slate-400 text-xs font-mono">
+      <div className="no-print text-center py-6 text-slate-400 text-xs font-body">
         Billoo Travels · Hajj {HAJJ.year} Package Brochure
       </div>
     </div>
