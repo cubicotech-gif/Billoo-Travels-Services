@@ -6,7 +6,13 @@ import AdminLayout from "@/components/AdminLayout";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface ItineraryItem { day: string; title: string; desc: string; }
+interface ItineraryItem { day: string; stage?: string; date?: string; hijri?: string; stay?: string; title?: string; desc?: string; }
+interface PricingTier { key: string; label: string; }
+// Room prices are kept as strings inside the form for controlled inputs.
+interface PricingRoomForm { room: string; A: string; B: string; }
+interface PricingForm { tiers: PricingTier[]; rooms: PricingRoomForm[]; }
+
+const STAGE_SUGGESTIONS = ["In Madinah", "In Makkah", "In Aziziya (Makkah)", "Days of Hajj", "Return to Makkah", "Departure"];
 
 interface Package {
   id: number;
@@ -22,6 +28,7 @@ interface Package {
   price_pkr: number;
   price_usd: number;
   price_sar: number;
+  pricing: { tiers?: PricingTier[]; rooms?: Record<string, number | string | null>[] } | null;
   badge: string | null;
   img: string | null;
   overview: string | null;
@@ -36,13 +43,23 @@ interface Package {
   bookings_count: number;
 }
 
+const emptyPricing: PricingForm = {
+  tiers: [{ key: "A", label: "" }],
+  rooms: [
+    { room: "Quad", A: "", B: "" },
+    { room: "Triple", A: "", B: "" },
+    { room: "Double", A: "", B: "" },
+  ],
+};
+
 const emptyForm = {
-  title: "", type: "Umrah", code: "", nights: "", hotel: "", hotel_short: "", dates: "",
+  title: "", type: "Hajj", code: "", nights: "", hotel: "", hotel_short: "", dates: "",
   currency: "SAR",
   price_pkr: "", price_usd: "", price_sar: "", status: "active", featured: false,
   badge: "", img: "", overview: "",
   includes: [] as string[],
   itinerary: [] as ItineraryItem[],
+  pricing: emptyPricing as PricingForm,
   included_items: [] as string[],
   not_included: [] as string[],
   add_ons: [] as string[],
@@ -86,11 +103,81 @@ function TagInput({ label, values, onChange }: { label: string; values: string[]
   );
 }
 
-// ─── Itinerary Builder ────────────────────────────────────────────────────────
+// ─── Pricing Matrix Builder ─────────────────────────────────────────────────────
+// Edits hotel "options" (A / B) and per-room prices, matching the site's
+// PricingOptions template. Leave a price blank to mark it "Not available".
+
+const inputCls = "px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300";
+
+function PricingBuilder({ pricing, onChange, currency }: { pricing: PricingForm; onChange: (v: PricingForm) => void; currency: string }) {
+  const twoTier = pricing.tiers.length > 1;
+  const sym = currency === "USD" ? "$" : "SAR";
+
+  function setTierLabel(i: number, label: string) {
+    onChange({ ...pricing, tiers: pricing.tiers.map((t, idx) => (idx === i ? { ...t, label } : t)) });
+  }
+  function toggleTwoTier() {
+    if (twoTier) {
+      onChange({ tiers: [pricing.tiers[0]], rooms: pricing.rooms.map((r) => ({ room: r.room, A: r.A, B: "" })) });
+    } else {
+      onChange({ tiers: [pricing.tiers[0], { key: "B", label: "" }], rooms: pricing.rooms });
+    }
+  }
+  function setRoom(i: number, field: "room" | "A" | "B", val: string) {
+    onChange({ ...pricing, rooms: pricing.rooms.map((r, idx) => (idx === i ? { ...r, [field]: val } : r)) });
+  }
+  function addRoom() { onChange({ ...pricing, rooms: [...pricing.rooms, { room: "", A: "", B: "" }] }); }
+  function removeRoom(i: number) { onChange({ ...pricing, rooms: pricing.rooms.filter((_, idx) => idx !== i) }); }
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+        <label className="text-[11px] tracking-[1px] text-slate-400 uppercase font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Room Price Matrix (per person, {sym})</label>
+        <button type="button" onClick={toggleTwoTier} className={`text-xs font-semibold px-3 py-1.5 rounded-lg border cursor-pointer transition-all ${twoTier ? "bg-[#EBF5FF] text-[#2B7CC4] border-[#4DA3E8]/30" : "bg-white text-slate-500 border-slate-200 hover:border-[#4DA3E8]"}`} style={{ fontFamily: "'Sora', sans-serif" }}>
+          {twoTier ? "✓ Two hotel options (A & B)" : "＋ Add a second hotel option"}
+        </button>
+      </div>
+
+      {/* Option (hotel tier) labels */}
+      <div className={`grid gap-3 mb-3 ${twoTier ? "md:grid-cols-2" : "md:grid-cols-1 max-w-md"}`}>
+        {pricing.tiers.map((t, i) => (
+          <div key={t.key}>
+            <label className="block text-[10px] text-slate-400 mb-1">{twoTier ? `Option ${i + 1} — hotel name` : "Hotel / option name"}</label>
+            <input value={t.label} onChange={(e) => setTierLabel(i, e.target.value)} placeholder={i === 0 ? "e.g. Dar Al Tawhid Intercontinental" : "e.g. Fairmont Clock Tower"} className={inputCls + " w-full"} />
+          </div>
+        ))}
+      </div>
+
+      {/* Room rows */}
+      <div className="border border-slate-200 rounded-xl overflow-hidden">
+        <div className={`grid ${twoTier ? "grid-cols-[1fr_1fr_1fr_32px]" : "grid-cols-[1fr_1fr_32px]"} gap-2 bg-slate-50 px-3 py-2 text-[10px] tracking-[1px] uppercase text-slate-400 font-semibold`} style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          <span>Room type</span>
+          <span>{twoTier ? "Option 1 price" : "Price"}</span>
+          {twoTier && <span>Option 2 price</span>}
+          <span />
+        </div>
+        {pricing.rooms.map((r, i) => (
+          <div key={i} className={`grid ${twoTier ? "grid-cols-[1fr_1fr_1fr_32px]" : "grid-cols-[1fr_1fr_32px]"} gap-2 px-3 py-2 border-t border-slate-100 items-center`}>
+            <input value={r.room} onChange={(e) => setRoom(i, "room", e.target.value)} placeholder="Quad" className={inputCls} />
+            <input type="number" value={r.A} onChange={(e) => setRoom(i, "A", e.target.value)} placeholder="blank = N/A" className={inputCls} />
+            {twoTier && <input type="number" value={r.B} onChange={(e) => setRoom(i, "B", e.target.value)} placeholder="blank = N/A" className={inputCls} />}
+            <button type="button" onClick={() => removeRoom(i)} className="text-slate-300 hover:text-red-500 bg-transparent border-none cursor-pointer text-base leading-none">×</button>
+          </div>
+        ))}
+      </div>
+      <div className="flex items-center justify-between mt-2">
+        <button type="button" onClick={addRoom} className="text-[#4DA3E8] text-xs font-semibold bg-transparent border-none cursor-pointer hover:underline" style={{ fontFamily: "'Sora', sans-serif" }}>+ Add room type</button>
+        <span className="text-[11px] text-slate-400">Lowest price auto-becomes the “From” price on the cards.</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Itinerary Builder (staged: day · stage · dates · stay) ─────────────────────
 
 function ItineraryBuilder({ items, onChange }: { items: ItineraryItem[]; onChange: (v: ItineraryItem[]) => void }) {
   function add() {
-    onChange([...items, { day: `DAY ${String(items.length + 1).padStart(2, "0")}`, title: "", desc: "" }]);
+    onChange([...items, { day: String(items.length + 1), stage: "", date: "", hijri: "", stay: "" }]);
   }
   function update(i: number, field: keyof ItineraryItem, value: string) {
     onChange(items.map((item, idx) => idx === i ? { ...item, [field]: value } : item));
@@ -99,16 +186,33 @@ function ItineraryBuilder({ items, onChange }: { items: ItineraryItem[]; onChang
 
   return (
     <div>
-      <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Itinerary</label>
+      <datalist id="stage-suggestions">
+        {STAGE_SUGGESTIONS.map((s) => <option key={s} value={s} />)}
+      </datalist>
       <div className="space-y-3 mb-3">
         {items.map((item, i) => (
           <div key={i} className="p-4 bg-slate-50 rounded-xl border border-slate-200 relative">
             <button type="button" onClick={() => remove(i)} className="absolute top-3 right-3 text-slate-300 hover:text-red-500 bg-transparent border-none cursor-pointer text-base leading-none">×</button>
-            <div className="grid grid-cols-3 gap-3 mb-2 pr-6">
-              <input value={item.day} onChange={(e) => update(i, "day", e.target.value)} placeholder="DAY 01" className="px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300" />
-              <input value={item.title} onChange={(e) => update(i, "title", e.target.value)} placeholder="Day title" className="col-span-2 px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300" />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-2 pr-6">
+              <div>
+                <label className="block text-[10px] text-slate-400 mb-1">Day #</label>
+                <input value={item.day} onChange={(e) => update(i, "day", e.target.value)} placeholder="1" className={inputCls + " w-full"} />
+              </div>
+              <div>
+                <label className="block text-[10px] text-slate-400 mb-1">Date (AD)</label>
+                <input value={item.date || ""} onChange={(e) => update(i, "date", e.target.value)} placeholder="7 May" className={inputCls + " w-full"} />
+              </div>
+              <div>
+                <label className="block text-[10px] text-slate-400 mb-1">Date (Hijri)</label>
+                <input value={item.hijri || ""} onChange={(e) => update(i, "hijri", e.target.value)} placeholder="1 Zil Hajj" className={inputCls + " w-full"} />
+              </div>
+              <div>
+                <label className="block text-[10px] text-slate-400 mb-1">Stage / grouping</label>
+                <input list="stage-suggestions" value={item.stage || ""} onChange={(e) => update(i, "stage", e.target.value)} placeholder="In Madinah" className={inputCls + " w-full"} />
+              </div>
             </div>
-            <textarea value={item.desc} onChange={(e) => update(i, "desc", e.target.value)} rows={2} placeholder="Description for this day…" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] resize-none focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300" />
+            <label className="block text-[10px] text-slate-400 mb-1">What happens / where they stay</label>
+            <textarea value={item.stay || ""} onChange={(e) => update(i, "stay", e.target.value)} rows={2} placeholder="e.g. Dar Al Taqwa 5-star, Madinah" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] resize-none focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300" />
           </div>
         ))}
       </div>
@@ -258,6 +362,22 @@ export default function AdminPackages() {
       return;
     }
     setSaving(true);
+
+    // ── Build the pricing matrix (numbers / null) + compute the "From" price ──
+    const hasB = form.pricing.tiers.length > 1;
+    const rooms = form.pricing.rooms
+      .filter((r) => r.room.trim())
+      .map((r) => {
+        const row: Record<string, string | number | null> = { room: r.room.trim() };
+        row.A = r.A === "" ? null : Number(r.A);
+        if (hasB) row.B = r.B === "" ? null : Number(r.B);
+        return row;
+      });
+    const pricingOut = rooms.length ? { tiers: form.pricing.tiers.map((t) => ({ key: t.key, label: t.label })), rooms } : {};
+    const priceVals: number[] = [];
+    rooms.forEach((r) => Object.entries(r).forEach(([k, v]) => { if (k !== "room" && typeof v === "number" && v > 0) priceVals.push(v); }));
+    const fromPrice = priceVals.length ? Math.min(...priceVals) : 0;
+
     const body = {
       type: form.type,
       code: form.code || null,
@@ -267,9 +387,10 @@ export default function AdminPackages() {
       hotel_short: form.hotel_short || form.hotel,
       dates: form.dates || null,
       currency: form.currency,
+      pricing: pricingOut,
       price_pkr: Number(form.price_pkr) || 0,
-      price_usd: Number(form.price_usd) || 0,
-      price_sar: Number(form.price_sar) || 0,
+      price_usd: form.currency === "USD" && fromPrice ? fromPrice : (Number(form.price_usd) || 0),
+      price_sar: form.currency === "SAR" && fromPrice ? fromPrice : (Number(form.price_sar) || 0),
       status: form.status,
       featured: form.featured,
       badge: form.badge || null,
@@ -327,6 +448,17 @@ export default function AdminPackages() {
       overview: p.overview || "",
       includes: Array.isArray(p.includes) ? p.includes : [],
       itinerary: Array.isArray(p.itinerary) ? p.itinerary : [],
+      pricing:
+        p.pricing && Array.isArray(p.pricing.tiers) && p.pricing.tiers.length
+          ? {
+              tiers: p.pricing.tiers.map((t) => ({ key: t.key, label: t.label || "" })),
+              rooms: (p.pricing.rooms || []).map((r) => ({
+                room: String(r.room ?? ""),
+                A: r.A != null ? String(r.A) : "",
+                B: r.B != null ? String(r.B) : "",
+              })),
+            }
+          : emptyPricing,
       included_items: Array.isArray(p.included_items) ? p.included_items : [],
       not_included: Array.isArray(p.not_included) ? p.not_included : [],
       add_ons: Array.isArray(p.add_ons) ? p.add_ons : [],
@@ -391,7 +523,7 @@ export default function AdminPackages() {
             <div>
               <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Type</label>
               <select value={form.type} onChange={(e) => setF("type", e.target.value)} className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] cursor-pointer focus:outline-none focus:border-[#4DA3E8]">
-                <option>Umrah</option><option>Hajj</option><option>Holidays</option><option>Honeymoon</option>
+                <option>Hajj</option><option>Umrah</option><option>Tour</option>
               </select>
             </div>
             <div>
@@ -451,18 +583,28 @@ export default function AdminPackages() {
             </div>
             <p className="text-[11px] text-slate-400 mt-1.5">This currency is shown on the site, PDF brochure and social cards, and groups the package on the Hajj page.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            {[
-              { label: "Price (PKR)", key: "price_pkr", placeholder: "1250000" },
-              { label: "Price (USD)", key: "price_usd", placeholder: "4499" },
-              { label: "Price (SAR)", key: "price_sar", placeholder: "16800" },
-            ].map((f) => (
-              <div key={f.key}>
-                <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{f.label}</label>
-                <input type="number" value={(form as Record<string, unknown>)[f.key] as string} onChange={(e) => setF(f.key, e.target.value)} placeholder={f.placeholder} className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300" />
-              </div>
-            ))}
+
+          {/* Room price matrix (drives the detail page, brochure & social card) */}
+          <div className="mb-6">
+            <PricingBuilder pricing={form.pricing} onChange={(v) => setF("pricing", v)} currency={form.currency} />
           </div>
+
+          {/* Simple fallback price — used only if the matrix above is empty */}
+          <details className="mb-6">
+            <summary className="text-[11px] tracking-[1px] text-slate-400 uppercase font-semibold cursor-pointer select-none" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Simple “From” price (optional — used only if no matrix above)</summary>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+              {[
+                { label: "Price (PKR)", key: "price_pkr", placeholder: "1250000" },
+                { label: "Price (USD)", key: "price_usd", placeholder: "4499" },
+                { label: "Price (SAR)", key: "price_sar", placeholder: "16800" },
+              ].map((f) => (
+                <div key={f.key}>
+                  <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{f.label}</label>
+                  <input type="number" value={(form as Record<string, unknown>)[f.key] as string} onChange={(e) => setF(f.key, e.target.value)} placeholder={f.placeholder} className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300" />
+                </div>
+              ))}
+            </div>
+          </details>
 
           {/* ── MAIN IMAGE ── */}
           <p className="text-[10px] tracking-[2px] text-slate-400 uppercase font-semibold mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>── Cover Image</p>
@@ -522,7 +664,7 @@ export default function AdminPackages() {
       <div className="flex flex-col sm:flex-row gap-3 mb-5">
         <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by title or hotel…" className="px-4 py-2.5 rounded-lg border border-slate-200 text-sm bg-white flex-1 max-w-xs focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300" />
         <div className="flex gap-2 flex-wrap">
-          {["All", "Umrah", "Hajj", "Holidays", "Honeymoon", "active", "draft", "archived"].map((f) => (
+          {["All", "Hajj", "Umrah", "Tour", "active", "draft", "archived"].map((f) => (
             <button key={f} onClick={() => setFilter(f)} className={`px-4 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all border ${filter === f ? "bg-[#0B1628] text-white border-[#0B1628]" : "bg-white text-slate-500 border-slate-200 hover:border-[#4DA3E8]"}`} style={{ fontFamily: "'Sora', sans-serif" }}>
               {f.charAt(0).toUpperCase() + f.slice(1)}
             </button>

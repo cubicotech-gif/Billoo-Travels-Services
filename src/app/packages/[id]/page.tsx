@@ -46,8 +46,6 @@ function fmtPrice(p: DbPackage, currency: string) {
   return `${sym[currency] || ""}${(prices[currency] ?? p.price_pkr).toLocaleString()}`;
 }
 
-const FALLBACK_IMG = "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?auto=format&fit=crop&q=80&w=2000";
-
 export default function PackageDetailPage() {
   const params = useParams();
   const { currency } = useCurrency();
@@ -89,7 +87,6 @@ export default function PackageDetailPage() {
     );
   }
 
-  const imgSrc = pkg.img || FALLBACK_IMG;
   const isHajj = (pkg.type || "").toLowerCase() === "hajj";
   // Hajj packages are quoted in a single native currency (USD/SAR, no PKR);
   // other package types keep the site-wide currency switcher.
@@ -99,7 +96,11 @@ export default function PackageDetailPage() {
     <InnerLayout>
       {/* Hero */}
       <section className="relative h-[400px] md:h-[500px] overflow-hidden">
-        <img src={imgSrc} alt={pkg.title} className="w-full h-full object-cover" />
+        {pkg.img ? (
+          <img src={pkg.img} alt={pkg.title} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-midnight to-midnight-light" />
+        )}
         <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(11,22,40,0.85) 0%, rgba(11,22,40,0.25) 50%, rgba(11,22,40,0.5) 100%)" }} />
         <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12 z-10">
           <div className="max-w-[1280px] mx-auto">

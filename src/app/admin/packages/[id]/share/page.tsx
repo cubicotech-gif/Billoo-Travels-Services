@@ -27,9 +27,6 @@ interface DbPackage {
   img: string | null;
 }
 
-const FALLBACK_IMG =
-  "https://images.unsplash.com/photo-1564769625905-50e93615e769?auto=format&fit=crop&q=85&w=1400";
-
 const HASHTAGS = `#Hajj${HAJJ.year} #Hajj #HajjPackages #Umrah #BillooTravels #Makkah #Madinah #HajjRegistration`;
 
 function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) {
@@ -195,7 +192,9 @@ Or reply to this message and our advisor will call you back, InshaAllah.`,
           <div
             className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-lg aspect-square"
             style={{
-              backgroundImage: `linear-gradient(165deg, rgba(11,22,40,0.92) 0%, rgba(11,22,40,0.78) 45%, rgba(21,37,69,0.7) 100%), url('${pkg.img || FALLBACK_IMG}')`,
+              backgroundImage: pkg.img
+                ? `linear-gradient(165deg, rgba(11,22,40,0.92) 0%, rgba(11,22,40,0.78) 45%, rgba(21,37,69,0.7) 100%), url('${pkg.img}')`
+                : "linear-gradient(165deg, #0B1628 0%, #152545 100%)",
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}

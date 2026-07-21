@@ -24,9 +24,6 @@ interface DbPackage {
   img: string | null;
 }
 
-const FALLBACK_IMG =
-  "https://images.unsplash.com/photo-1564769625905-50e93615e769?auto=format&fit=crop&q=80&w=800";
-
 const CURRENCY_TITLE: Record<PkgCurrency, string> = {
   USD: "US Dollar Packages",
   SAR: "Saudi Riyal Packages",
@@ -38,11 +35,17 @@ function PackageCard({ p, i }: { p: DbPackage; i: number }) {
     <ScrollReveal delay={i * 0.08}>
       <div className="group h-full bg-white rounded-[20px] border border-slate-200 overflow-hidden hover:border-accent hover:shadow-[0_18px_44px_rgba(77,163,232,0.14)] hover:-translate-y-1 transition-all duration-300 flex flex-col">
         <div className="relative h-[200px] overflow-hidden">
-          <img
-            src={p.img || FALLBACK_IMG}
-            alt={p.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
-          />
+          {p.img ? (
+            <img
+              src={p.img}
+              alt={p.title}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-midnight to-midnight-light">
+              <span className="font-mono text-[10px] tracking-[3px] text-white/25">BILLOO TRAVELS</span>
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-midnight/60 to-transparent" />
           {p.badge && (
             <span className="absolute top-4 left-4 bg-accent text-white text-[11px] font-heading font-semibold px-3 py-1.5 rounded-full">

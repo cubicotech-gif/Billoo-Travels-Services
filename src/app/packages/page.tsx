@@ -39,7 +39,6 @@ function fmtPrice(p: DbPackage, currency: string) {
   return `${sym[currency] || ""}${getPrice(p, currency).toLocaleString()}`;
 }
 
-const FALLBACK_IMG = "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?auto=format&fit=crop&q=80&w=800";
 
 export default function PackagesPage() {
   const [tab, setTab] = useState<string>("All");
@@ -138,7 +137,6 @@ export default function PackagesPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filtered.map((p, i) => {
-                  const imgSrc = p.img || FALLBACK_IMG;
                   return (
                     <ScrollReveal key={p.id} delay={i * 0.08}>
                       <Link href={`/packages/${p.id}`} className="no-underline block h-full">
@@ -149,7 +147,13 @@ export default function PackagesPage() {
                             </div>
                           )}
                           <div className="relative h-[220px] overflow-hidden">
-                            <img src={imgSrc} alt={p.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                            {p.img ? (
+                              <img src={p.img} alt={p.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-midnight to-midnight-light">
+                                <span className="font-mono text-[10px] tracking-[3px] text-white/25">BILLOO TRAVELS</span>
+                              </div>
+                            )}
                             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-midnight/40" />
                             <div className="absolute top-3.5 left-3.5 flex gap-1.5">
                               {p.badge && <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-accent text-white">{p.badge}</span>}
