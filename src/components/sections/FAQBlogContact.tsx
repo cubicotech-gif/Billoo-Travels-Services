@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { FAQS, BLOGS, CONTACT } from "@/lib/data";
-import { ChevronDownIcon, CalendarIcon, ClockIcon, ArrowIcon, PhoneIcon, MailIcon, MapPinIcon } from "@/components/ui/Icons";
+import { FAQS, CONTACT } from "@/lib/data";
+import { ChevronDownIcon, ArrowIcon, PhoneIcon, MailIcon, MapPinIcon } from "@/components/ui/Icons";
 import SectionHeading from "@/components/ui/SectionHeading";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 
@@ -38,50 +38,6 @@ export function FAQ() {
                   style={{ maxHeight: open === i ? 200 : 0 }}
                 >
                   <div className="px-5 pb-4 text-sm text-slate-500 leading-relaxed">{f.a}</div>
-                </div>
-              </div>
-            </ScrollReveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── BLOG ───
-export function Blog() {
-  return (
-    <section className="py-16 md:py-20 px-6 md:px-9 bg-surface-alt">
-      <div className="max-w-[1280px] mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12">
-          <SectionHeading label="Journal" title="Travel" highlight="Insights" />
-          <button className="bg-transparent border-none text-accent font-heading text-[13px] font-semibold cursor-pointer flex items-center gap-1 hover:gap-2 transition-all">
-            All Articles <ArrowIcon size={14} color="#4DA3E8" />
-          </button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {BLOGS.map((b, i) => (
-            <ScrollReveal key={i} delay={i * 0.1}>
-              <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden transition-all duration-[450ms] hover:-translate-y-1.5 hover:shadow-[0_20px_48px_rgba(11,22,40,0.07)] hover:border-accent group cursor-pointer">
-                <div className="relative h-[200px] overflow-hidden">
-                  <img
-                    src={b.placeholder}
-                    alt={b.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute top-3.5 left-3.5">
-                    <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-accent text-white">
-                      {b.cat}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-5 pb-6">
-                  <div className="flex items-center gap-3 text-xs text-slate-400 mb-2.5">
-                    <span className="flex items-center gap-1"><CalendarIcon />{b.date}</span>
-                    <span className="flex items-center gap-1"><ClockIcon />{b.read}</span>
-                  </div>
-                  <h3 className="font-heading text-[17px] font-bold text-midnight mb-2 leading-snug">{b.title}</h3>
-                  <p className="text-[13px] text-slate-500 leading-relaxed">{b.desc}</p>
                 </div>
               </div>
             </ScrollReveal>
