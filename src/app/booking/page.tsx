@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import InnerLayout from "@/components/InnerLayout";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { useCurrency } from "@/lib/currency";
-import { PACKAGES, formatPrice } from "@/lib/data";
-import { calculateBookingPrice } from "@/lib/payments";
+import { pkgCurrency, formatMoney, type PkgCurrency } from "@/lib/packageCurrency";
+import { pricingFrom, type Pricing } from "@/lib/pricing";
 import { CheckIcon, ShieldIcon } from "@/components/ui/Icons";
 
 interface TravelerForm {
@@ -16,12 +17,33 @@ interface TravelerForm {
   gender: string;
 }
 
+// The package fields the booking flow needs, as returned by /api/packages.
+interface DbPackage {
+  id: number;
+  type: string;
+  title: string;
+  nights: string;
+  hotel: string;
+  hotel_short: string | null;
+  currency: string | null;
+  price_pkr: number;
+  price_usd: number;
+  price_sar: number;
+  pricing: Pricing | null;
+  badge: string | null;
+  img: string | null;
+  featured?: boolean;
+}
+
 function BookingContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pkgId = searchParams.get("package");
   const { currency } = useCurrency();
-  const pkg = PACKAGES.find((p) => String(p.id) === pkgId) || PACKAGES[0];
+
+  const [pkg, setPkg] = useState<DbPackage | null>(null);
+  const [pkgLoading, setPkgLoading] = useState(true);
+  const [pkgError, setPkgError] = useState(false);
 
   const [step, setStep] = useState(1);
   const [numTravelers, setNumTravelers] = useState(1);
@@ -38,7 +60,40 @@ function BookingContent() {
     name: "", email: "", phone: "", departureDate: "", specialRequests: "",
   });
 
-  const pricing = calculateBookingPrice(pkg.price, currency, numTravelers);
+  // Load the selected package from the database so the sidebar, pricing and
+  // submitted booking all reflect the package the visitor actually chose.
+  // When no ?package= id is supplied (e.g. a generic "Book Now" button), fall
+  // back to the featured or first active package so the form still works.
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      setPkgLoading(true);
+      setPkgError(false);
+      try {
+        if (pkgId) {
+          const res = await fetch(`/api/packages/${pkgId}`);
+          const data = await res.json();
+          if (!active) return;
+          if (res.ok && data.package) setPkg(data.package);
+          else setPkgError(true);
+        } else {
+          const res = await fetch(`/api/packages`);
+          const data = await res.json();
+          if (!active) return;
+          const list: DbPackage[] = Array.isArray(data.packages) ? data.packages : [];
+          const fallback = list.find((p) => p.featured) || list[0];
+          if (fallback) setPkg(fallback);
+          else setPkgError(true);
+        }
+      } catch {
+        if (active) setPkgError(true);
+      } finally {
+        if (active) setPkgLoading(false);
+      }
+    }
+    load();
+    return () => { active = false; };
+  }, [pkgId]);
 
   function updateTravelerCount(n: number) {
     setNumTravelers(n);
@@ -57,7 +112,49 @@ function BookingContent() {
     });
   }
 
+  if (pkgLoading) {
+    return (
+      <InnerLayout>
+        <div className="min-h-[60vh] flex items-center justify-center pt-24">
+          <div className="w-10 h-10 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+        </div>
+      </InnerLayout>
+    );
+  }
+
+  if (pkgError || !pkg) {
+    return (
+      <InnerLayout>
+        <div className="min-h-[60vh] flex items-center justify-center pt-24">
+          <div className="text-center">
+            <h1 className="font-heading text-2xl font-bold text-midnight mb-4">Package Not Found</h1>
+            <p className="text-slate-500 text-sm mb-5">We couldn&apos;t load that package. Please pick one from our packages.</p>
+            <Link href="/packages" className="text-accent font-heading text-sm font-semibold no-underline hover:underline">
+              ← Browse Packages
+            </Link>
+          </div>
+        </div>
+      </InnerLayout>
+    );
+  }
+
+  // Hajj packages are quoted in a single native currency (USD/SAR, no PKR);
+  // every other type follows the site-wide currency switcher.
+  const isHajj = (pkg.type || "").toLowerCase() === "hajj";
+  const displayCurrency: PkgCurrency = isHajj ? pkgCurrency(pkg) : (currency as PkgCurrency);
+  const priceMap: Record<PkgCurrency, number> = {
+    PKR: pkg.price_pkr || 0,
+    USD: pkg.price_usd || 0,
+    SAR: pkg.price_sar || 0,
+  };
+  let perPerson = priceMap[displayCurrency] || 0;
+  // Some Hajj packages carry only a room/tier matrix — use its lowest price.
+  if (isHajj && perPerson <= 0) perPerson = pricingFrom(pkg.pricing);
+  const subtotal = perPerson * numTravelers;
+  const pricing = { perPerson, subtotal, total: subtotal };
+
   async function handleConfirm() {
+    if (!pkg) return;
     if (!agreed) { setError("Please agree to the Terms of Service and Refund Policy."); return; }
     setSubmitting(true);
     setError("");
@@ -76,7 +173,7 @@ function BookingContent() {
           contactPhone: contact.phone,
           departureDate: contact.departureDate,
           specialRequests: contact.specialRequests,
-          currency,
+          currency: displayCurrency,
           basePrice: pricing.perPerson,
           totalPrice: pricing.total,
           paymentMethod,
@@ -225,9 +322,9 @@ function BookingContent() {
                     <div className="bg-surface-alt rounded-xl p-5 mb-6 border border-slate-200">
                       <h4 className="font-heading text-sm font-bold text-midnight mb-3">Installment Plan</h4>
                       <div className="space-y-2 text-sm">
-                        <div className="flex justify-between"><span className="text-slate-400">1st Payment (Now — 40%)</span><span className="font-semibold text-accent">{currency} {Math.round(pricing.total * 0.4).toLocaleString()}</span></div>
-                        <div className="flex justify-between"><span className="text-slate-400">2nd Payment (30 days — 30%)</span><span className="font-semibold text-midnight">{currency} {Math.round(pricing.total * 0.3).toLocaleString()}</span></div>
-                        <div className="flex justify-between"><span className="text-slate-400">3rd Payment (60 days — 30%)</span><span className="font-semibold text-midnight">{currency} {Math.round(pricing.total * 0.3).toLocaleString()}</span></div>
+                        <div className="flex justify-between"><span className="text-slate-400">1st Payment (Now — 40%)</span><span className="font-semibold text-accent">{formatMoney(Math.round(pricing.total * 0.4), displayCurrency)}</span></div>
+                        <div className="flex justify-between"><span className="text-slate-400">2nd Payment (30 days — 30%)</span><span className="font-semibold text-midnight">{formatMoney(Math.round(pricing.total * 0.3), displayCurrency)}</span></div>
+                        <div className="flex justify-between"><span className="text-slate-400">3rd Payment (60 days — 30%)</span><span className="font-semibold text-midnight">{formatMoney(Math.round(pricing.total * 0.3), displayCurrency)}</span></div>
                       </div>
                     </div>
                   )}
@@ -250,12 +347,12 @@ function BookingContent() {
                       {[
                         { label: "Package", value: pkg.title },
                         { label: "Duration", value: pkg.nights },
-                        { label: "Hotel", value: pkg.hotelShort },
+                        { label: "Hotel", value: pkg.hotel_short || pkg.hotel },
                         { label: "Lead Traveler", value: contact.name },
                         { label: "Email", value: contact.email },
                         { label: "Phone", value: contact.phone },
                         { label: "Travelers", value: String(numTravelers) },
-                        { label: "Total", value: `${currency} ${pricing.total.toLocaleString()}` },
+                        { label: "Total", value: formatMoney(pricing.total, displayCurrency) },
                         { label: "Payment", value: paymentMethod === "bank" ? "BankAlfalah Online" : paymentMethod === "transfer" ? "Bank Transfer" : paymentMethod === "office" ? "Pay at Office" : "Installment Plan" },
                       ].map((d, i) => (
                         <div key={i} className="flex justify-between">
@@ -283,7 +380,7 @@ function BookingContent() {
                       className="bg-accent text-white px-8 py-3.5 rounded-lg font-heading text-sm font-semibold hover:bg-accent-dark transition-all border-none cursor-pointer flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       <ShieldIcon size={16} color="#fff" />
-                      {submitting ? "Submitting…" : `Confirm Booking — ${currency} ${pricing.total.toLocaleString()}`}
+                      {submitting ? "Submitting…" : `Confirm Booking — ${formatMoney(pricing.total, displayCurrency)}`}
                     </button>
                   </div>
                 </div>
@@ -295,22 +392,28 @@ function BookingContent() {
           <div className="sticky top-28">
             <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-[0_6px_24px_rgba(0,0,0,0.04)]">
               <div className="relative h-[140px] rounded-xl overflow-hidden mb-5">
-                <img src={pkg.placeholder} alt={pkg.title} className="w-full h-full object-cover" />
+                {pkg.img ? (
+                  <img src={pkg.img} alt={pkg.title} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-midnight to-midnight-light" />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-midnight/50 to-transparent" />
-                <div className="absolute bottom-3 left-3">
-                  <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2 py-0.5 rounded-md bg-accent text-white">{pkg.badge}</span>
-                </div>
+                {pkg.badge && (
+                  <div className="absolute bottom-3 left-3">
+                    <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2 py-0.5 rounded-md bg-accent text-white">{pkg.badge}</span>
+                  </div>
+                )}
               </div>
               <h3 className="font-heading text-lg font-bold text-midnight mb-0.5">{pkg.title}</h3>
-              <div className="text-xs text-slate-400 mb-4">{pkg.nights} · {pkg.hotelShort}</div>
+              <div className="text-xs text-slate-400 mb-4">{pkg.nights} · {pkg.hotel_short || pkg.hotel}</div>
               <div className="space-y-2.5 text-sm border-t border-slate-100 pt-4">
-                <div className="flex justify-between"><span className="text-slate-400">Per person</span><span className="text-midnight">{formatPrice(pkg.price, currency)}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Per person</span><span className="text-midnight">{formatMoney(pricing.perPerson, displayCurrency)}</span></div>
                 <div className="flex justify-between"><span className="text-slate-400">Travelers</span><span className="text-midnight">× {numTravelers}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">Subtotal</span><span className="font-semibold text-midnight">{currency} {pricing.subtotal.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Subtotal</span><span className="font-semibold text-midnight">{formatMoney(pricing.subtotal, displayCurrency)}</span></div>
                 <div className="h-px bg-slate-100" />
                 <div className="flex justify-between">
                   <span className="font-heading font-bold text-midnight">Total</span>
-                  <span className="font-heading text-xl font-bold text-accent">{currency} {pricing.total.toLocaleString()}</span>
+                  <span className="font-heading text-xl font-bold text-accent">{formatMoney(pricing.total, displayCurrency)}</span>
                 </div>
               </div>
               <div className="mt-5 pt-4 border-t border-slate-100 space-y-2">
