@@ -3,14 +3,23 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/blog — admin: all posts (published + drafts)
-export async function GET() {
+// GET /api/blog
+//   (default)     → admin: all posts (published + drafts)
+//   ?published=1  → public: only published posts (used by the public blog pages)
+export async function GET(request: NextRequest) {
   const supabase = createAdminClient();
+  const publishedOnly = new URL(request.url).searchParams.get("published");
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("blog_posts")
     .select("*")
     .order("created_at", { ascending: false });
+
+  if (publishedOnly) {
+    query = query.eq("published", true);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

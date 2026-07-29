@@ -94,7 +94,7 @@ export default function AdminBlog() {
       read_time: form.read_time || null,
       img: form.img || null,
       description: form.description || null,
-      content: form.content ? [{ type: "text", body: form.content }] : [],
+      content: form.content ? [{ type: "text", text: form.content }] : [],
       published: publishStatus,
     };
 
