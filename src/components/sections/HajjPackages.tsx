@@ -1,28 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import SectionHeading from "@/components/ui/SectionHeading";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { CheckIcon, CalendarIcon, ArrowIcon } from "@/components/ui/Icons";
 import { formatPkgPrice, pkgCurrency, PACKAGE_CURRENCIES, type PkgCurrency } from "@/lib/packageCurrency";
-
-interface DbPackage {
-  id: number;
-  type: string;
-  title: string;
-  nights: string;
-  hotel: string;
-  hotel_short: string | null;
-  dates: string | null;
-  currency: string | null;
-  includes: string[];
-  price_pkr: number;
-  price_usd: number;
-  price_sar: number;
-  badge: string | null;
-  img: string | null;
-}
+import { useHajjPackages, type DbPackage } from "@/lib/useHajjPackages";
 
 const CURRENCY_TITLE: Record<PkgCurrency, string> = {
   USD: "US Dollar Packages",
@@ -30,7 +14,7 @@ const CURRENCY_TITLE: Record<PkgCurrency, string> = {
   PKR: "Rupee Packages",
 };
 
-function PackageCard({ p, i }: { p: DbPackage; i: number }) {
+export function PackageCard({ p, i }: { p: DbPackage; i: number }) {
   return (
     <ScrollReveal delay={i * 0.08}>
       <div className="group h-full bg-white rounded-[20px] border border-slate-200 overflow-hidden hover:border-accent hover:shadow-[0_18px_44px_rgba(77,163,232,0.14)] hover:-translate-y-1 transition-all duration-300 flex flex-col">
@@ -109,21 +93,19 @@ function PackageCard({ p, i }: { p: DbPackage; i: number }) {
   );
 }
 
-export default function HajjPackages() {
-  const [packages, setPackages] = useState<DbPackage[]>([]);
-  const [loaded, setLoaded] = useState(false);
-  const [tab, setTab] = useState<"all" | PkgCurrency>("all");
+interface HajjPackagesProps {
+  /** Optional packages supplied by a parent that already fetched them. */
+  packages?: DbPackage[];
+  /** Whether the parent-supplied packages have finished loading. */
+  loaded?: boolean;
+}
 
-  useEffect(() => {
-    fetch("/api/packages")
-      .then((r) => r.json())
-      .then((d) => {
-        const all: DbPackage[] = Array.isArray(d.packages) ? d.packages : [];
-        setPackages(all.filter((p) => (p.type || "").toLowerCase() === "hajj"));
-      })
-      .catch(() => setPackages([]))
-      .finally(() => setLoaded(true));
-  }, []);
+export default function HajjPackages({ packages: extPackages, loaded: extLoaded }: HajjPackagesProps = {}) {
+  const hasExternal = extPackages !== undefined;
+  const self = useHajjPackages(!hasExternal);
+  const packages = extPackages ?? self.packages;
+  const loaded = hasExternal ? extLoaded ?? true : self.loaded;
+  const [tab, setTab] = useState<"all" | PkgCurrency>("all");
 
   // Group Hajj packages by their native currency (USD / SAR).
   const groups = useMemo(() => {
@@ -142,7 +124,7 @@ export default function HajjPackages() {
   const visibleCurrencies = tab === "all" ? activeCurrencies : activeCurrencies.filter((c) => c === tab);
 
   return (
-    <section className="py-20 md:py-24 px-6 md:px-9 bg-surface">
+    <section id="packages" className="scroll-mt-24 py-20 md:py-24 px-6 md:px-9 bg-surface">
       <div className="max-w-[1180px] mx-auto">
         <div className="text-center mb-10">
           <SectionHeading label="Choose Your Journey" title="Hajj" highlight="Packages" centered />
