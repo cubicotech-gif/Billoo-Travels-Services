@@ -9,6 +9,8 @@ import HajjLeadForm from "@/components/sections/HajjLeadForm";
 import GoogleReviews from "@/components/sections/GoogleReviews";
 import Licenses from "@/components/sections/Licenses";
 import HajjPackages from "@/components/sections/HajjPackages";
+import HajjPackagesTeaser from "@/components/sections/HajjPackagesTeaser";
+import { useHajjPackages } from "@/lib/useHajjPackages";
 import {
   CheckIcon,
   ArrowIcon,
@@ -34,8 +36,16 @@ function scrollToRegister(e: React.MouseEvent) {
   document.getElementById("register")?.scrollIntoView({ behavior: "smooth" });
 }
 
+function scrollToPackages(e: React.MouseEvent) {
+  e.preventDefault();
+  document.getElementById("packages")?.scrollIntoView({ behavior: "smooth" });
+}
+
 export default function HajjLandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  // Fetch Hajj packages once and share with the hero teaser + full section.
+  const { packages, loaded: packagesLoaded } = useHajjPackages();
+  const hasPackages = packagesLoaded && packages.length > 0;
 
   return (
     <InnerLayout>
@@ -66,6 +76,16 @@ export default function HajjLandingPage() {
               <span className="inline-flex items-center gap-2 bg-amber-400/12 border border-amber-400/30 text-amber-300 font-mono text-[11px] font-semibold tracking-[1px] px-3.5 py-1.5 rounded-full">
                 Limited Seats · First Come First Served
               </span>
+              {hasPackages && (
+                <a
+                  href="#packages"
+                  onClick={scrollToPackages}
+                  className="inline-flex items-center gap-2 bg-accent/12 border border-accent/30 text-accent-soft font-mono text-[11px] font-semibold tracking-[1px] px-3.5 py-1.5 rounded-full no-underline hover:bg-accent/20 transition-all"
+                >
+                  ✨ Hajj {HAJJ.year} Packages Now Live
+                  <ArrowIcon size={12} color="#8FC5F0" />
+                </a>
+              )}
             </div>
 
             <div className="flex items-center gap-3 mb-4">
@@ -106,6 +126,16 @@ export default function HajjLandingPage() {
                 Register Now — It&apos;s Free
                 <ArrowIcon size={15} color="#fff" />
               </a>
+              {hasPackages && (
+                <a
+                  href="#packages"
+                  onClick={scrollToPackages}
+                  className="inline-flex items-center gap-2 bg-white/10 text-white border border-white/20 backdrop-blur-lg px-6 py-3.5 rounded-lg font-heading text-sm font-semibold no-underline hover:bg-white/20 transition-all"
+                >
+                  Explore Packages
+                  <ArrowIcon size={15} color="#fff" />
+                </a>
+              )}
               <a
                 href={CONTACT.whatsapp}
                 target="_blank"
@@ -126,6 +156,9 @@ export default function HajjLandingPage() {
           </div>
         </div>
       </section>
+
+      {/* ══════════ PACKAGES TEASER — first-glance curiosity ══════════ */}
+      <HajjPackagesTeaser packages={packages} loaded={packagesLoaded} />
 
       {/* ══════════ TRUST STRIP ══════════ */}
       <section className="bg-midnight border-t border-white/5 py-10 px-6 md:px-9">
@@ -252,7 +285,7 @@ export default function HajjLandingPage() {
       </section>
 
       {/* ══════════ HAJJ PACKAGES (from admin panel) ══════════ */}
-      <HajjPackages />
+      <HajjPackages packages={packages} loaded={packagesLoaded} />
 
       {/* ══════════ LICENSED & VERIFIED DOCUMENTS ══════════ */}
       <Licenses tone="surface" />
