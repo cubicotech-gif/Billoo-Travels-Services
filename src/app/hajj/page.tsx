@@ -37,6 +37,18 @@ function scrollTo(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 }
 
+const FORM_ANCHOR = "register-form";
+
+/**
+ * Where a "register" action should land. Below `lg` the form sits underneath
+ * the intro copy, so aim at the form itself — otherwise a phone user lands on
+ * a heading and has to scroll again. From `lg` up the two share a row, so aim
+ * at the section and keep the heading in view.
+ */
+function scrollToRegister() {
+  scrollTo(window.innerWidth < 1024 ? FORM_ANCHOR : "register");
+}
+
 export default function HajjLandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   // The package a visitor chose to register for — pre-fills the form below.
@@ -75,7 +87,7 @@ export default function HajjLandingPage() {
 
   function registerFor(p: DbPackage) {
     setPicked(p);
-    scrollTo("register");
+    scrollToRegister();
   }
 
   return (
@@ -96,14 +108,14 @@ export default function HajjLandingPage() {
         />
         <div className="absolute top-[12%] right-[16%] w-[420px] h-[420px] rounded-full blur-[90px] bg-[radial-gradient(circle,rgba(77,163,232,0.14)_0%,transparent_70%)]" />
 
-        <div className="relative z-10 w-full max-w-[1080px] mx-auto px-6 md:px-9 pt-28 pb-16 text-center">
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+        <div className="relative z-10 w-full max-w-[1080px] mx-auto px-6 md:px-9 pt-24 sm:pt-28 pb-14 sm:pb-16 text-center">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-5 sm:mb-6">
             <span className="inline-flex items-center gap-2 bg-emerald-400/12 border border-emerald-400/30 text-emerald-300 font-mono text-[11px] font-semibold tracking-[1.5px] px-3.5 py-1.5 rounded-full">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               REGISTRATION OPEN
             </span>
-            <span className="inline-flex items-center gap-2 bg-amber-400/12 border border-amber-400/30 text-amber-300 font-mono text-[11px] font-semibold tracking-[1px] px-3.5 py-1.5 rounded-full">
-              Limited Seats · First Come First Served
+            <span className="inline-flex items-center gap-2 bg-amber-400/12 border border-amber-400/30 text-amber-300 font-mono text-[10px] sm:text-[11px] font-semibold tracking-[1px] px-3 sm:px-3.5 py-1.5 rounded-full">
+              Limited Seats<span className="hidden sm:inline"> · First Come First Served</span>
             </span>
           </div>
 
@@ -115,38 +127,43 @@ export default function HajjLandingPage() {
             <span className="w-8 h-px bg-gradient-to-l from-transparent to-accent" />
           </div>
 
-          <h1 className="font-display text-white leading-[0.98] text-[40px] md:text-[62px] mb-5">
+          <h1 className="font-display text-white leading-[1.02] sm:leading-[0.98] text-[33px] sm:text-[46px] md:text-[62px] mb-4 sm:mb-5">
             Your Journey to the House of Allah{" "}
-            <span className="italic text-accent-soft font-normal">Begins Here</span>
+            <span className="italic text-accent-soft font-normal whitespace-nowrap">Begins Here</span>
           </h1>
 
-          <p className="text-white/70 text-[16px] leading-relaxed max-w-[620px] mx-auto mb-10">
+          <p className="text-white/70 text-[14.5px] sm:text-[16px] leading-relaxed max-w-[620px] mx-auto mb-7 sm:mb-10">
             Billoo Travels — a government-approved Hajj operator serving pilgrims since 1969.
-            Browse the {HAJJ.year} packages, or register free and let an advisor call you back.
+            <span className="hidden sm:inline">
+              {" "}Browse the {HAJJ.year} packages, or register free and let an advisor call you back.
+            </span>
           </p>
 
           {/* ── The fork ── */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 max-w-[860px] mx-auto text-left">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 max-w-[860px] mx-auto text-left">
             {/* Path 1 — explore */}
             {hasPackages ? (
               <button
                 onClick={() => scrollTo("packages")}
-                className="group h-full bg-white rounded-2xl p-6 md:p-7 border-none cursor-pointer text-left transition-all hover:-translate-y-1 hover:shadow-[0_22px_50px_rgba(0,0,0,0.35)] flex flex-col"
+                className="group h-full bg-white rounded-2xl p-5 sm:p-6 md:p-7 border-none cursor-pointer text-left transition-all hover:-translate-y-1 hover:shadow-[0_22px_50px_rgba(0,0,0,0.35)] flex flex-col"
               >
-                <span className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase text-accent mb-3">
+                <span className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase text-accent mb-2.5 sm:mb-3">
                   <SearchIcon size={13} color="#4DA3E8" />
                   See what&apos;s on offer
                 </span>
-                <span className="block font-heading text-[21px] md:text-[23px] font-bold text-midnight leading-tight mb-2">
+                <span className="block font-heading text-[19px] sm:text-[21px] md:text-[23px] font-bold text-midnight leading-tight mb-1.5 sm:mb-2">
                   Explore Hajj {HAJJ.year} Packages
                 </span>
-                <span className="block text-[13.5px] text-slate-500 leading-relaxed mb-4">
+                <span className="block text-[13px] sm:text-[13.5px] text-slate-500 leading-relaxed mb-3.5 sm:mb-4">
                   {summary.journeys} all-inclusive packages
                   {summary.days && ` · ${summary.days}`}
                   {summary.from.length > 0 && (
                     <> · from {summary.from.join(" / ")} per person</>
                   )}
-                  . Compare hotels, dates and room prices before you decide.
+                  .
+                  <span className="hidden sm:inline">
+                    {" "}Compare hotels, dates and room prices before you decide.
+                  </span>
                 </span>
                 <span className="mt-auto inline-flex items-center gap-2 font-heading text-sm font-semibold text-accent group-hover:gap-3 transition-all">
                   Explore packages
@@ -167,19 +184,21 @@ export default function HajjLandingPage() {
 
             {/* Path 2 — register */}
             <button
-              onClick={() => scrollTo("register")}
-              className="group h-full bg-accent rounded-2xl p-6 md:p-7 border-none cursor-pointer text-left transition-all hover:-translate-y-1 hover:bg-accent-dark hover:shadow-[0_22px_50px_rgba(77,163,232,0.35)] flex flex-col"
+              onClick={() => scrollToRegister()}
+              className="group h-full bg-accent rounded-2xl p-5 sm:p-6 md:p-7 border-none cursor-pointer text-left transition-all hover:-translate-y-1 hover:bg-accent-dark hover:shadow-[0_22px_50px_rgba(77,163,232,0.35)] flex flex-col"
             >
-              <span className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase text-white/80 mb-3">
+              <span className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase text-white/80 mb-2.5 sm:mb-3">
                 <KaabaIcon size={13} color="#ffffff" />
                 Ready to reserve
               </span>
-              <span className="block font-heading text-[21px] md:text-[23px] font-bold text-white leading-tight mb-2">
+              <span className="block font-heading text-[19px] sm:text-[21px] md:text-[23px] font-bold text-white leading-tight mb-1.5 sm:mb-2">
                 Register for Hajj {HAJJ.year}
               </span>
-              <span className="block text-[13.5px] text-white/85 leading-relaxed mb-4">
-                Free, under a minute, and no payment required. An advisor calls you back with
-                package options, pricing and next steps.
+              <span className="block text-[13px] sm:text-[13.5px] text-white/85 leading-relaxed mb-3.5 sm:mb-4">
+                Free, under a minute, and no payment required.
+                <span className="hidden sm:inline">
+                  {" "}An advisor calls you back with package options, pricing and next steps.
+                </span>
               </span>
               <span className="mt-auto inline-flex items-center gap-2 font-heading text-sm font-semibold text-white group-hover:gap-3 transition-all">
                 Register free
@@ -188,19 +207,19 @@ export default function HajjLandingPage() {
             </button>
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+          <div className="mt-5 sm:mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <a
               href={CONTACT.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-white/70 text-[13.5px] no-underline hover:text-white transition-all"
+              className="inline-flex items-center gap-2 py-2.5 px-3 text-white/70 text-[13.5px] no-underline hover:text-white transition-all"
             >
               <PhoneIcon size={14} color="currentColor" />
               Prefer to talk? Message an advisor on WhatsApp
             </a>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 max-w-[700px] mx-auto text-left">
+          <div className="mt-6 sm:mt-9 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2.5 sm:gap-y-3 max-w-[700px] mx-auto text-left">
             {HAJJ_BENEFITS.map((b) => (
               <div key={b} className="flex items-start gap-2.5">
                 <span className="mt-0.5 shrink-0">
@@ -233,50 +252,57 @@ export default function HajjLandingPage() {
       {/* ══════════ PATH 2 · REGISTER ══════════ */}
       <section
         id="register"
-        className="scroll-mt-24 relative py-20 md:py-24 px-6 md:px-9 bg-surface-alt overflow-hidden"
+        className="scroll-mt-24 relative py-14 sm:py-20 md:py-24 px-6 md:px-9 bg-surface-alt overflow-hidden"
       >
         <div className="pointer-events-none absolute -top-24 -left-24 w-[420px] h-[420px] rounded-full blur-[90px] bg-[radial-gradient(circle,rgba(77,163,232,0.14)_0%,transparent_70%)]" />
 
-        <div className="relative max-w-[1180px] mx-auto grid grid-cols-1 lg:grid-cols-[1fr_460px] gap-10 lg:gap-14 items-start">
-          <div>
+        <div className="relative max-w-[1180px] mx-auto flex flex-col lg:grid lg:grid-cols-[1fr_460px] gap-8 lg:gap-x-14 lg:gap-y-10 items-start">
+          <div className="order-1 lg:col-start-1 lg:row-start-1">
             <SectionHeading label="Simple & Stress-Free" title="Register for" highlight={`Hajj ${HAJJ.year}`} />
-            <p className="text-slate-500 text-[15px] leading-relaxed max-w-[540px] mt-4 mb-9">
+            <p className="text-slate-500 text-[14.5px] sm:text-[15px] leading-relaxed max-w-[540px] mt-3 sm:mt-4">
               Registration is free and non-binding — you are reserving your place in the queue, not
-              paying for a package.{" "}
+              paying for a package.
               {hasPackages && (
                 <>
-                  Not sure which package yet?{" "}
+                  {" "}Not sure which one yet?{" "}
                   <button
                     onClick={() => scrollTo("packages")}
                     className="text-accent font-semibold bg-transparent border-none p-0 cursor-pointer hover:underline"
                   >
-                    Browse the packages first
-                  </button>{" "}
-                  — an advisor will help you choose either way.
+                    Browse the packages
+                  </button>
+                  <span className="hidden sm:inline"> — an advisor will help you choose either way</span>.
                 </>
               )}
             </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {HAJJ_STEPS.map((s, i) => (
-                <ScrollReveal key={s.step} delay={i * 0.06}>
-                  <div className="h-full bg-white rounded-2xl p-6 border border-slate-200">
-                    <div className="font-display text-4xl text-accent/20 leading-none mb-3">{s.step}</div>
-                    <h3 className="font-heading text-[15px] font-bold text-midnight mb-1.5">{s.title}</h3>
-                    <p className="text-[13px] text-slate-500 leading-relaxed">{s.desc}</p>
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
           </div>
 
-          <div className="bg-white rounded-[20px] p-7 md:p-8 border border-slate-200 shadow-[0_24px_60px_-24px_rgba(11,22,40,0.3)] lg:sticky lg:top-28">
+          <div
+            id={FORM_ANCHOR}
+            className="order-2 w-full scroll-mt-20 sm:scroll-mt-24 bg-white rounded-[20px] p-6 sm:p-7 md:p-8 border border-slate-200 shadow-[0_24px_60px_-24px_rgba(11,22,40,0.3)] lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-28"
+          >
             <HajjLeadForm
               source={picked ? `Hajj Landing · ${picked.code || picked.title}` : "Hajj Landing"}
               packageCode={picked?.code ?? null}
               packageTitle={picked?.title ?? null}
               onClearPackage={() => setPicked(null)}
             />
+          </div>
+
+          <div className="order-3 w-full grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:col-start-1 lg:row-start-2">
+            {HAJJ_STEPS.map((s, i) => (
+              <ScrollReveal key={s.step} delay={i * 0.06}>
+                <div className="h-full bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 flex sm:block gap-4">
+                  <div className="font-display text-3xl sm:text-4xl text-accent/25 leading-none shrink-0 sm:mb-3">
+                    {s.step}
+                  </div>
+                  <div>
+                    <h3 className="font-heading text-[15px] font-bold text-midnight mb-1.5">{s.title}</h3>
+                    <p className="text-[13px] text-slate-500 leading-relaxed">{s.desc}</p>
+                  </div>
+                </div>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
@@ -438,7 +464,7 @@ export default function HajjLandingPage() {
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <button
-                onClick={() => scrollTo("register")}
+                onClick={() => scrollToRegister()}
                 className="inline-flex items-center gap-2 bg-accent text-white px-8 py-3.5 rounded-lg font-heading text-sm font-semibold border-none cursor-pointer hover:bg-accent-dark transition-all hover:-translate-y-px hover:shadow-lg"
               >
                 <KaabaIcon size={16} color="#fff" />
