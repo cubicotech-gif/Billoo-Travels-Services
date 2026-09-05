@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 export interface DbPackage {
   id: number;
   type: string;
+  /** Brochure reference, e.g. "UB 001" — how staff and clients identify a package. */
+  code: string | null;
   title: string;
   nights: string;
   hotel: string;

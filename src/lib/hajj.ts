@@ -130,3 +130,29 @@ export const HAJJ_FAQ = [
     a: "We hand-pick 5-star hotels within walking distance of Masjid al-Haram in Makkah and Masjid an-Nabawi in Madinah, so you spend more time in worship and less time commuting.",
   },
 ];
+
+// ─── WHO IS TRAVELLING → WHICH PRICE LIST ───
+// Every journey is published twice: once in SAR and once in USD. It is the same
+// package — same hotels, same Maktab, same transport — so visitors choose by
+// where they are travelling from rather than by a currency code.
+export const HAJJ_AUDIENCES = [
+  {
+    currency: "SAR" as const,
+    flag: "🇵🇰",
+    title: "I'm travelling from Pakistan",
+    short: "From Pakistan",
+    desc: "Priced in Saudi Riyals (SAR)",
+  },
+  {
+    currency: "USD" as const,
+    flag: "🌍",
+    title: "I'm travelling from overseas",
+    short: "Overseas",
+    desc: "Priced in US Dollars (USD)",
+  },
+];
+
+// Shown wherever the two price lists sit side by side, so nobody reads the two
+// currencies as two different products.
+export const HAJJ_CURRENCY_NOTE =
+  "Both lists cover the same journeys — same hotels, same Mina & Arafat camps, same transport and the same services. Only the currency and the price differ.";
