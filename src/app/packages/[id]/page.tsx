@@ -107,7 +107,7 @@ export default function PackageDetailPage() {
             <div className="flex gap-2 mb-3">
               {pkg.badge && <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-accent text-white">{pkg.badge}</span>}
               <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-white/90 text-midnight">{pkg.type}</span>
-              {pkg.code && <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-white/15 text-white border border-white/25">PKG {pkg.code}</span>}
+              {pkg.code && <span className="font-mono text-[10px] font-bold tracking-[1.5px] px-2.5 py-1 rounded-md bg-white text-midnight">{pkg.code.toUpperCase()}</span>}
               {pkg.featured && <span className="font-mono text-[10px] font-semibold tracking-[1px] px-2.5 py-1 rounded-md bg-amber-400 text-white">★ Featured</span>}
             </div>
             <h1 className="font-heading text-3xl md:text-5xl font-bold text-white mb-2">{pkg.title}</h1>
@@ -163,7 +163,14 @@ export default function PackageDetailPage() {
                     </p>
                   )}
                   <PricingOptions pricing={pkg.pricing} currency={pkgCurrency(pkg)} />
-                  <p className="text-[12px] text-slate-400 mt-4">
+                  <p className="text-[13px] text-slate-500 mt-4 bg-accent-pale/60 border border-accent/15 rounded-xl px-4 py-3 leading-relaxed">
+                    Priced in{" "}
+                    <span className="font-semibold text-midnight">
+                      {pkgCurrency(pkg) === "USD" ? "US Dollars, for pilgrims travelling from overseas" : "Saudi Riyals, for pilgrims travelling from Pakistan"}
+                    </span>
+                    . The same journey is also published in {pkgCurrency(pkg) === "USD" ? "SAR" : "USD"} — same hotels and services, only the currency and price differ.
+                  </p>
+                  <p className="text-[12px] text-slate-400 mt-3">
                     Prices are per person. Airline ticket &amp; Qurbani not included. Book early — prices &amp; packages subject to change.
                   </p>
                 </div>

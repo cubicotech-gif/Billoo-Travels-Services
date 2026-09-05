@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import InnerLayout from "@/components/InnerLayout";
 import ScrollReveal from "@/components/ui/ScrollReveal";
@@ -9,8 +9,9 @@ import HajjLeadForm from "@/components/sections/HajjLeadForm";
 import GoogleReviews from "@/components/sections/GoogleReviews";
 import Licenses from "@/components/sections/Licenses";
 import HajjPackages from "@/components/sections/HajjPackages";
-import HajjPackagesTeaser from "@/components/sections/HajjPackagesTeaser";
-import { useHajjPackages } from "@/lib/useHajjPackages";
+import { useHajjPackages, type DbPackage } from "@/lib/useHajjPackages";
+import { pkgAmount, pkgCurrency, formatMoney, type PkgCurrency } from "@/lib/packageCurrency";
+import { packageDays } from "@/lib/packageFilters";
 import {
   CheckIcon,
   ArrowIcon,
@@ -18,6 +19,7 @@ import {
   ChevronDownIcon,
   ClockIcon,
   PhoneIcon,
+  SearchIcon,
 } from "@/components/ui/Icons";
 import { ICON_MAP } from "@/components/ui/Icons";
 import { CONTACT } from "@/lib/data";
@@ -31,26 +33,55 @@ import {
   HAJJ_FAQ,
 } from "@/lib/hajj";
 
-function scrollToRegister(e: React.MouseEvent) {
-  e.preventDefault();
-  document.getElementById("register")?.scrollIntoView({ behavior: "smooth" });
-}
-
-function scrollToPackages(e: React.MouseEvent) {
-  e.preventDefault();
-  document.getElementById("packages")?.scrollIntoView({ behavior: "smooth" });
+function scrollTo(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 }
 
 export default function HajjLandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  // Fetch Hajj packages once and share with the hero teaser + full section.
+  // The package a visitor chose to register for — pre-fills the form below.
+  const [picked, setPicked] = useState<DbPackage | null>(null);
+
+  // Fetch Hajj packages once and share with the hero fork + packages section.
   const { packages, loaded: packagesLoaded } = useHajjPackages();
   const hasPackages = packagesLoaded && packages.length > 0;
 
+  // Headline numbers for the "explore" path: how many journeys, how long, and
+  // the lowest price in each currency — so the choice is informed, not blind.
+  const summary = useMemo(() => {
+    const from: Partial<Record<PkgCurrency, number>> = {};
+    let minDays = Infinity;
+    let maxDays = 0;
+    packages.forEach((p) => {
+      const c = pkgCurrency(p);
+      const amount = pkgAmount(p);
+      if (amount > 0 && (from[c] === undefined || amount < from[c]!)) from[c] = amount;
+      const days = packageDays(p);
+      if (days > 0) {
+        minDays = Math.min(minDays, days);
+        maxDays = Math.max(maxDays, days);
+      }
+    });
+    // Each journey is published once per currency, so count one price list.
+    const journeys = packages.filter((p) => pkgCurrency(p) === "SAR").length || packages.length;
+    return {
+      journeys,
+      days: maxDays ? `${minDays}–${maxDays} days` : "",
+      from: (["SAR", "USD"] as PkgCurrency[])
+        .filter((c) => from[c])
+        .map((c) => formatMoney(from[c]!, c)),
+    };
+  }, [packages]);
+
+  function registerFor(p: DbPackage) {
+    setPicked(p);
+    scrollTo("register");
+  }
+
   return (
     <InnerLayout>
-      {/* ══════════ HERO — registration front and centre ══════════ */}
-      <section className="relative min-h-[92vh] flex items-center overflow-hidden">
+      {/* ══════════ HERO — one clear fork: explore, or register ══════════ */}
+      <section className="relative min-h-[88vh] flex items-center overflow-hidden">
         <img
           src={HAJJ.heroImage}
           alt="The Holy Kaaba in Makkah"
@@ -60,105 +91,127 @@ export default function HajjLandingPage() {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(105deg, rgba(11,22,40,0.97) 0%, rgba(11,22,40,0.9) 42%, rgba(21,37,69,0.72) 100%)",
+              "linear-gradient(105deg, rgba(11,22,40,0.97) 0%, rgba(11,22,40,0.92) 48%, rgba(21,37,69,0.8) 100%)",
           }}
         />
         <div className="absolute top-[12%] right-[16%] w-[420px] h-[420px] rounded-full blur-[90px] bg-[radial-gradient(circle,rgba(77,163,232,0.14)_0%,transparent_70%)]" />
 
-        <div className="relative z-10 w-full max-w-[1280px] mx-auto px-6 md:px-9 pt-28 pb-16 grid grid-cols-1 lg:grid-cols-[1fr_460px] gap-10 lg:gap-14 items-center">
-          {/* Copy */}
-          <div>
-            <div className="flex flex-wrap items-center gap-3 mb-6">
-              <span className="inline-flex items-center gap-2 bg-emerald-400/12 border border-emerald-400/30 text-emerald-300 font-mono text-[11px] font-semibold tracking-[1.5px] px-3.5 py-1.5 rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                REGISTRATION OPEN
-              </span>
-              <span className="inline-flex items-center gap-2 bg-amber-400/12 border border-amber-400/30 text-amber-300 font-mono text-[11px] font-semibold tracking-[1px] px-3.5 py-1.5 rounded-full">
-                Limited Seats · First Come First Served
-              </span>
-              {hasPackages && (
-                <a
-                  href="#packages"
-                  onClick={scrollToPackages}
-                  className="inline-flex items-center gap-2 bg-accent/12 border border-accent/30 text-accent-soft font-mono text-[11px] font-semibold tracking-[1px] px-3.5 py-1.5 rounded-full no-underline hover:bg-accent/20 transition-all"
-                >
-                  ✨ Hajj {HAJJ.year} Packages Now Live
-                  <ArrowIcon size={12} color="#8FC5F0" />
-                </a>
-              )}
-            </div>
-
-            <div className="flex items-center gap-3 mb-4">
-              <span className="w-8 h-px bg-gradient-to-r from-accent to-transparent" />
-              <span className="font-mono text-[11px] tracking-[3px] uppercase text-accent-soft">
-                Hajj {HAJJ.year} · {HAJJ.hijri}
-              </span>
-            </div>
-
-            <h1 className="font-display text-white leading-[0.98] text-[42px] md:text-[62px] mb-5">
-              Your Journey to the House of Allah{" "}
-              <span className="italic text-accent-soft font-normal">Begins Here</span>
-            </h1>
-
-            <p className="text-white/70 text-[16px] leading-relaxed max-w-[560px] mb-8">
-              Register free for Hajj {HAJJ.year} with Billoo Travels — a government-approved operator
-              serving pilgrims since 1969. Reserve your place today; an advisor calls you back with
-              package options and pricing. No payment required to register.
-            </p>
-
-            <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3 max-w-[560px] mb-9">
-              {HAJJ_BENEFITS.map((b) => (
-                <div key={b} className="flex items-start gap-2.5">
-                  <span className="mt-0.5 shrink-0">
-                    <CheckIcon size={15} color="#34D399" />
-                  </span>
-                  <span className="text-white/75 text-[13.5px] leading-snug">{b}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-4">
-              <a
-                href="#register"
-                onClick={scrollToRegister}
-                className="inline-flex items-center gap-2 bg-accent text-white px-7 py-3.5 rounded-lg font-heading text-sm font-semibold no-underline hover:bg-accent-dark transition-all hover:-translate-y-px hover:shadow-lg"
-              >
-                Register Now — It&apos;s Free
-                <ArrowIcon size={15} color="#fff" />
-              </a>
-              {hasPackages && (
-                <a
-                  href="#packages"
-                  onClick={scrollToPackages}
-                  className="inline-flex items-center gap-2 bg-white/10 text-white border border-white/20 backdrop-blur-lg px-6 py-3.5 rounded-lg font-heading text-sm font-semibold no-underline hover:bg-white/20 transition-all"
-                >
-                  Explore Packages
-                  <ArrowIcon size={15} color="#fff" />
-                </a>
-              )}
-              <a
-                href={CONTACT.whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-white/10 text-white border border-white/20 backdrop-blur-lg px-6 py-3.5 rounded-lg font-heading text-sm font-semibold no-underline hover:bg-white/20 transition-all"
-              >
-                <PhoneIcon size={15} color="#fff" />
-                Talk to an Advisor
-              </a>
-            </div>
+        <div className="relative z-10 w-full max-w-[1080px] mx-auto px-6 md:px-9 pt-28 pb-16 text-center">
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+            <span className="inline-flex items-center gap-2 bg-emerald-400/12 border border-emerald-400/30 text-emerald-300 font-mono text-[11px] font-semibold tracking-[1.5px] px-3.5 py-1.5 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              REGISTRATION OPEN
+            </span>
+            <span className="inline-flex items-center gap-2 bg-amber-400/12 border border-amber-400/30 text-amber-300 font-mono text-[11px] font-semibold tracking-[1px] px-3.5 py-1.5 rounded-full">
+              Limited Seats · First Come First Served
+            </span>
           </div>
 
-          {/* Registration form */}
-          <div id="register" className="scroll-mt-28">
-            <div className="bg-white rounded-[20px] p-7 md:p-8 shadow-[0_24px_70px_rgba(0,0,0,0.4)]">
-              <HajjLeadForm source="Hajj Landing Hero" />
-            </div>
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <span className="w-8 h-px bg-gradient-to-r from-transparent to-accent" />
+            <span className="font-mono text-[11px] tracking-[3px] uppercase text-accent-soft">
+              Hajj {HAJJ.year} · {HAJJ.hijri}
+            </span>
+            <span className="w-8 h-px bg-gradient-to-l from-transparent to-accent" />
+          </div>
+
+          <h1 className="font-display text-white leading-[0.98] text-[40px] md:text-[62px] mb-5">
+            Your Journey to the House of Allah{" "}
+            <span className="italic text-accent-soft font-normal">Begins Here</span>
+          </h1>
+
+          <p className="text-white/70 text-[16px] leading-relaxed max-w-[620px] mx-auto mb-10">
+            Billoo Travels — a government-approved Hajj operator serving pilgrims since 1969.
+            Browse the {HAJJ.year} packages, or register free and let an advisor call you back.
+          </p>
+
+          {/* ── The fork ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 max-w-[860px] mx-auto text-left">
+            {/* Path 1 — explore */}
+            {hasPackages ? (
+              <button
+                onClick={() => scrollTo("packages")}
+                className="group h-full bg-white rounded-2xl p-6 md:p-7 border-none cursor-pointer text-left transition-all hover:-translate-y-1 hover:shadow-[0_22px_50px_rgba(0,0,0,0.35)] flex flex-col"
+              >
+                <span className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase text-accent mb-3">
+                  <SearchIcon size={13} color="#4DA3E8" />
+                  See what&apos;s on offer
+                </span>
+                <span className="block font-heading text-[21px] md:text-[23px] font-bold text-midnight leading-tight mb-2">
+                  Explore Hajj {HAJJ.year} Packages
+                </span>
+                <span className="block text-[13.5px] text-slate-500 leading-relaxed mb-4">
+                  {summary.journeys} all-inclusive packages
+                  {summary.days && ` · ${summary.days}`}
+                  {summary.from.length > 0 && (
+                    <> · from {summary.from.join(" / ")} per person</>
+                  )}
+                  . Compare hotels, dates and room prices before you decide.
+                </span>
+                <span className="mt-auto inline-flex items-center gap-2 font-heading text-sm font-semibold text-accent group-hover:gap-3 transition-all">
+                  Explore packages
+                  <ArrowIcon size={15} color="#4DA3E8" />
+                </span>
+              </button>
+            ) : (
+              <div className="h-full bg-white/10 border border-white/15 backdrop-blur-lg rounded-2xl p-6 md:p-7 flex flex-col justify-center">
+                <span className="block font-heading text-[19px] font-bold text-white mb-2">
+                  Packages coming soon
+                </span>
+                <span className="block text-[13.5px] text-white/60 leading-relaxed">
+                  Register now and we will send you the Hajj {HAJJ.year} packages the moment they
+                  are released.
+                </span>
+              </div>
+            )}
+
+            {/* Path 2 — register */}
+            <button
+              onClick={() => scrollTo("register")}
+              className="group h-full bg-accent rounded-2xl p-6 md:p-7 border-none cursor-pointer text-left transition-all hover:-translate-y-1 hover:bg-accent-dark hover:shadow-[0_22px_50px_rgba(77,163,232,0.35)] flex flex-col"
+            >
+              <span className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase text-white/80 mb-3">
+                <KaabaIcon size={13} color="#ffffff" />
+                Ready to reserve
+              </span>
+              <span className="block font-heading text-[21px] md:text-[23px] font-bold text-white leading-tight mb-2">
+                Register for Hajj {HAJJ.year}
+              </span>
+              <span className="block text-[13.5px] text-white/85 leading-relaxed mb-4">
+                Free, under a minute, and no payment required. An advisor calls you back with
+                package options, pricing and next steps.
+              </span>
+              <span className="mt-auto inline-flex items-center gap-2 font-heading text-sm font-semibold text-white group-hover:gap-3 transition-all">
+                Register free
+                <ArrowIcon size={15} color="#fff" />
+              </span>
+            </button>
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            <a
+              href={CONTACT.whatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-white/70 text-[13.5px] no-underline hover:text-white transition-all"
+            >
+              <PhoneIcon size={14} color="currentColor" />
+              Prefer to talk? Message an advisor on WhatsApp
+            </a>
+          </div>
+
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 max-w-[700px] mx-auto text-left">
+            {HAJJ_BENEFITS.map((b) => (
+              <div key={b} className="flex items-start gap-2.5">
+                <span className="mt-0.5 shrink-0">
+                  <CheckIcon size={15} color="#34D399" />
+                </span>
+                <span className="text-white/70 text-[13.5px] leading-snug">{b}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
-
-      {/* ══════════ PACKAGES TEASER — first-glance curiosity ══════════ */}
-      <HajjPackagesTeaser packages={packages} loaded={packagesLoaded} />
 
       {/* ══════════ TRUST STRIP ══════════ */}
       <section className="bg-midnight border-t border-white/5 py-10 px-6 md:px-9">
@@ -171,6 +224,60 @@ export default function HajjLandingPage() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ══════════ PATH 1 · EXPLORE THE PACKAGES ══════════ */}
+      <HajjPackages packages={packages} loaded={packagesLoaded} onRegister={registerFor} />
+
+      {/* ══════════ PATH 2 · REGISTER ══════════ */}
+      <section
+        id="register"
+        className="scroll-mt-24 relative py-20 md:py-24 px-6 md:px-9 bg-surface-alt overflow-hidden"
+      >
+        <div className="pointer-events-none absolute -top-24 -left-24 w-[420px] h-[420px] rounded-full blur-[90px] bg-[radial-gradient(circle,rgba(77,163,232,0.14)_0%,transparent_70%)]" />
+
+        <div className="relative max-w-[1180px] mx-auto grid grid-cols-1 lg:grid-cols-[1fr_460px] gap-10 lg:gap-14 items-start">
+          <div>
+            <SectionHeading label="Simple & Stress-Free" title="Register for" highlight={`Hajj ${HAJJ.year}`} />
+            <p className="text-slate-500 text-[15px] leading-relaxed max-w-[540px] mt-4 mb-9">
+              Registration is free and non-binding — you are reserving your place in the queue, not
+              paying for a package.{" "}
+              {hasPackages && (
+                <>
+                  Not sure which package yet?{" "}
+                  <button
+                    onClick={() => scrollTo("packages")}
+                    className="text-accent font-semibold bg-transparent border-none p-0 cursor-pointer hover:underline"
+                  >
+                    Browse the packages first
+                  </button>{" "}
+                  — an advisor will help you choose either way.
+                </>
+              )}
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {HAJJ_STEPS.map((s, i) => (
+                <ScrollReveal key={s.step} delay={i * 0.06}>
+                  <div className="h-full bg-white rounded-2xl p-6 border border-slate-200">
+                    <div className="font-display text-4xl text-accent/20 leading-none mb-3">{s.step}</div>
+                    <h3 className="font-heading text-[15px] font-bold text-midnight mb-1.5">{s.title}</h3>
+                    <p className="text-[13px] text-slate-500 leading-relaxed">{s.desc}</p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-[20px] p-7 md:p-8 border border-slate-200 shadow-[0_24px_60px_-24px_rgba(11,22,40,0.3)] lg:sticky lg:top-28">
+            <HajjLeadForm
+              source={picked ? `Hajj Landing · ${picked.code || picked.title}` : "Hajj Landing"}
+              packageCode={picked?.code ?? null}
+              packageTitle={picked?.title ?? null}
+              onClearPackage={() => setPicked(null)}
+            />
+          </div>
         </div>
       </section>
 
@@ -254,38 +361,14 @@ export default function HajjLandingPage() {
                   </div>
                 ))}
               </div>
+              <p className="text-[12.5px] text-slate-400 leading-relaxed mt-6">
+                Inclusions vary slightly by package — the exact list for each one is on its package
+                page and PDF brochure.
+              </p>
             </div>
           </ScrollReveal>
         </div>
       </section>
-
-      {/* ══════════ HOW REGISTRATION WORKS ══════════ */}
-      <section className="py-20 md:py-24 px-6 md:px-9 bg-surface">
-        <div className="max-w-[1180px] mx-auto">
-          <div className="text-center mb-14">
-            <SectionHeading
-              label="Simple & Stress-Free"
-              title="How Registration"
-              highlight="Works"
-              centered
-            />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {HAJJ_STEPS.map((s, i) => (
-              <ScrollReveal key={s.step} delay={i * 0.08}>
-                <div className="relative h-full bg-white rounded-2xl p-7 border border-slate-200 hover:shadow-[0_12px_32px_rgba(11,22,40,0.08)] transition-all duration-300">
-                  <div className="font-display text-5xl text-accent/20 leading-none mb-4">{s.step}</div>
-                  <h3 className="font-heading text-[16px] font-bold text-midnight mb-2">{s.title}</h3>
-                  <p className="text-[13px] text-slate-500 leading-relaxed">{s.desc}</p>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════ HAJJ PACKAGES (from admin panel) ══════════ */}
-      <HajjPackages packages={packages} loaded={packagesLoaded} />
 
       {/* ══════════ LICENSED & VERIFIED DOCUMENTS ══════════ */}
       <Licenses tone="surface" />
@@ -354,21 +437,30 @@ export default function HajjLandingPage() {
               Saudi quota allocation fills for the season.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
-              <a
-                href="#register"
-                onClick={scrollToRegister}
-                className="inline-flex items-center gap-2 bg-accent text-white px-8 py-3.5 rounded-lg font-heading text-sm font-semibold no-underline hover:bg-accent-dark transition-all hover:-translate-y-px hover:shadow-lg"
+              <button
+                onClick={() => scrollTo("register")}
+                className="inline-flex items-center gap-2 bg-accent text-white px-8 py-3.5 rounded-lg font-heading text-sm font-semibold border-none cursor-pointer hover:bg-accent-dark transition-all hover:-translate-y-px hover:shadow-lg"
               >
                 <KaabaIcon size={16} color="#fff" />
                 Register for Hajj {HAJJ.year}
-              </a>
-              <Link
-                href="/packages"
-                className="inline-flex items-center gap-2 bg-white/10 text-white border border-white/20 backdrop-blur-lg px-7 py-3.5 rounded-lg font-heading text-sm font-semibold no-underline hover:bg-white/20 transition-all"
-              >
-                View Packages
-                <ArrowIcon size={15} color="#fff" />
-              </Link>
+              </button>
+              {hasPackages ? (
+                <button
+                  onClick={() => scrollTo("packages")}
+                  className="inline-flex items-center gap-2 bg-white/10 text-white border border-white/20 backdrop-blur-lg px-7 py-3.5 rounded-lg font-heading text-sm font-semibold cursor-pointer hover:bg-white/20 transition-all"
+                >
+                  View Packages
+                  <ArrowIcon size={15} color="#fff" />
+                </button>
+              ) : (
+                <Link
+                  href="/packages"
+                  className="inline-flex items-center gap-2 bg-white/10 text-white border border-white/20 backdrop-blur-lg px-7 py-3.5 rounded-lg font-heading text-sm font-semibold no-underline hover:bg-white/20 transition-all"
+                >
+                  View Packages
+                  <ArrowIcon size={15} color="#fff" />
+                </Link>
+              )}
             </div>
             <p className="font-mono text-[11px] tracking-[1px] text-white/40 mt-8">
               Or call us directly · {CONTACT.phone}

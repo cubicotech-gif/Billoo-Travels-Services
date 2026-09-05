@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { KaabaIcon, CheckIcon, ArrowIcon, ShieldIcon } from "@/components/ui/Icons";
+import { KaabaIcon, CheckIcon, ArrowIcon, ShieldIcon, XIcon } from "@/components/ui/Icons";
 import { HAJJ } from "@/lib/hajj";
 
 interface FormState {
@@ -27,6 +27,12 @@ interface Props {
   source?: string;
   /** compact heading label */
   heading?: string;
+  /** a package the visitor picked — its code reaches the CRM so an advisor
+   *  knows exactly which journey to quote before they dial */
+  packageCode?: string | null;
+  packageTitle?: string | null;
+  /** clears the picked package */
+  onClearPackage?: () => void;
 }
 
 /**
@@ -37,6 +43,9 @@ interface Props {
 export default function HajjLeadForm({
   source = "Hajj Registration",
   heading,
+  packageCode,
+  packageTitle,
+  onClearPackage,
 }: Props) {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [submitting, setSubmitting] = useState(false);
@@ -58,6 +67,7 @@ export default function HajjLeadForm({
 
     const composedMessage = [
       `Hajj ${HAJJ.year} registration request (${source}).`,
+      packageCode ? `Package: ${packageCode}${packageTitle ? ` — ${packageTitle}` : ""}` : "",
       `Pilgrims: ${form.pilgrims}`,
       form.city ? `City: ${form.city}` : "",
       form.message ? `Notes: ${form.message}` : "",
@@ -74,7 +84,9 @@ export default function HajjLeadForm({
           email: form.email,
           phone: form.phone,
           destination: form.city || null,
-          packageInterest: HAJJ.packageInterest,
+          packageInterest: packageCode
+            ? `${HAJJ.packageInterest} · ${packageCode}`
+            : HAJJ.packageInterest,
           message: composedMessage,
         }),
       });
@@ -102,7 +114,11 @@ export default function HajjLeadForm({
         </h3>
         <p className="text-sm text-slate-500 leading-relaxed max-w-[300px] mx-auto">
           Thank you, {form.fullName.split(" ")[0]}. Our Hajj {HAJJ.year} team will contact you
-          shortly on <span className="font-semibold text-midnight">{form.phone}</span>.
+          shortly on <span className="font-semibold text-midnight">{form.phone}</span>
+          {packageCode && (
+            <> about <span className="font-semibold text-midnight">{packageCode}</span></>
+          )}
+          .
         </p>
       </div>
     );
@@ -119,6 +135,34 @@ export default function HajjLeadForm({
       <p className="text-[13px] text-slate-400 mb-5">
         Takes under a minute · An advisor calls you back
       </p>
+
+      {packageCode && (
+        <div className="flex items-start gap-3 mb-5 bg-accent-pale border border-accent/20 rounded-xl px-4 py-3">
+          <span className="font-mono text-[11px] font-bold tracking-[1px] text-accent-dark bg-white border border-accent/25 rounded-md px-2 py-1 shrink-0">
+            {packageCode}
+          </span>
+          <span className="flex-1 min-w-0">
+            <span className="block text-[11px] font-mono tracking-[1px] uppercase text-accent">
+              Selected package
+            </span>
+            {packageTitle && (
+              <span className="block text-[13px] text-midnight font-semibold leading-snug mt-0.5">
+                {packageTitle}
+              </span>
+            )}
+          </span>
+          {onClearPackage && (
+            <button
+              type="button"
+              onClick={onClearPackage}
+              title="Remove selected package"
+              className="shrink-0 text-slate-400 hover:text-red-500 bg-transparent border-none cursor-pointer leading-none p-0"
+            >
+              <XIcon size={14} color="currentColor" />
+            </button>
+          )}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <input
