@@ -5,7 +5,7 @@ import Link from "next/link";
 import SectionHeading from "@/components/ui/SectionHeading";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { CheckIcon, CalendarIcon, ArrowIcon, SearchIcon, KaabaIcon } from "@/components/ui/Icons";
-import { formatPkgPrice, pkgCurrency, type PkgCurrency } from "@/lib/packageCurrency";
+import { formatPkgPrice, pkgAmount, pkgCurrency, type PkgCurrency } from "@/lib/packageCurrency";
 import { useHajjPackages, type DbPackage } from "@/lib/useHajjPackages";
 import { HAJJ_AUDIENCES, HAJJ_CURRENCY_NOTE } from "@/lib/hajj";
 import { DURATION_BUCKETS, packageBucket, tiersOf, matchesSearch } from "@/lib/packageFilters";
@@ -77,8 +77,15 @@ export function PackageCard({
 
           <div className="mt-auto pt-5 flex items-end justify-between border-t border-slate-100 mt-5">
             <div>
-              <div className="font-mono text-[10px] tracking-[1px] uppercase text-slate-400">From · per person</div>
-              <div className="font-heading text-xl font-bold text-midnight">{formatPkgPrice(p)}</div>
+              {pkgAmount(p) > 0 ? (
+                <>
+                  <div className="font-mono text-[10px] tracking-[1px] uppercase text-slate-400">From · per person</div>
+                  <div className="font-heading text-xl font-bold text-midnight">{formatPkgPrice(p)}</div>
+                </>
+              ) : (
+                // No "From" price set in admin — say so rather than showing "SAR 0".
+                <div className="font-heading text-[15px] font-semibold text-slate-500">Price on request</div>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <a

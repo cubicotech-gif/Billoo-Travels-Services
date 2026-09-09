@@ -14,6 +14,19 @@ interface PricingForm { tiers: PricingTier[]; rooms: PricingRoomForm[]; }
 
 const STAGE_SUGGESTIONS = ["In Madinah", "In Makkah", "In Aziziya (Makkah)", "Days of Hajj", "Return to Makkah", "Departure"];
 
+// Lowest price typed into the room matrix. Only ever offered as a suggestion —
+// the "From" price is whatever the admin puts in the box, never derived.
+function matrixLowest(pricing: PricingForm): number {
+  const vals: number[] = [];
+  pricing.rooms.forEach((r) =>
+    [r.A, r.B].forEach((v) => {
+      const n = Number(v);
+      if (v !== "" && Number.isFinite(n) && n > 0) vals.push(n);
+    })
+  );
+  return vals.length ? Math.min(...vals) : 0;
+}
+
 interface Package {
   id: number;
   type: string;
@@ -167,7 +180,7 @@ function PricingBuilder({ pricing, onChange, currency }: { pricing: PricingForm;
       </div>
       <div className="flex items-center justify-between mt-2">
         <button type="button" onClick={addRoom} className="text-[#4DA3E8] text-xs font-semibold bg-transparent border-none cursor-pointer hover:underline" style={{ fontFamily: "'Sora', sans-serif" }}>+ Add room type</button>
-        <span className="text-[11px] text-slate-400">Lowest price auto-becomes the “From” price on the cards.</span>
+        <span className="text-[11px] text-slate-400">These are the room rates shown on the package page and brochure. The card’s “From” price is set separately below.</span>
       </div>
     </div>
   );
@@ -374,9 +387,6 @@ export default function AdminPackages() {
         return row;
       });
     const pricingOut = rooms.length ? { tiers: form.pricing.tiers.map((t) => ({ key: t.key, label: t.label })), rooms } : {};
-    const priceVals: number[] = [];
-    rooms.forEach((r) => Object.entries(r).forEach(([k, v]) => { if (k !== "room" && typeof v === "number" && v > 0) priceVals.push(v); }));
-    const fromPrice = priceVals.length ? Math.min(...priceVals) : 0;
 
     const body = {
       type: form.type,
@@ -388,9 +398,11 @@ export default function AdminPackages() {
       dates: form.dates || null,
       currency: form.currency,
       pricing: pricingOut,
+      // Saved exactly as typed. Nothing is derived from the room matrix and
+      // nothing is copied between currencies — the "From" price is yours to set.
       price_pkr: Number(form.price_pkr) || 0,
-      price_usd: form.currency === "USD" && fromPrice ? fromPrice : (Number(form.price_usd) || 0),
-      price_sar: form.currency === "SAR" && fromPrice ? fromPrice : (Number(form.price_sar) || 0),
+      price_usd: Number(form.price_usd) || 0,
+      price_sar: Number(form.price_sar) || 0,
       status: form.status,
       featured: form.featured,
       badge: form.badge || null,
@@ -589,22 +601,85 @@ export default function AdminPackages() {
             <PricingBuilder pricing={form.pricing} onChange={(v) => setF("pricing", v)} currency={form.currency} />
           </div>
 
-          {/* Simple fallback price — used only if the matrix above is empty */}
-          <details className="mb-6">
-            <summary className="text-[11px] tracking-[1px] text-slate-400 uppercase font-semibold cursor-pointer select-none" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Simple “From” price (optional — used only if no matrix above)</summary>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
-              {[
-                { label: "Price (PKR)", key: "price_pkr", placeholder: "1250000" },
-                { label: "Price (USD)", key: "price_usd", placeholder: "4499" },
-                { label: "Price (SAR)", key: "price_sar", placeholder: "16800" },
-              ].map((f) => (
-                <div key={f.key}>
-                  <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{f.label}</label>
-                  <input type="number" value={(form as Record<string, unknown>)[f.key] as string} onChange={(e) => setF(f.key, e.target.value)} placeholder={f.placeholder} className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300" />
+          {/* ── "From" price — saved exactly as typed, never derived ── */}
+          {(() => {
+            const activeKey = form.currency === "USD" ? "price_usd" : "price_sar";
+            const otherKey = form.currency === "USD" ? "price_sar" : "price_usd";
+            const otherLabel = form.currency === "USD" ? "SAR" : "USD";
+            const activeVal = String((form as Record<string, unknown>)[activeKey] ?? "");
+            const otherVal = Number((form as Record<string, unknown>)[otherKey]) || 0;
+            const lowest = matrixLowest(form.pricing);
+            const sym = form.currency === "USD" ? "$" : "SAR ";
+            return (
+              <div className="mb-6">
+                <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  “From” price ({form.currency}) — shown on package cards
+                </label>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400 pointer-events-none">{sym}</span>
+                    <input
+                      type="number"
+                      value={activeVal}
+                      onChange={(e) => setF(activeKey, e.target.value)}
+                      placeholder="0"
+                      className={`w-56 py-2.5 pr-3.5 rounded-lg border text-sm bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300 ${form.currency === "USD" ? "pl-8" : "pl-14"} ${!Number(activeVal) ? "border-amber-300" : "border-slate-200"}`}
+                    />
+                  </div>
+                  {lowest > 0 && Number(activeVal) !== lowest && (
+                    <button
+                      type="button"
+                      onClick={() => setF(activeKey, String(lowest))}
+                      className="px-3.5 py-2 rounded-lg border border-[#4DA3E8]/40 bg-[#EBF5FF] text-[#2B7CC4] text-[13px] font-semibold cursor-pointer hover:bg-[#4DA3E8] hover:text-white transition-all"
+                      style={{ fontFamily: "'Sora', sans-serif" }}
+                    >
+                      Use lowest in matrix ({sym}{lowest.toLocaleString()})
+                    </button>
+                  )}
                 </div>
-              ))}
-            </div>
-          </details>
+                <p className="text-[11px] text-slate-400 mt-1.5">
+                  Saved exactly as you type it. It is never calculated from the matrix and never converted between
+                  currencies — change it here and nowhere else.
+                </p>
+                {!Number(activeVal) && (
+                  <p className="text-[11.5px] text-amber-600 mt-1.5 font-semibold">
+                    No “From” price set — this package will show no price on its card.
+                  </p>
+                )}
+                {otherVal > 0 && (
+                  <div className="mt-2.5 flex flex-wrap items-center gap-2.5 text-[11.5px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                    <span>
+                      This package is priced in {form.currency}, but a leftover {otherLabel} amount of{" "}
+                      <strong>{otherVal.toLocaleString()}</strong> is still stored on it.
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setF(otherKey, "")}
+                      className="px-2.5 py-1 rounded-md border border-amber-300 bg-white text-amber-700 font-semibold cursor-pointer hover:bg-amber-100 transition-all"
+                      style={{ fontFamily: "'Sora', sans-serif" }}
+                    >
+                      Clear {otherLabel}
+                    </button>
+                  </div>
+                )}
+                <details className="mt-3">
+                  <summary className="text-[11px] tracking-[1px] text-slate-400 uppercase font-semibold cursor-pointer select-none" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Other currency fields (non-Hajj packages)</summary>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                    {[
+                      { label: "Price (PKR)", key: "price_pkr", placeholder: "1250000" },
+                      { label: "Price (USD)", key: "price_usd", placeholder: "4499" },
+                      { label: "Price (SAR)", key: "price_sar", placeholder: "16800" },
+                    ].map((f) => (
+                      <div key={f.key}>
+                        <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{f.label}</label>
+                        <input type="number" value={(form as Record<string, unknown>)[f.key] as string} onChange={(e) => setF(f.key, e.target.value)} placeholder={f.placeholder} className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm bg-white text-[#1E293B] focus:outline-none focus:border-[#4DA3E8] placeholder:text-slate-300" />
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              </div>
+            );
+          })()}
 
           {/* ── MAIN IMAGE ── */}
           <p className="text-[10px] tracking-[2px] text-slate-400 uppercase font-semibold mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>── Cover Image</p>
