@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCurrency } from "@/lib/currency";
+import { formatPkgPrice } from "@/lib/packageCurrency";
 import { CalendarIcon, ArrowIcon } from "@/components/ui/Icons";
 import SectionHeading from "@/components/ui/SectionHeading";
 import ScrollReveal from "@/components/ui/ScrollReveal";
@@ -16,6 +17,7 @@ interface DbPackage {
   hotel_short: string | null;
   dates: string | null;
   includes: string[];
+  currency?: string | null;
   price_pkr: number;
   price_usd: number;
   price_sar: number;
@@ -28,6 +30,8 @@ const TYPE_ORDER = ["Umrah", "Hajj", "Holidays", "Honeymoon"];
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?auto=format&fit=crop&q=80&w=800";
 
 function fmtPrice(p: DbPackage, currency: string) {
+  // Hajj packages are quoted in their own currency — never run through the switcher.
+  if ((p.type || "").toLowerCase() === "hajj") return formatPkgPrice(p);
   const prices: Record<string, number> = { PKR: p.price_pkr, USD: p.price_usd, SAR: p.price_sar };
   const sym: Record<string, string> = { PKR: "PKR ", USD: "$", SAR: "SAR " };
   return `${sym[currency] || ""}${(prices[currency] ?? p.price_pkr).toLocaleString()}`;

@@ -168,7 +168,7 @@ export default function PackageDetailPage() {
                     <span className="font-semibold text-midnight">
                       {pkgCurrency(pkg) === "USD" ? "US Dollars, for pilgrims travelling from overseas" : "Saudi Riyals, for pilgrims travelling from Pakistan"}
                     </span>
-                    . The same journey is also published in {pkgCurrency(pkg) === "USD" ? "SAR" : "USD"} — same hotels and services, only the currency and price differ.
+                    . This is the {pkgCurrency(pkg) === "USD" ? "USD" : "SAR"} price list as printed in its brochure — prices are not converted from any other currency.
                   </p>
                   <p className="text-[12px] text-slate-400 mt-3">
                     Prices are per person. Airline ticket &amp; Qurbani not included. Book early — prices &amp; packages subject to change.

@@ -152,7 +152,8 @@ export const HAJJ_AUDIENCES = [
   },
 ];
 
-// Shown wherever the two price lists sit side by side, so nobody reads the two
-// currencies as two different products.
+// Shown wherever the two price lists sit side by side. The SAR and USD lists
+// are published separately (separate brochures, separate prices) — neither is
+// calculated from the other, so the copy must never imply a conversion.
 export const HAJJ_CURRENCY_NOTE =
-  "Both lists cover the same journeys — same hotels, same Mina & Arafat camps, same transport and the same services. Only the currency and the price differ.";
+  "The SAR and USD lists are separate price lists, each published as printed in its own brochure. Prices are not converted between currencies — and the two lists can differ in the packages they offer.";
