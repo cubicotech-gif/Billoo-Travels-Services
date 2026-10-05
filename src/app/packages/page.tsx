@@ -5,6 +5,7 @@ import InnerLayout from "@/components/InnerLayout";
 import PageBanner from "@/components/ui/PageBanner";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { useCurrency } from "@/lib/currency";
+import { formatPkgPrice, pkgAmount, pkgCurrency } from "@/lib/packageCurrency";
 import { CalendarIcon, ArrowIcon } from "@/components/ui/Icons";
 import Link from "next/link";
 
@@ -20,6 +21,7 @@ interface DbPackage {
   hotel_short: string | null;
   dates: string | null;
   includes: string[];
+  currency?: string | null;
   price_pkr: number;
   price_usd: number;
   price_sar: number;
@@ -28,13 +30,18 @@ interface DbPackage {
   featured: boolean;
 }
 
+const isHajj = (p: DbPackage) => (p.type || "").toLowerCase() === "hajj";
+
 function getPrice(p: DbPackage, currency: string) {
+  // Hajj packages are quoted in their own currency — never run through the switcher.
+  if (isHajj(p)) return pkgAmount(p);
   if (currency === "USD") return p.price_usd;
   if (currency === "SAR") return p.price_sar;
   return p.price_pkr;
 }
 
 function fmtPrice(p: DbPackage, currency: string) {
+  if (isHajj(p)) return formatPkgPrice(p);
   const sym: Record<string, string> = { PKR: "PKR ", USD: "$", SAR: "SAR " };
   return `${sym[currency] || ""}${getPrice(p, currency).toLocaleString()}`;
 }
@@ -66,8 +73,16 @@ export default function PackagesPage() {
   const tabs = ["All", ...presentTypes];
 
   let filtered = packages.filter((p) => tab === "All" || p.type === tab);
-  if (sort === "Price: Low") filtered = [...filtered].sort((a, b) => getPrice(a, currency) - getPrice(b, currency));
-  if (sort === "Price: High") filtered = [...filtered].sort((a, b) => getPrice(b, currency) - getPrice(a, currency));
+  // Hajj prices are in their own currency, so they never compare against the
+  // switcher currency (or each other across SAR/USD): sort them after the rest,
+  // grouped by currency.
+  const byPrice = (dir: 1 | -1) => (a: DbPackage, b: DbPackage) => {
+    if (isHajj(a) !== isHajj(b)) return isHajj(a) ? 1 : -1;
+    if (isHajj(a) && pkgCurrency(a) !== pkgCurrency(b)) return pkgCurrency(a).localeCompare(pkgCurrency(b));
+    return dir * (getPrice(a, currency) - getPrice(b, currency));
+  };
+  if (sort === "Price: Low") filtered = [...filtered].sort(byPrice(1));
+  if (sort === "Price: High") filtered = [...filtered].sort(byPrice(-1));
   if (sort === "Duration") filtered = [...filtered].sort((a, b) => parseInt(a.nights) - parseInt(b.nights));
 
   return (

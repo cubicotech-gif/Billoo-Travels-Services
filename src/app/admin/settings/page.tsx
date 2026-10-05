@@ -340,14 +340,6 @@ export default function AdminSettings() {
                   <option>PKR</option><option>USD</option><option>SAR</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>USD to PKR Rate</label>
-                <input type="number" defaultValue="278" className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm bg-white focus:outline-none focus:border-[#4DA3E8]" />
-              </div>
-              <div>
-                <label className="block text-[11px] tracking-[1px] text-slate-400 uppercase mb-1.5 font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>SAR to PKR Rate</label>
-                <input type="number" defaultValue="74" className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm bg-white focus:outline-none focus:border-[#4DA3E8]" />
-              </div>
             </div>
           </div>
           <div className="flex gap-3 mt-6">

@@ -275,7 +275,7 @@ export default function HajjPackages({
             })}
           </div>
           <p className="text-center text-[12.5px] sm:text-[13px] text-slate-500 leading-relaxed mt-3 sm:mt-4 bg-accent-pale/60 border border-accent/15 rounded-xl px-4 sm:px-5 py-3">
-            <span className="font-semibold text-midnight">Same package, two price lists.</span>{" "}
+            <span className="font-semibold text-midnight">Two separate price lists.</span>{" "}
             {HAJJ_CURRENCY_NOTE}
           </p>
         </div>
