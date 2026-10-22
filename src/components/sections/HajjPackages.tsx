@@ -8,26 +8,47 @@ import { CheckIcon, CalendarIcon, ArrowIcon, SearchIcon, KaabaIcon } from "@/com
 import { formatPkgPrice, pkgCurrency, type PkgCurrency } from "@/lib/packageCurrency";
 import { useHajjPackages, type DbPackage } from "@/lib/useHajjPackages";
 import { HAJJ_AUDIENCES, HAJJ_CURRENCY_NOTE } from "@/lib/hajj";
-import { DURATION_BUCKETS, packageBucket, tiersOf, matchesSearch } from "@/lib/packageFilters";
+import { DURATION_BUCKETS, packageBucket, matchesSearch } from "@/lib/packageFilters";
+import { metaOf, whatsappLink, STYLE_BLURB, type HajjStyle } from "@/lib/hajjMeta";
+import { coverFor, useHajjPhotos } from "@/lib/hajjPhotos";
+import HajjFinder from "@/components/sections/HajjFinder";
+import { CompareBar, CompareModal, MAX_COMPARE } from "@/components/sections/HajjCompare";
 
 export function PackageCard({
   p,
   i,
   onRegister,
+  cover,
+  comparing,
+  compareDisabled,
+  onToggleCompare,
 }: {
   p: DbPackage;
   i: number;
   /** Offers a "Register for this package" action that pre-fills the form. */
   onRegister?: (p: DbPackage) => void;
+  /** Resolved cover photo (own photo → hotel library → Kaaba). */
+  cover?: string | null;
+  comparing?: boolean;
+  compareDisabled?: boolean;
+  onToggleCompare?: (p: DbPackage) => void;
 }) {
+  const m = metaOf(p);
+  const img = cover ?? p.img;
+  const tiers = p.pricing?.tiers || [];
   return (
-    <ScrollReveal delay={i * 0.06}>
-      <div className="group h-full bg-white rounded-[20px] border border-slate-200 overflow-hidden hover:border-accent hover:shadow-[0_18px_44px_rgba(77,163,232,0.14)] hover:-translate-y-1 transition-all duration-300 flex flex-col">
-        <div className="relative h-[200px] overflow-hidden">
-          {p.img ? (
+    <ScrollReveal delay={Math.min(i, 5) * 0.05}>
+      <div
+        className={`group h-full bg-white rounded-[20px] border overflow-hidden hover:shadow-[0_18px_44px_rgba(77,163,232,0.14)] hover:-translate-y-1 transition-all duration-300 flex flex-col ${
+          comparing ? "border-accent shadow-[0_0_0_3px_rgba(77,163,232,0.18)]" : "border-slate-200 hover:border-accent"
+        }`}
+      >
+        <div className="relative h-[190px] overflow-hidden">
+          {img ? (
             <img
-              src={p.img}
-              alt={p.title}
+              src={img}
+              alt={p.hotel_short || p.title}
+              loading="lazy"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
             />
           ) : (
@@ -35,38 +56,51 @@ export function PackageCard({
               <span className="font-mono text-[10px] tracking-[3px] text-white/25">BILLOO TRAVELS</span>
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-midnight/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-midnight/70 via-transparent to-midnight/25" />
 
           {/* Package code — how clients and staff refer to this package */}
           {p.code && (
-            <span className="absolute top-4 left-4 bg-white/95 backdrop-blur text-midnight font-mono text-[11px] font-bold tracking-[1.5px] px-3 py-1.5 rounded-lg shadow-sm">
+            <span className="absolute top-3.5 left-3.5 bg-white/95 backdrop-blur text-midnight font-mono text-[11px] font-bold tracking-[1.5px] px-3 py-1.5 rounded-lg shadow-sm">
               {p.code.toUpperCase()}
             </span>
           )}
-          {p.badge && (
-            <span className="absolute top-4 right-4 bg-accent text-white text-[11px] font-heading font-semibold px-3 py-1.5 rounded-full">
-              {p.badge}
-            </span>
-          )}
-          <span className="absolute bottom-4 left-4 font-mono text-[11px] tracking-[1px] text-white/90">
-            {p.nights}
+          <span
+            className={`absolute top-3.5 right-3.5 text-[11px] font-heading font-semibold px-3 py-1.5 rounded-full ${
+              m.aziziya ? "bg-amber-400 text-midnight" : "bg-accent text-white"
+            }`}
+          >
+            {m.aziziya ? "With Aziziya" : "Non-Aziziya"}
           </span>
+          <div className="absolute bottom-3.5 left-3.5 right-3.5 flex items-end justify-between gap-2">
+            <span className="font-mono text-[11px] tracking-[1px] text-white/95">{p.nights}</span>
+            <span className="font-mono text-[10px] tracking-[0.5px] text-white/80 text-right">
+              {m.shifting ? "Shifting" : "Non-shifting"}
+              {m.firstCity ? ` · ${m.firstCity} first` : ""}
+            </span>
+          </div>
         </div>
 
-        <div className="p-6 flex-1 flex flex-col">
-          <h3 className="font-heading text-lg font-bold text-midnight leading-snug">{p.title}</h3>
-          <div className="text-[13px] text-slate-500 mt-1.5">{p.hotel_short || p.hotel}</div>
+        <div className="p-5 sm:p-6 flex-1 flex flex-col">
+          <h3 className="font-heading text-[17px] font-bold text-midnight leading-snug">{p.hotel_short || p.title}</h3>
+          <div className="text-[12.5px] text-slate-500 mt-1 leading-snug">{STYLE_BLURB[m.style]}</div>
 
           {p.dates && (
-            <div className="flex items-center gap-1.5 mt-3 text-[12px] text-slate-400">
+            <div className="flex items-center gap-1.5 mt-3 text-[12px] text-slate-500">
               <CalendarIcon size={13} color="#94A3B8" />
               {p.dates}
             </div>
           )}
 
+          {tiers.length > 1 && (
+            <div className="mt-3 text-[11.5px] text-slate-500 bg-surface-alt rounded-lg px-3 py-2 leading-snug">
+              <span className="font-semibold text-midnight">{tiers.length} hotel options: </span>
+              {tiers.map((t) => t.label).join("  ·  ")}
+            </div>
+          )}
+
           {Array.isArray(p.includes) && p.includes.length > 0 && (
-            <div className="grid grid-cols-1 gap-y-2 mt-4">
-              {p.includes.slice(0, 4).map((inc) => (
+            <div className="grid grid-cols-1 gap-y-1.5 mt-4">
+              {p.includes.slice(0, 3).map((inc) => (
                 <div key={inc} className="flex items-start gap-1.5">
                   <span className="mt-0.5 shrink-0"><CheckIcon size={12} color="#10B981" /></span>
                   <span className="text-[12px] text-slate-600 leading-snug">{inc}</span>
@@ -75,40 +109,69 @@ export function PackageCard({
             </div>
           )}
 
-          <div className="mt-auto pt-5 flex items-end justify-between border-t border-slate-100 mt-5">
-            <div>
-              <div className="font-mono text-[10px] tracking-[1px] uppercase text-slate-400">From · per person</div>
-              <div className="font-heading text-xl font-bold text-midnight">{formatPkgPrice(p)}</div>
+          <div className="mt-auto pt-5 border-t border-slate-100 mt-5">
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <div className="font-mono text-[10px] tracking-[1px] uppercase text-slate-400">From · per person</div>
+                <div className="font-heading text-xl font-bold text-midnight">{formatPkgPrice(p)}</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={`/packages/${p.id}/brochure`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Download PDF brochure"
+                  className="inline-flex items-center gap-1 text-accent border border-accent/30 px-3.5 py-2.5 rounded-lg font-heading text-[12.5px] font-semibold no-underline hover:bg-accent-pale transition-all"
+                >
+                  PDF
+                </a>
+                <Link
+                  href={`/packages/${p.id}`}
+                  className="inline-flex items-center gap-1.5 bg-midnight text-white px-4 py-2.5 rounded-lg font-heading text-[12.5px] font-semibold no-underline hover:bg-midnight-light transition-all"
+                >
+                  Details
+                  <ArrowIcon size={13} color="#fff" />
+                </Link>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
+
+            <div className="mt-3 flex gap-2">
+              {onRegister && (
+                <button
+                  onClick={() => onRegister(p)}
+                  className="flex-1 inline-flex items-center justify-center gap-2 bg-accent-pale text-accent-dark border border-accent/25 py-2.5 rounded-lg font-heading text-[12.5px] font-semibold cursor-pointer hover:bg-accent hover:text-white hover:border-accent transition-all"
+                >
+                  <KaabaIcon size={14} color="currentColor" />
+                  Register
+                </button>
+              )}
               <a
-                href={`/packages/${p.id}/brochure`}
+                href={whatsappLink(p)}
                 target="_blank"
                 rel="noopener noreferrer"
-                title="Download PDF brochure"
-                className="inline-flex items-center gap-1 text-accent border border-accent/30 px-4 py-3 rounded-lg font-heading text-[13px] font-semibold no-underline hover:bg-accent-pale transition-all"
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-[#25D366]/10 text-[#128C4A] border border-[#25D366]/30 py-2.5 rounded-lg font-heading text-[12.5px] font-semibold no-underline hover:bg-[#25D366] hover:text-white transition-all"
               >
-                PDF
+                WhatsApp
               </a>
-              <Link
-                href={`/packages/${p.id}`}
-                className="inline-flex items-center gap-1.5 bg-midnight text-white px-4 py-3 rounded-lg font-heading text-[13px] font-semibold no-underline hover:bg-midnight-light transition-all"
-              >
-                Details
-                <ArrowIcon size={13} color="#fff" />
-              </Link>
             </div>
-          </div>
 
-          {onRegister && (
-            <button
-              onClick={() => onRegister(p)}
-              className="mt-3 w-full inline-flex items-center justify-center gap-2 bg-accent-pale text-accent-dark border border-accent/25 py-3 rounded-lg font-heading text-[13px] font-semibold cursor-pointer hover:bg-accent hover:text-white hover:border-accent transition-all"
-            >
-              <KaabaIcon size={14} color="currentColor" />
-              Register for {p.code ? p.code.toUpperCase() : "this package"}
-            </button>
-          )}
+            {onToggleCompare && (
+              <label
+                className={`mt-3 flex items-center gap-2 text-[12.5px] font-heading font-semibold select-none ${
+                  comparing || !compareDisabled ? "cursor-pointer text-slate-600" : "cursor-not-allowed text-slate-300"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={!!comparing}
+                  disabled={!comparing && compareDisabled}
+                  onChange={() => onToggleCompare(p)}
+                  className="w-4 h-4 accent-[#4DA3E8]"
+                />
+                {comparing ? "Added to comparison" : compareDisabled ? "Comparison full (3 max)" : "Compare"}
+              </label>
+            )}
+          </div>
         </div>
       </div>
     </ScrollReveal>
@@ -192,7 +255,28 @@ export default function HajjPackages({
     [packages, currency]
   );
 
-  const tiers = useMemo(() => tiersOf(priceList), [priceList]);
+  // Style chips (Non-Aziziya / Flex / Comfort / Value) present in this list, first-seen order.
+  const tiers = useMemo(() => {
+    const seen: HajjStyle[] = [];
+    priceList.forEach((p) => {
+      const st = metaOf(p).style;
+      if (!seen.includes(st)) seen.push(st);
+    });
+    return seen;
+  }, [priceList]);
+
+  const { photos } = useHajjPhotos();
+  const [compareIds, setCompareIds] = useState<number[]>([]);
+  const [showCompare, setShowCompare] = useState(false);
+  const compareItems = useMemo(
+    () => compareIds.map((id) => priceList.find((p) => p.id === id)).filter((p): p is DbPackage => !!p),
+    [compareIds, priceList]
+  );
+  function toggleCompare(p: DbPackage) {
+    setCompareIds((ids) =>
+      ids.includes(p.id) ? ids.filter((x) => x !== p.id) : ids.length >= MAX_COMPARE ? ids : [...ids, p.id]
+    );
+  }
 
   // Duration buckets that actually contain packages in this price list.
   const buckets = useMemo(
@@ -205,7 +289,7 @@ export default function HajjPackages({
       priceList.filter(
         (p) =>
           (duration === "all" || packageBucket(p)?.key === duration) &&
-          (tier === "all" || (p.badge || "").trim() === tier) &&
+          (tier === "all" || metaOf(p).style === tier) &&
           matchesSearch(p, search)
       ),
     [priceList, duration, tier, search]
@@ -247,6 +331,7 @@ export default function HajjPackages({
                   key={a.currency}
                   onClick={() => {
                     setCurrency(a.currency);
+                    setCompareIds([]);
                     reset();
                   }}
                   className={`text-left px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl border-2 cursor-pointer transition-all flex items-center gap-3 sm:gap-4 ${
@@ -280,10 +365,12 @@ export default function HajjPackages({
           </p>
         </div>
 
-        {/* ── Step 2 · Narrow it down ── */}
+        <HajjFinder packages={priceList} onRegister={onRegister} />
+
+        {/* ── Step 2 · Narrow it down, or compare ── */}
         <div className="max-w-[980px] mx-auto mb-8 sm:mb-10">
           <div className="text-center font-mono text-[11px] tracking-[2px] uppercase text-accent mb-3 sm:mb-4">
-            Step 2 · Narrow it down
+            Step 2 · Narrow it down, or compare
           </div>
 
           <div className="relative mb-4 sm:mb-5 max-w-[440px] mx-auto">
@@ -318,7 +405,7 @@ export default function HajjPackages({
               </Chip>
               {tiers.map((t) => (
                 <Chip key={t} active={tier === t} onClick={() => setTier(t)}>
-                  {t}
+                  {t === "Non-Aziziya" ? "Non-Aziziya · hotel only" : `${t} · with Aziziya`}
                 </Chip>
               ))}
             </FilterRow>
@@ -359,11 +446,25 @@ export default function HajjPackages({
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {results.map((p, i) => (
-              <PackageCard key={p.id} p={p} i={i} onRegister={onRegister} />
+              <PackageCard
+                key={p.id}
+                p={p}
+                i={i}
+                onRegister={onRegister}
+                cover={coverFor(p, photos)}
+                comparing={compareIds.includes(p.id)}
+                compareDisabled={compareIds.length >= MAX_COMPARE}
+                onToggleCompare={toggleCompare}
+              />
             ))}
           </div>
         )}
       </div>
+
+      <CompareBar items={compareItems} onOpen={() => setShowCompare(true)} onClear={() => setCompareIds([])} />
+      {showCompare && compareItems.length >= 2 && (
+        <CompareModal items={compareItems} onClose={() => setShowCompare(false)} onRegister={onRegister} />
+      )}
     </section>
   );
 }

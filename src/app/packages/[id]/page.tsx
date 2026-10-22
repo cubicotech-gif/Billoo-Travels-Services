@@ -8,7 +8,9 @@ import { useCurrency } from "@/lib/currency";
 import { CheckIcon, XIcon, CalendarIcon, ArrowIcon, PhoneIcon } from "@/components/ui/Icons";
 import { formatPkgPrice, pkgCurrency } from "@/lib/packageCurrency";
 import { Pricing, hasPricing } from "@/lib/pricing";
-import PricingOptions from "@/components/ui/PricingOptions";
+import HotelPricing from "@/components/ui/HotelPricing";
+import { coverFor, galleryFor, useHajjPhotos } from "@/lib/hajjPhotos";
+import { metaOf, whatsappLink, STYLE_BLURB } from "@/lib/hajjMeta";
 import Itinerary, { ItItem } from "@/components/ui/Itinerary";
 import Link from "next/link";
 
@@ -49,6 +51,7 @@ function fmtPrice(p: DbPackage, currency: string) {
 export default function PackageDetailPage() {
   const params = useParams();
   const { currency } = useCurrency();
+  const { photos, labels } = useHajjPhotos();
   const [pkg, setPkg] = useState<DbPackage | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -91,13 +94,17 @@ export default function PackageDetailPage() {
   // Hajj packages are quoted in a single native currency (USD/SAR, no PKR);
   // other package types keep the site-wide currency switcher.
   const displayPrice = isHajj ? formatPkgPrice(pkg) : fmtPrice(pkg, currency);
+  const meta = isHajj ? metaOf(pkg) : null;
+  const heroImg = isHajj ? coverFor(pkg, photos) : pkg.img;
+  const gallery = isHajj ? galleryFor(pkg, photos, labels) : (pkg.gallery || []).map((url) => ({ url, label: "" }));
+  const registerHref = `/hajj?pkg=${encodeURIComponent(pkg.code || "")}#register`;
 
   return (
     <InnerLayout>
       {/* Hero */}
       <section className="relative h-[400px] md:h-[500px] overflow-hidden">
-        {pkg.img ? (
-          <img src={pkg.img} alt={pkg.title} className="w-full h-full object-cover" />
+        {heroImg ? (
+          <img src={heroImg} alt={pkg.title} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-midnight to-midnight-light" />
         )}
@@ -126,11 +133,53 @@ export default function PackageDetailPage() {
         </div>
       </section>
 
-      <div className="max-w-[1280px] mx-auto px-6 md:px-9 py-16">
+      {meta && (
+        <div className="bg-surface-alt border-b border-slate-200">
+          <div className="max-w-[1280px] mx-auto px-6 md:px-9 py-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px]">
+            {[
+              [meta.aziziya ? "With Aziziya" : "Non-Aziziya (hotel only)", STYLE_BLURB[meta.style]],
+              [meta.shifting ? "Shifting" : "Non-shifting", meta.shifting ? "Moves to Aziziya for Hajj" : "One base in Makkah"],
+              ...(meta.firstCity ? [[`${meta.firstCity} first`, "Starts in " + meta.firstCity]] : []),
+              [pkg.nights, pkg.dates || ""],
+            ].map(([a, b]) => (
+              <div key={a} className="flex flex-col">
+                <span className="font-heading font-bold text-midnight">{a}</span>
+                {b && <span className="text-[11.5px] text-slate-400">{b}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-[1280px] mx-auto px-6 md:px-9 py-16 pb-28 lg:pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-12">
 
           {/* ── Main Content ── */}
           <div>
+            {isHajj && hasPricing(pkg.pricing) && (
+              <ScrollReveal>
+                <div className="mb-12">
+                  <h2 className="font-heading text-2xl font-bold text-midnight mb-2">Choose Your Hotel &amp; Room</h2>
+                  {pkg.pricing!.tiers!.length > 1 && (
+                    <p className="text-[14px] text-slate-500 mb-5 leading-relaxed max-w-[560px]">
+                      Both options follow the same itinerary and include the same services — only the hotels differ. Pick the hotel that suits you, then your room type.
+                    </p>
+                  )}
+                  <HotelPricing pricing={pkg.pricing} currency={pkgCurrency(pkg)} photos={photos} />
+                  <p className="text-[13px] text-slate-500 mt-4 bg-accent-pale/60 border border-accent/15 rounded-xl px-4 py-3 leading-relaxed">
+                    Priced in{" "}
+                    <span className="font-semibold text-midnight">
+                      {pkgCurrency(pkg) === "USD" ? "US Dollars, for pilgrims travelling from overseas" : "Saudi Riyals, for pilgrims travelling from Pakistan"}
+                    </span>
+                    . This is the {pkgCurrency(pkg) === "USD" ? "USD" : "SAR"} price list as printed in its brochure — prices are not converted from any other currency.
+                  </p>
+                  <p className="text-[12px] text-slate-400 mt-3">
+                    Prices are per person. Airline ticket &amp; Qurbani not included. Book early — prices &amp; packages subject to change.
+                  </p>
+                </div>
+              </ScrollReveal>
+            )}
+
             {pkg.overview && (
               <ScrollReveal>
                 <div className="mb-12">
@@ -149,30 +198,6 @@ export default function PackageDetailPage() {
                       <span key={f} className="text-[13px] font-semibold text-accent bg-accent-pale px-3 py-1.5 rounded-lg">{f}</span>
                     ))}
                   </div>
-                </div>
-              </ScrollReveal>
-            )}
-
-            {isHajj && hasPricing(pkg.pricing) && (
-              <ScrollReveal>
-                <div className="mb-12">
-                  <h2 className="font-heading text-2xl font-bold text-midnight mb-2">Choose Your Hotel &amp; Room</h2>
-                  {pkg.pricing!.tiers!.length > 1 && (
-                    <p className="text-[14px] text-slate-500 mb-5 leading-relaxed max-w-[560px]">
-                      Both options follow the same itinerary and include the same services — only the hotels differ. Pick the hotel that suits you, then your room type.
-                    </p>
-                  )}
-                  <PricingOptions pricing={pkg.pricing} currency={pkgCurrency(pkg)} />
-                  <p className="text-[13px] text-slate-500 mt-4 bg-accent-pale/60 border border-accent/15 rounded-xl px-4 py-3 leading-relaxed">
-                    Priced in{" "}
-                    <span className="font-semibold text-midnight">
-                      {pkgCurrency(pkg) === "USD" ? "US Dollars, for pilgrims travelling from overseas" : "Saudi Riyals, for pilgrims travelling from Pakistan"}
-                    </span>
-                    . This is the {pkgCurrency(pkg) === "USD" ? "USD" : "SAR"} price list as printed in its brochure — prices are not converted from any other currency.
-                  </p>
-                  <p className="text-[12px] text-slate-400 mt-3">
-                    Prices are per person. Airline ticket &amp; Qurbani not included. Book early — prices &amp; packages subject to change.
-                  </p>
                 </div>
               </ScrollReveal>
             )}
@@ -247,15 +272,20 @@ export default function PackageDetailPage() {
               </ScrollReveal>
             )}
 
-            {pkg.gallery?.length > 0 && (
+            {gallery.length > 0 && (
               <ScrollReveal>
                 <div className="mb-12">
                   <h2 className="font-heading text-2xl font-bold text-midnight mb-6">Gallery</h2>
                   <div className="grid grid-cols-2 gap-3">
-                    {pkg.gallery.map((img, i) => (
-                      <div key={i} className="rounded-xl overflow-hidden h-[180px] md:h-[220px] border border-slate-200 group cursor-pointer">
-                        <img src={img} alt="" className="w-full h-full object-cover transition-transform duration-600 group-hover:scale-105" />
-                      </div>
+                    {gallery.map((g, i) => (
+                      <figure key={i} className="relative m-0 rounded-xl overflow-hidden h-[180px] md:h-[220px] border border-slate-200 group">
+                        <img src={g.url} alt={g.label} loading="lazy" className="w-full h-full object-cover transition-transform duration-600 group-hover:scale-105" />
+                        {g.label && (
+                          <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-midnight/80 to-transparent text-white text-[12px] font-heading font-semibold px-3 pt-6 pb-2">
+                            {g.label}
+                          </figcaption>
+                        )}
+                      </figure>
                     ))}
                   </div>
                 </div>
@@ -299,9 +329,28 @@ export default function PackageDetailPage() {
                   >
                     Book This Package
                   </Link>
-                  <button className="w-full bg-transparent text-midnight py-3.5 rounded-lg font-heading text-sm font-semibold border-[1.5px] border-slate-200 hover:border-accent hover:text-accent transition-all cursor-pointer flex items-center justify-center gap-2">
-                    <PhoneIcon color="#4DA3E8" /> Call for Custom Quote
-                  </button>
+                  {isHajj ? (
+                    <>
+                      <Link
+                        href={registerHref}
+                        className="w-full bg-accent-pale text-accent-dark py-3.5 rounded-lg font-heading text-sm font-semibold border border-accent/25 hover:bg-accent hover:text-white transition-all flex items-center justify-center gap-2 no-underline mb-3"
+                      >
+                        Register interest — free
+                      </Link>
+                      <a
+                        href={whatsappLink(pkg)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full bg-[#25D366] text-white py-3.5 rounded-lg font-heading text-sm font-semibold hover:opacity-90 transition-all flex items-center justify-center gap-2 no-underline"
+                      >
+                        WhatsApp about {(pkg.code || "this package").toUpperCase()}
+                      </a>
+                    </>
+                  ) : (
+                    <button className="w-full bg-transparent text-midnight py-3.5 rounded-lg font-heading text-sm font-semibold border-[1.5px] border-slate-200 hover:border-accent hover:text-accent transition-all cursor-pointer flex items-center justify-center gap-2">
+                      <PhoneIcon color="#4DA3E8" /> Call for Custom Quote
+                    </button>
+                  )}
                   {isHajj && (
                     <a
                       href={`/packages/${pkg.id}/brochure`}
@@ -328,6 +377,29 @@ export default function PackageDetailPage() {
           </div>
         </div>
       </div>
+      {isHajj && (
+        <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] px-4 py-3 flex items-center gap-3">
+          <div className="min-w-0">
+            <div className="font-mono text-[9.5px] tracking-[1px] uppercase text-slate-400">From · per person</div>
+            <div className="font-heading text-[17px] font-bold text-midnight leading-tight">{displayPrice}</div>
+          </div>
+          <Link
+            href={registerHref}
+            className="ml-auto bg-accent text-white px-4 py-3 rounded-lg font-heading text-[13px] font-semibold no-underline"
+          >
+            Register
+          </Link>
+          <a
+            href={whatsappLink(pkg)}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="WhatsApp us"
+            className="bg-[#25D366] text-white px-4 py-3 rounded-lg font-heading text-[13px] font-semibold no-underline"
+          >
+            WhatsApp
+          </a>
+        </div>
+      )}
     </InnerLayout>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { Pricing } from "@/lib/pricing";
 
 // Shape of a package row as returned by /api/packages.
 export interface DbPackage {
@@ -20,6 +21,8 @@ export interface DbPackage {
   price_sar: number;
   badge: string | null;
   img: string | null;
+  /** Room-type × hotel-option price matrix (see lib/pricing.ts). */
+  pricing?: Pricing | null;
 }
 
 /**
