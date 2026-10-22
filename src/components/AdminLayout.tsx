@@ -39,6 +39,7 @@ const NAV = [
   { label: "Bookings", href: "/admin/bookings", icon: "Bookings" },
   { label: "Invoices", href: "/admin/invoices", icon: "Invoices" },
   { label: "Packages", href: "/admin/packages", icon: "Packages" },
+  { label: "Hajj Photos", href: "/admin/hajj-photos", icon: "Media" },
   { label: "Blog Posts", href: "/admin/blog", icon: "Blog" },
   { label: "Testimonials", href: "/admin/testimonials", icon: "Testimonials" },
   { label: "Google Reviews", href: "/admin/reviews", icon: "Reviews" },

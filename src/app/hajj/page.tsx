@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import InnerLayout from "@/components/InnerLayout";
 import ScrollReveal from "@/components/ui/ScrollReveal";
@@ -9,6 +9,8 @@ import HajjLeadForm from "@/components/sections/HajjLeadForm";
 import GoogleReviews from "@/components/sections/GoogleReviews";
 import Licenses from "@/components/sections/Licenses";
 import HajjPackages from "@/components/sections/HajjPackages";
+import HajjAziziya from "@/components/sections/HajjAziziya";
+import HajjGuide from "@/components/sections/HajjGuide";
 import { useHajjPackages, type DbPackage } from "@/lib/useHajjPackages";
 import { pkgAmount, pkgCurrency, formatMoney, type PkgCurrency } from "@/lib/packageCurrency";
 import { packageDays } from "@/lib/packageFilters";
@@ -84,6 +86,19 @@ export default function HajjLandingPage() {
         .map((c) => formatMoney(from[c]!, c)),
     };
   }, [packages]);
+
+  // Arriving from a package page ("/hajj?pkg=UB%20009") pre-selects that package
+  // in the registration form and scrolls to it.
+  useEffect(() => {
+    if (!packagesLoaded) return;
+    const code = new URLSearchParams(window.location.search).get("pkg");
+    if (!code) return;
+    const match = packages.find((p) => (p.code || "").toLowerCase() === code.toLowerCase());
+    if (match) {
+      setPicked(match);
+      setTimeout(scrollToRegister, 300);
+    }
+  }, [packagesLoaded, packages]);
 
   function registerFor(p: DbPackage) {
     setPicked(p);
@@ -248,6 +263,10 @@ export default function HajjLandingPage() {
 
       {/* ══════════ PATH 1 · EXPLORE THE PACKAGES ══════════ */}
       <HajjPackages packages={packages} loaded={packagesLoaded} onRegister={registerFor} />
+
+      {/* ══════════ AZIZIYA + PACKAGE GUIDE ══════════ */}
+      <HajjAziziya />
+      <HajjGuide />
 
       {/* ══════════ PATH 2 · REGISTER ══════════ */}
       <section
